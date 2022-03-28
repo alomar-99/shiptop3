@@ -5,15 +5,14 @@ const transprotationMember = require('./tranportationMember');
 
 class Dispatcher extends tranportationMember.tranportationMember{
     constructor(dispatcherID, firstName, lastName, email, phoneNumber, password){
-        super(firstName, lastName, email, phoneNumber,password);
-        this.dispatcherID = dispatcherID;
+        super(dispatcherID, firstName, lastName, email, phoneNumber,password);
     }
 
     assignVehicleToDriver(vehicle,driver){
 
     let driverSQL = "UPDATE drivers SET vehicleID ="+vehicle.id+"WHERE driverID =" +driver.driverID;
     let vehicleSQL = "UPDATE vehicle SET assignedDriver ="+driver.id+"WHERE vehicleID =" +vehicle.id;
-     
+    
 
 
 

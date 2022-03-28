@@ -3,7 +3,6 @@ const user = require('./user')
 class Consignee extends user.User {
     constructor(consigneeID,firstName,lastName,email,phoneNumber){
         super(consigneeID,firstName,lastName,email,phoneNumber);
-        this.consigneeID = consigneeID;
     }
     toArray(){ 
         const pair = []

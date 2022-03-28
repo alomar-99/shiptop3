@@ -5,8 +5,7 @@ const fs = require('fs');
 
 class warehouseManager extends warehouseMember.warehouseMember {
     constructor(warehouseManagerID,firstName, lastName,email,phoneNumber,password,warehouseID){
-        super(firstName, lastName, email, phoneNumber,password,warehouseID);
-        this.warehouseManagerID = warehouseManagerID;
+        super(warehouseManagerID,firstName, lastName, email, phoneNumber,password,warehouseID);
     }
     addShipment(shipment){
         //create connection
@@ -50,7 +49,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
         });
     }
 
-    addConsignor(consignor,userID){
+    addConsignor(consignor){
         //create connection
         const connection=conn.startConnection();
         //getDate
@@ -78,9 +77,9 @@ class warehouseManager extends warehouseMember.warehouseMember {
         }
         consignorQuery += "'"+today+"'" +')';
         //setUp User query
-        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, roleID, lastUpdate) values(";
+        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values(";
         userQuery += userID+", '"+consignor.firstName + "', '" + consignor.lastName + "', '"+consignor.email+ "', '"+ consignor.phoneNumber  + "', "; 
-        userQuery += "'consignor'" + ', '+ consignor.consignorID +", '"+today+"'" +')';
+        userQuery += "'consignor', " + "'"+today+"'" +')';
         //connect to database, add this consignor, then close the connection.
         connection.connect((err)=> {
             if (err) console.error("there is an error with connecting to database");
@@ -151,7 +150,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
 
     }
 
-    addWorker(worker,userID){
+    addWorker(worker){
         //create connection
         const connection=conn.startConnection();
         //getDate
@@ -179,10 +178,11 @@ class warehouseManager extends warehouseMember.warehouseMember {
         }
         workerQuery += "'"+today+"'" +')';
         //setUp User query
-        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, roleID, lastUpdate) values(";
-        userQuery += userID+", '"+worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', "; 
-        userQuery += "'warehouseWorker'" + ', '+ worker.workerID +", '"+today+"'" +')';
+        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values(";
+        userQuery += worker.userID+", '"+worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', "; 
+        userQuery += "'worker', '"+today+"'" +')';
         //connect to database, add this worker, then close the connection.
+        console.log(workerQuery);
         connection.connect((err)=> {
             if (err) console.error("there is an error with connecting to database");
             else{
@@ -231,7 +231,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
     toArray(){
         const pair = [];
         const keys=['warehouseManagerID','firstName','lastName','phoneNumber','email','password','warehouseID'];
-        const values=[this.warehouseManagerID,this.firstName,this.lastName,this.phoneNumber,this.email,this.password,this.warehouseID];
+        const values=[this.userID,this.firstName,this.lastName,this.phoneNumber,this.email,this.password,this.warehouseID];
         pair.push(keys);
         pair.push(values);
         return pair;

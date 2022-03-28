@@ -1,13 +1,13 @@
 
 function startConnection(){
-    const mysql = require('mysql')
+    const mysql = require('mysql');
     let connection = mysql.createConnection({
         host: 'localhost',
         user: 'root',
         password: '',
         database: 'shiptop'
     })
-    return connection
+    return connection;
 }
 
 module.exports = {

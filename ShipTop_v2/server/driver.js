@@ -5,8 +5,7 @@ const transprotationMember = require('./tranportationMember');
 
 class Driver  extends tranportationMember.tranportationMember{
     constructor(driverID, firstName, lastName, email, phoneNumber, password){
-        super(firstName, lastName, email, phoneNumber,password);
-        this.driverID = driverID;
+        super(driverID,firstName, lastName, email, phoneNumber,password);
     }
 
 

@@ -6,8 +6,7 @@ const fs = require('fs');
 
 class Accountant extends employee.Employee {
     constructor(accountantID, firstName, lastName, email, phoneNumber, password){
-        super(firstName, lastName, email, phoneNumber,password);
-        this.accountantID = accountantID
+        super(accountantID, firstName, lastName, email, phoneNumber,password);
     }
 
     addInvoice(invoice){

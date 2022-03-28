@@ -7,10 +7,17 @@
 	-add worker
 	-delete worker
 	-add consignor
+	-deleteConsignor
 
 -Logistic manager
-	-add warehouse
+	-add warehouse (needs modifications)
 	-add warehouse manager
+
+-consignor
+	-rateService
+
+-Employee
+	-changePassword
 
 -Warehouse member
 	-edit shipment

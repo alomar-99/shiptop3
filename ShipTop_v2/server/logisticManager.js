@@ -3,9 +3,8 @@ const utility = require('./accessibility/utility');
 const employee = require('./employee');
 
 class logisticManager extends employee.Employee{
-    constructor(logisticManagerID, firstName, lastName,email, phoneNumber,password){
-        super(firstName,lastName,email,phoneNumber,password);
-        this.logisticManagerID = logisticManagerID;
+    constructor(logisticManagerID, firstName, lastName,email, phoneNumber, password){
+        super(logisticManagerID, firstName,lastName,email,phoneNumber,password);
     }
     addWarehouseManager(warehouseManager){
         //create connection

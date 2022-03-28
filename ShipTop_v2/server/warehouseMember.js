@@ -4,9 +4,10 @@ const utility = require('./accessibility/utility');
 const fs = require('fs');
 
 class warehouseMember extends employee.Employee{
-    constructor(firstName, lastName,email,phoneNumber,password,warehouseID){
-        super(firstName, lastName, email, phoneNumber,password);
-        this.warehouseID = warehouseID;
+    constructor(warehouseMemberID, firstName, lastName, email, phoneNumber, password, warehouseID){
+        super(warehouseMemberID, firstName, lastName, email, phoneNumber, password);
+        this.warehouseID =warehouseID;
+        this.warehouseMemberID = warehouseMemberID;
     }
     viewShipments(){
         //create connection
@@ -60,7 +61,7 @@ class warehouseMember extends employee.Employee{
             else{
                 connection.query(shipmentQuery,(err, result,fields)=>{
                     if (err) console.log("your shipment's details couldn't be updated due to some error in the query");
-                    console.log("your shipment's details are up to date!");
+                    else console.log("your shipment's details are up to date!");
                 })
             }
             connection.end();
@@ -89,6 +90,7 @@ class warehouseMember extends employee.Employee{
             connection.end();
         });
     }
+
 }
 
 module.exports = {

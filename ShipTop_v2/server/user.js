@@ -2,7 +2,8 @@ const conn = require('./accessibility/connection');
 const fs = require('fs');
 
 class User{
-    constructor(firstName, lastName,email, phoneNumber){
+    constructor(userID, firstName, lastName,email, phoneNumber){
+        this.userID = userID;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -30,7 +31,8 @@ class User{
             }
             connection.end();
         });    
-    }
+    }    
+
 }
 
 module.exports = {
