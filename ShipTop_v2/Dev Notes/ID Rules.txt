@@ -1,0 +1,19 @@
+any user password consists of:
+	-8 fixed characters
+	-1 character at least of each of the following:
+		-Uppercase letter
+		-Lowercase letter
+		-Digit
+	-no special characters except (_) and (-)
+
+any user ID consists of 8 fixed digits.
+
+shipment/invoice ID consists of 9 fixed digits.
+
+warehouse ID consists of 8 fixed digits
+
+any name consist of 30 characters maximum.
+
+any description/email consist of 255 character maximum
+
+any phone number consists of 12 (string) characters

@@ -1,0 +1,3 @@
+1- json splitting string into different objects using JSON.parse(file.json). (optional)
+2- delete user from database. (optional)
+3- complete inserting shelfs.

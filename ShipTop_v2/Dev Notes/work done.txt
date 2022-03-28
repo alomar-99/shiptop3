@@ -1,0 +1,34 @@
+-User
+	-trackShipment
+
+-Warehouse manager
+	-add shipment
+	-view workers
+	-add worker
+	-delete worker
+	-add consignor
+
+-Logistic manager
+	-add warehouse
+	-add warehouse manager
+
+-Warehouse member
+	-edit shipment
+	-view shipments
+	-view shipment's details
+
+-Warehouse worker
+	-locate shipment
+	-clear shelf
+	-view shipment
+
+____________________________________________________
+classes finished:
+	-user.js
+	-shipments.js
+	-warehouse.js
+	-consignee.js
+	-shelf.js
+	-warehouseMember.js
+	-worker.js
+	-
