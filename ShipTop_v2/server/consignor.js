@@ -40,8 +40,8 @@ class Consignor extends employee.Employee{
     
     toArray(){
         const pair = [];
-        const keys=['consignorID','firstName','lastName','email','password','phoneNumber','rate'];
-        const values=[this.userID,this.firstName,this.lastName,this.email,this.password,this.phoneNumber,this.rate];
+        const keys=['consignorID','firstName','lastName','email','phoneNumber','password','rate'];
+        const values=[this.userID,this.firstName,this.lastName,this.email,this.phoneNumber,this.password,this.rate];
         pair.push(keys);
         pair.push(values);
         return pair;

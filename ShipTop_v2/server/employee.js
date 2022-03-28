@@ -26,10 +26,6 @@ class Employee extends user.User {
                     if (err) console.log("your password could not be changed due to some error in the query");
                     else console.log("your password is successfully updated");
                 });
-
-                
-                // connection.query(employeeQuery)
-
             }
             connection.end();
         });

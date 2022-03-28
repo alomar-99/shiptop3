@@ -62,8 +62,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
             if (i< myConsignor[0].length-1)
             consignorQuery += ", ";
         }
-        consignorQuery += ', lastUpdate';
-            consignorQuery += ')values(';
+        consignorQuery += ', addedBy, lastUpdate)values(';
         for (let i = 0; i < myConsignor[1].length; i++){
             if (Number(myConsignor[1][i])>=0 && String(myConsignor[1][i]).length<10)
             consignorQuery += myConsignor[1][i];
@@ -75,10 +74,11 @@ class warehouseManager extends warehouseMember.warehouseMember {
             }
             consignorQuery += ", ";
         }
-        consignorQuery += "'"+today+"'" +')';
+        consignorQuery += this.userID + ", '"+today+"'" +')';
         //setUp User query
+        console.log(consignorQuery)
         let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values(";
-        userQuery += userID+", '"+consignor.firstName + "', '" + consignor.lastName + "', '"+consignor.email+ "', '"+ consignor.phoneNumber  + "', "; 
+        userQuery += consignor.userID+", '"+consignor.firstName + "', '" + consignor.lastName + "', '"+consignor.email+ "', '"+ consignor.phoneNumber  + "', "; 
         userQuery += "'consignor', " + "'"+today+"'" +')';
         //connect to database, add this consignor, then close the connection.
         connection.connect((err)=> {
@@ -147,7 +147,27 @@ class warehouseManager extends warehouseMember.warehouseMember {
     }
 
     viewConsignorsList(){
-
+        //create connection
+        const connection=conn.startConnection();
+        //query setup
+        const viewConsignorsQuery = "SELECT * FROM consignors WHERE addedBy = " + this.userID;
+        const fileName = 'server/responses/view consignors/warehouseManager' + this.userID + '.json';
+        //connect to database
+        connection.connect((err)=> {
+            if (err) console.error("there is an error with connecting to database");
+            else{
+                connection.query(viewConsignorsQuery, (err, result,fields) => {
+                    if (err) console.log("could not find consignors' list due to some error in the query");
+                    else{
+                        fs.writeFile(fileName, JSON.stringify(result), (err)=>{
+                            if (err) console.log("could not save consignors' list in the JSON file due to some error in file system");
+                            else console.log("consignors' list are successfully saved in: " + fileName);
+                        });
+                    }
+                });
+            }
+            connection.end();
+        });
     }
 
     addWorker(worker){
@@ -163,8 +183,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
             if (i< myWorker[0].length-1)
                 workerQuery += ", ";
         }
-            workerQuery += ', lastUpdate';
-            workerQuery += ')values(';
+            workerQuery += ', lastUpdate)values(';
         for (let i = 0; i < myWorker[1].length; i++){
             if (Number(myWorker[1][i])>=0 && String(myWorker[1][i]).length<10)
                 workerQuery += myWorker[1][i];
@@ -200,7 +219,39 @@ class warehouseManager extends warehouseMember.warehouseMember {
     }
 
     editWorkersList(worker){
+         //create connection
+        const connection=conn.startConnection()
+        //get current date
+        const today = utility.getDateTime();
+         //setup query
+        let myWorker = worker.toArray();
+        let workerQuery = "UPDATE workers SET "
+        for (let i = 1; i < myWorker[0].length; i++){
+            workerQuery += myWorker[0][i];
+            workerQuery += "=";
+            if (Number(myWorker[1][i])>=0)
+            workerQuery += myWorker[1][i];
+            else{
+                workerQuery += "'";
+                workerQuery += myWorker[1][i];
+                workerQuery += "'";
+            }
+            workerQuery += ", ";
+        }
+        workerQuery +=  'lastUpdate = ' +"'" + today + "'";
+        workerQuery += " Where " + myWorker[0][0] + " = " + myWorker[1][0];
 
+        //  connect to database, update this worker, then close the connection.
+        connection.connect((err)=> {
+            if (err) console.error("there is an error with connecting to database");
+            else{
+                connection.query(workerQuery,(err, result,fields)=>{
+                    if (err) console.log("your worker's details couldn't be updated due to some error in the query");
+                    else console.log("your worker's details are up to date!");
+                })
+            }
+            connection.end();
+        });
     }
 
     deleteWorker(worker){
