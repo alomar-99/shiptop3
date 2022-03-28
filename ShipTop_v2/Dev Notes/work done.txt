@@ -8,6 +8,8 @@
 	-delete worker
 	-add consignor
 	-deleteConsignor
+	-viewConsignorsList
+	-editWorkersList
 
 -Logistic manager
 	-add warehouse (needs modifications)
@@ -38,4 +40,4 @@ classes finished:
 	-shelf.js
 	-warehouseMember.js
 	-worker.js
-	-
+	-warehouseManager.js
