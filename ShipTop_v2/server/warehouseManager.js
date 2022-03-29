@@ -5,8 +5,8 @@ const record = require('./record');
 const fs = require('fs');
 
 class warehouseManager extends warehouseMember.warehouseMember {
-    constructor(warehouseManagerID,firstName, lastName,email,phoneNumber,password,warehouseID){
-        super(warehouseManagerID,firstName, lastName, email, phoneNumber,password,warehouseID);
+    constructor(firstName, lastName,email,phoneNumber,password,warehouseID){
+        super(firstName, lastName, email, phoneNumber,password,warehouseID);
     }
     addShipment(shipment){
         //create connection
@@ -36,7 +36,6 @@ class warehouseManager extends warehouseMember.warehouseMember {
             }
                 shipmentQuery += ", ";
         }
-        shipmentQuery += this.userID;
         shipmentQuery += ", "+  this.warehouseID;
         shipmentQuery += ", '"+today+"'" +')';
 
@@ -312,8 +311,8 @@ class warehouseManager extends warehouseMember.warehouseMember {
 
     toArray(){
         const pair = [];
-        const keys=['warehouseManagerID','firstName','lastName','phoneNumber','email','password','warehouseID'];
-        const values=[this.userID,this.firstName,this.lastName,this.phoneNumber,this.email,this.password,this.warehouseID];
+        const keys=['firstName','lastName','phoneNumber','email','password','warehouseID'];
+        const values=[this.firstName,this.lastName,this.phoneNumber,this.email,this.password,this.warehouseID];
         pair.push(keys);
         pair.push(values);
         return pair;

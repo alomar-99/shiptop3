@@ -10,10 +10,10 @@ class Warehouse{
     }
     toArray() {
         const pair = []
-        const keys=['warehouseID','name','location','city','telephone','referenceNumber','managerID']
-        const values=[this.warehouseID,this.name,this.location,this.city,this.telephone,this.referenceNumber,this.managerID]
-        pair.push(keys)
-        pair.push(values)
+        const keys=['warehouseID','name','location','city','telephone','referenceNumber','managerID'];
+        const values=[this.warehouseID,this.name,this.location,this.city,this.telephone,this.referenceNumber,this.managerID];
+        pair.push(keys);
+        pair.push(values);
         return pair;
     }
 }

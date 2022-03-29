@@ -2,8 +2,7 @@ const conn = require('./accessibility/connection');
 const fs = require('fs');
 
 class User{
-    constructor(userID, firstName, lastName,email, phoneNumber){
-        this.userID = userID;
+    constructor(firstName, lastName,email, phoneNumber){
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

@@ -4,8 +4,8 @@ const warehouseMember = require('./warehouseMember');
 const fs = require('fs');
 
 class Worker extends warehouseMember.warehouseMember {
-    constructor(workerID, firstName, lastName, email, phoneNumber, password, warehouseID) {
-        super(workerID, firstName, lastName, email, phoneNumber, password);
+    constructor(firstName, lastName, email, phoneNumber, password, warehouseID) {
+        super(firstName, lastName, email, phoneNumber, password);
         this.warehouseID = warehouseID;
     }
     locateShipmet(shipment,shelf){
@@ -121,11 +121,16 @@ class Worker extends warehouseMember.warehouseMember {
 
     toArray(){
         const pair = [];
-        const keys=['workerID','firstName','lastName','email','phoneNumber','password','warehouseID'];
-        const values=[this.userID,this.firstName,this.lastName,this.email,this.phoneNumber,this.password,this.warehouseID];
+        const keys=['firstName','lastName','email','phoneNumber','password','warehouseID'];
+        const values=[this.firstName,this.lastName,this.email,this.phoneNumber,this.password,this.warehouseID];
         pair.push(keys);
         pair.push(values);
         return pair;
+    }
+
+    toJSON(){
+
+
     }
 }
 
