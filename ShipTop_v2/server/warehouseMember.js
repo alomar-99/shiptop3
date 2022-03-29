@@ -2,12 +2,12 @@ const employee = require('./employee');
 const conn = require('./accessibility/connection');
 const utility = require('./accessibility/utility');
 const fs = require('fs');
+const record = require('./record');
 
 class warehouseMember extends employee.Employee{
     constructor(warehouseMemberID, firstName, lastName, email, phoneNumber, password, warehouseID){
         super(warehouseMemberID, firstName, lastName, email, phoneNumber, password);
         this.warehouseID =warehouseID;
-        this.warehouseMemberID = warehouseMemberID;
     }
     viewShipments(){
         //create connection
@@ -55,6 +55,31 @@ class warehouseMember extends employee.Employee{
         shipmentQuery +=  'lastUpdate = ' +"'" + today + "'";
         shipmentQuery += " Where " + myShipment[0][0] + " = " + myShipment[1][0];
 
+        let shipmentRecord = new record.Record(shipment.shipmentID,"warehouse"+this.warehouseID,"modified",this.userID,today);
+        let myShipmentRecord = shipmentRecord.toArray()
+        let shipmentRecordQuery = "INSERT into records(";
+        for (let i = 0; i < myShipmentRecord[0].length; i++){
+            shipmentRecordQuery += myShipmentRecord[0][i];
+            if (i< myShipmentRecord[0].length-1)
+            shipmentRecordQuery += ", ";
+        }
+        shipmentRecordQuery += ')values(';
+        for (let i = 0; i < myShipmentRecord[1].length; i++){
+            if (Number(myShipmentRecord[1][i])>=0 && String(myShipmentRecord[1][i]).length<10)
+            shipmentRecordQuery += myShipmentRecord[1][i];
+            else
+            {   
+                shipmentRecordQuery += "'";
+                shipmentRecordQuery += myShipmentRecord[1][i];
+                shipmentRecordQuery += "'";
+            }
+            if (i< myShipmentRecord[0].length-1)
+                shipmentRecordQuery += ", ";
+        }
+        console.log(shipmentQuery);
+        shipmentRecordQuery += ')';
+
+
         //  connect to database, update this shipment, then close the connection.
         connection.connect((err)=> {
             if (err) console.error("there is an error with connecting to database");
@@ -63,16 +88,20 @@ class warehouseMember extends employee.Employee{
                     if (err) console.log("your shipment's details couldn't be updated due to some error in the query");
                     else console.log("your shipment's details are up to date!");
                 })
+                connection.query(shipmentRecordQuery, (err,result,fields)=>{
+                    if (err) console.log("shipment "+shipment.shipmentID+" is failed to be recorded");
+                    else console.log("shipment "+shipment.shipmentID+" is successfully recorded on "+shipmentRecord.recordedPlace);
+                });
             }
             connection.end();
         });
     }
-    viewShipmentDetails(shipmentID){
+    viewShipmentDetails(shipment){
         //create connection
         const connection=conn.startConnection();
         //query setup
-        const viewShipmentsQuery = "SELECT * FROM shipments WHERE shipmentID = " + shipmentID;
-        const fileName = 'server/responses/view shipment'+ "'" + 's details'+ '/shipment' + shipmentID + '.json';
+        const viewShipmentsQuery = "SELECT * FROM shipments WHERE shipmentID = " + shipment.shipmentID;
+        const fileName = 'server/responses/view shipment'+ "'" + 's details'+ '/shipment' + shipment.shipmentID + '.json';
         //connect to database, write shipments into a file, then close the connection
         connection.connect((err)=> {
             if (err) console.log("there is an error with connecting to database");

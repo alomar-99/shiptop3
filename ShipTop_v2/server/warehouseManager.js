@@ -1,6 +1,7 @@
 const conn = require('./accessibility/connection');
 const utility = require('./accessibility/utility');
 const warehouseMember = require('./warehouseMember');
+const record = require('./record');
 const fs = require('fs');
 
 class warehouseManager extends warehouseMember.warehouseMember {
@@ -21,6 +22,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
                 shipmentQuery += ", ";
         }
         shipmentQuery += ', warehouseID';
+        shipmentQuery += ', updatedBy';
         shipmentQuery += ', lastUpdate';
         shipmentQuery += ')values(';
         for (let i = 0; i < myShipment[1].length; i++){
@@ -34,15 +36,44 @@ class warehouseManager extends warehouseMember.warehouseMember {
             }
                 shipmentQuery += ", ";
         }
-        shipmentQuery += this.warehouseID;
+        shipmentQuery += this.userID;
+        shipmentQuery += ", "+  this.warehouseID;
         shipmentQuery += ", '"+today+"'" +')';
-        //connect to database, add this shipment, then close the connection.
+
+        let shipmentRecord = new record.Record(shipment.shipmentID,"warehouse"+this.warehouseID,"added",this.userID,today);
+        let myShipmentRecord = shipmentRecord.toArray()
+        let shipmentRecordQuery = "INSERT into records(";
+        for (let i = 0; i < myShipmentRecord[0].length; i++){
+            shipmentRecordQuery += myShipmentRecord[0][i];
+            if (i< myShipmentRecord[0].length-1)
+            shipmentRecordQuery += ", ";
+        }
+        shipmentRecordQuery += ')values(';
+        for (let i = 0; i < myShipmentRecord[1].length; i++){
+            if (Number(myShipmentRecord[1][i])>=0 && String(myShipmentRecord[1][i]).length<10)
+            shipmentRecordQuery += myShipmentRecord[1][i];
+            else
+            {   
+                shipmentRecordQuery += "'";
+                shipmentRecordQuery += myShipmentRecord[1][i];
+                shipmentRecordQuery += "'";
+            }
+            if (i< myShipmentRecord[0].length-1)
+                shipmentRecordQuery += ", ";
+        }
+        console.log(shipmentQuery);
+        shipmentRecordQuery += ')';
+        //connect to database, add this shipment, add shipment's record, then close the connection.
         connection.connect((err)=> {
             if (err) console.log("there is an error with connecting to database");
             else{
                 connection.query(shipmentQuery, (err,result,fields)=>{
-                    if (err) console.log("your shipment is failed to be added");
-                    else console.log("your shipment is successfully added");
+                    if (err) console.log("shipment "+shipment.shipmentID+" is failed to be added");
+                    else console.log("shipment "+shipment.shipmentID+" is successfully added on "+shipmentRecord.recordedPlace);
+                });
+                connection.query(shipmentRecordQuery, (err,result,fields)=>{
+                    if (err) console.log("shipment "+shipment.shipmentID+" is failed to be recorded");
+                    else console.log("shipment "+shipment.shipmentID+" is successfully recorded on "+shipmentRecord.recordedPlace);
                 });
             }
             connection.end();

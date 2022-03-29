@@ -41,3 +41,4 @@ classes finished:
 	-warehouseMember.js
 	-worker.js
 	-warehouseManager.js
+	-record.js

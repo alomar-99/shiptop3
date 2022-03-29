@@ -34,6 +34,8 @@ class Employee extends user.User {
     changeInfo(){
 
     }
+
+    
 }
 
 module.exports = {

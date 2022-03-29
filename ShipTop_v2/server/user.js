@@ -31,7 +31,12 @@ class User{
             }
             connection.end();
         });    
-    }    
+    }
+    
+    checkElementInTable(elementID,tableName){
+
+
+    }
 
 }
 

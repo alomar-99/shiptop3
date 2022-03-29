@@ -7,9 +7,84 @@ class Administrator{
     addFreightBroker(freightBroker){
 
     }
-    addWarehouse(warehouse){
+
+    modifyFreightBroker(freightBroker){
 
     }
+
+    deleteFreightBroker(freightBroker){
+
+    }
+
+    viewFreightBroker(freightBroker){
+
+    }
+
+    viewFreightBrokersList(){
+
+    }
+
+    addAccountant(accountant){
+
+    }
+
+    modifyAccountant(accountant){
+
+    }
+
+    deleteAccountant(accountant){
+
+    }
+
+    viewAccountant(accountant){
+
+    }
+
+    viewAccountantsList(){
+
+    }
+
+    addLogisticManager(logisticManager){
+
+    }
+
+    modifyLogisticManager(logisticManager){
+        
+    }
+
+    deleteLogisticManager(logisticManager){
+        
+    }
+
+    viewLogisticManager(logisticManager){
+        
+    }
+
+    viewLogisticManagersList(logisticManager){
+        
+    }
+
+    addServiceWorker(custumerService){
+
+    }
+
+    addServiceWorker(custumerService){
+        
+    }
+
+    addServiceWorker(custumerService){
+        
+    }
+
+    addServiceWorker(custumerService){
+        
+    }
+
+    addServiceWorker(custumerService){
+        
+    }
+    
+
     addLogisticManager(logisticManager){
 
     }

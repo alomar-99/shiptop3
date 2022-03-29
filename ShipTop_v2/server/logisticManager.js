@@ -86,8 +86,90 @@ class logisticManager extends employee.Employee{
             connection.end();
         })
     }
+    
+    assignVehicleToDispatcher(vehicle, dispatcher){
 
-    setUpShelfQuery(shelf){
+    }
+
+    addVehicle(vehicle){
+
+    }
+
+    modifyVehicle(vehicle){
+
+    }
+
+    deleteVehicle(vehicle){
+
+    }
+
+    viewVehiclesList(){
+
+    }
+
+    viewVehicle(vehicle){
+
+    }
+
+    assignManagerToWarehouse(warehouseManager,warehouse){
+
+    }
+
+    modifyWarehouse(warehouse){
+
+    }
+
+    deleteWarehouse(warehouse){
+
+    }
+
+    viewWarehouse(warehouse){
+
+    }
+
+    viewWarehousesList(){
+
+    }
+
+    modifyWarehouseManager(warehouseManager){
+
+    }
+
+    deleteWarehouseManager(warehouseManager){
+
+    }
+
+    viewWarehouseManager(warehouseManager){
+
+    }
+
+    viewWarehouseManagersList(){
+
+    }
+
+    addDispatcher(dispatcher){
+
+    }
+
+    modifyDispatcher(dispatcher){
+
+    }
+
+    deleteDispatcher(dispatcher){
+
+    }
+
+    viewDispatcher(dispatcher){
+
+    }
+
+    viewDispatchersList(){
+
+    }
+
+
+
+    setShelfQuery(shelf){
         let myShelf = shelf.toArray();
         let shelfQuery = "INSERT into shelfs("
         for (let i = 0; i < myShelf[0].length; i++){
@@ -110,8 +192,14 @@ class logisticManager extends employee.Employee{
         return shelfQuery;
     }
 
-
-
+    toArray(){
+        const pair = [];
+        const keys=['logisticManagerID','firstName','lastName','phoneNumber','email','password'];
+        const values=[this.userID,this.firstName,this.lastName,this.phoneNumber,this.email,this.password];
+        pair.push(keys);
+        pair.push(values);
+        return pair;
+    }
 }
 
 module.exports = {
