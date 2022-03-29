@@ -46,90 +46,31 @@ class logisticManager extends employee.Employee{
         })
 
     }
-    addWarehouse(warehouse){
-        //create connection
-        const connection=conn.startConnection();
-        //getDate
-        const today = utility.getDateTime();
-        //setup warehouse query
-        let myWarehouse = warehouse.toArray();
-        let warehouseQuery = "INSERT into warehouses("
-        for (let i = 0; i < myWarehouse[0].length; i++){
-            warehouseQuery += myWarehouse[0][i];
-            if (i< myWarehouse[0].length-1)
-            warehouseQuery += ", ";
-        }
-        warehouseQuery += ', lastUpdate';
-        warehouseQuery += ')values(';
-        for (let i = 0; i < myWarehouse[1].length; i++){
-            if (Number(myWarehouse[1][i])>=0)
-            warehouseQuery += myWarehouse[1][i];
-            else
-            {
-                warehouseQuery += "'";
-                warehouseQuery += myWarehouse[1][i];
-                warehouseQuery += "'";
-            }
-            warehouseQuery += ", ";
-        }
-        warehouseQuery += "'"+today+"'" +')'
-
-        //connect to database, add this warehouse, then close the connection.
-        connection.connect((err) => {
-            if (err) console.error("there is an error with connecting to database");
-            else {
-                connection.query(warehouseQuery, (err, result,fields) => {
-                    if (err) console.log("could not insert warehouse due to some error in the query");
-                    else console.log("your warehouse is successfully added");  
-                });
-            } 
-            connection.end();
-        })
-    }
     
-    assignVehicleToDispatcher(vehicle, dispatcher){
+    
 
-    }
+    // addVehicle(vehicle){
 
-    addVehicle(vehicle){
+    // }
 
-    }
+    // modifyVehicle(vehicle){
 
-    modifyVehicle(vehicle){
+    // }
 
-    }
+    // deleteVehicle(vehicle){
 
-    deleteVehicle(vehicle){
+    // }
 
-    }
+    // viewVehiclesList(){
 
-    viewVehiclesList(){
+    // }
 
-    }
+    // viewVehicle(vehicle){
 
-    viewVehicle(vehicle){
+    // }
 
-    }
 
-    assignManagerToWarehouse(warehouseManager,warehouse){
 
-    }
-
-    modifyWarehouse(warehouse){
-
-    }
-
-    deleteWarehouse(warehouse){
-
-    }
-
-    viewWarehouse(warehouse){
-
-    }
-
-    viewWarehousesList(){
-
-    }
 
     modifyWarehouseManager(warehouseManager){
 
