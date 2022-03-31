@@ -9,8 +9,8 @@ const warehouseManager = require('./server/warehouseManager');
 const app = express();
 const port = process.env.PORT || 3000;
 
-//middleware handler
-// const urlEncodedParser = bodyParser.urlencoded({ extended: false })
+// middleware handler
+const urlEncodedParser = bodyParser.urlencoded({ extended: false })
 
 //handling POST requests
 // app.post('/', urlEncodedParser,function (req, res) {
@@ -71,8 +71,22 @@ connection.connect(err => {
         password: 'kiugh525'
     }
 
-app.post("/SignIn", (req, res)=>{
+app.post("/signIn", urlEncodedParser ,(req, res)=>{
 
+    // let email = req.body.email;
+    // let password = req.body.password;
+    // let sql = "SELECT * FROM employees WHERE email = '" + email+ "' AND password = '"+ password +"'";
+    // console.log(sql);
+    console.log(req.body);
+    res.json(req.body)
+    // let query = connection.query(sql, (err, result)=>{
+    //             if (err) {
+    //                 throw err;
+    //             }
+    //             console.log(result);
+    //             res.send("signed in successfully");
+
+    //         });
 
 });
 

@@ -5,8 +5,9 @@ const record = require('./record');
 const fs = require('fs');
 
 class warehouseManager extends warehouseMember.warehouseMember {
-    constructor(firstName, lastName,email,phoneNumber,password,warehouseID){
+    constructor(warehouseManagerID,firstName, lastName,email,phoneNumber,password,warehouseID){
         super(firstName, lastName, email, phoneNumber,password,warehouseID);
+        this.warehouseManagerID = warehouseManagerID;
     }
     addShipment(shipment){
         //create connection
@@ -200,7 +201,7 @@ class warehouseManager extends warehouseMember.warehouseMember {
         });
     }
 
-    addWorker(worker){
+    addWorker(worker,workerID) {
         //create connection
         const connection=conn.startConnection();
         //getDate
@@ -227,11 +228,11 @@ class warehouseManager extends warehouseMember.warehouseMember {
         }
         workerQuery += "'"+today+"'" +')';
         //setUp User query
-        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values('";
-        userQuery += worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', "; 
-        userQuery += "'worker', '"+today+"'" +')';
+        let userQuery = "INSERT into employees(employeeID, firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate) values('";
+        userQuery += "WW"+ workerID+ "', '"+worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', '"; 
+        userQuery += worker.password+"', '"+ "WM" + this.warehouseManagerID  +"', '"+today+"'" +')';
         //connect to database, add this worker, then close the connection.
-        console.log(userQuery);
+        console.log(workerQuery);
         connection.connect((err)=> {
             if (err) console.error("there is an error with connecting to database");
             else{
@@ -240,8 +241,8 @@ class warehouseManager extends warehouseMember.warehouseMember {
                     else console.log("your worker is successfully added");
                 });
                 connection.query(userQuery, (err,result,fields)=>{
-                    if (err) console.log("your worker is failed to be added as a user");
-                    else console.log("your worker is successfully added as a user");
+                    if (err) console.log("your worker is failed to be added as an employee");
+                    else console.log("your worker is successfully added as an employee");
                 });
             }
             connection.end();

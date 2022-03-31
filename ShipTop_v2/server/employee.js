@@ -3,9 +3,8 @@ const conn = require('./accessibility/connection');
 const fs = require('fs');
 
 class Employee extends user.User {
-    constructor(employeeID, firstName, lastName,email, phoneNumber,password){
+    constructor(firstName, lastName,email, phoneNumber,password){
         super(firstName, lastName, email, phoneNumber);
-        this.employeeID = employeeID;
         this.password = password;
     }
 
