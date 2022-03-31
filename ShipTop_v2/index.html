@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Add Shipment</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="addShipment.js"></script>
+</head>
+<body>
+    <script>
+        
+        let addShipment = document.getElementById('addShipmentForm')
+        addShipment.addEventListener('submit', (e) =>{
+            e.preventDefault()   
+            let shipmentID = document.getElementById('shipmentID').value
+            let senderName = document.getElementById('senderName').value
+        })
+    </script>
+  <header>
+
+  </header>
+  <main>
+    <div class="container-fluid">
+      <div class="row">
+        <div id="err"></div>
+        <form action="/" method="POST" id="addShipmentForm">
+          <label for="shipmentID">Shipment ID</label>
+          <input id="shipmentID" type="number" name="shipmentID" placeholder="Enter Shipment ID">
+          <label for="senderName">Sender Name</label>
+          <input id="senderName" type="text" name="senderName" placeholder="Enter Sender Name">
+          <label for="receiverName">Receiver Name</label>
+          <input id="receiverName" type="text" name="receiverName" placeholder="Enter Receiver Name">
+          <label for="status">status</label>
+          <input id="status" type="text" name="status" placeholder="Enter Status">
+          <label for="weight">weight</label>
+          <input id="weight" type="number" name="weight" placeholder="Enter weight">
+          <label for="width">width</label>
+          <input id="width" type="number" name="width" placeholder="Enter Width">
+          <label for="discription">discription</label>
+          <input id="discription" type="text" name="discription" placeholder="Enter discription">
+          <label for="address">address</label>
+          <input id="address" type="text" name="address" placeholder="Enter Address">
+          <button type="submit" value="submit">Add now</button>
+        </form>
+        </form>
+      </div>
+    </div>  
+  </main>
+  <footer>
+
+  </footer>  
+</body>
+
+</html>

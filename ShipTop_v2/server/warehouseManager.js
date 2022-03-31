@@ -227,11 +227,11 @@ class warehouseManager extends warehouseMember.warehouseMember {
         }
         workerQuery += "'"+today+"'" +')';
         //setUp User query
-        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values(";
-        userQuery += worker.userID+", '"+worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', "; 
+        let userQuery = "INSERT into users(userID, firstName, lastName, email, phoneNumber, role, lastUpdate) values('";
+        userQuery += worker.firstName + "', '" + worker.lastName + "', '"+worker.email+ "', '"+ worker.phoneNumber  + "', "; 
         userQuery += "'worker', '"+today+"'" +')';
         //connect to database, add this worker, then close the connection.
-        console.log(workerQuery);
+        console.log(userQuery);
         connection.connect((err)=> {
             if (err) console.error("there is an error with connecting to database");
             else{

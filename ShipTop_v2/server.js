@@ -18,9 +18,12 @@ const port = process.env.PORT || 3000;
 //     console.log("hi")
 //     res.send("post recieved")
 // })
+
+
+
 const slash = '/';
 const role = 'warehouseManager';
-const method = 'viewWorker'
+const method = 'addWorker'
 const path = slash + role + slash + method;
 
 //create connection
@@ -32,25 +35,44 @@ connection.connect(err => {
     console.log("database connected successfully");
 })
 
-app.get(path+"/:workerID", (req, res)=>{
+// app.get(path+"/:workerID", (req, res)=>{
+//     let worker = {
+//     firstName:'khalid',
+//     lastName:'qasim',
+//     email:'k8474@gmail.com',
+//     phoneNumber:'966548546325',
+//     password:'hud72947', 
+//     warehouseID:78948
+//     } 
+
+//     let sql = 'SELECT firstName FROM workers WHERE workerID = ' + req.params.workerID;
+//     console.log(sql);
+//     let query = connection.query(sql,worker, (err, result)=>{
+//         if (err) {
+//             throw err;
+//         }
+//         console.log(result);
+//         res.send("worker is added");
+//     });
+
+// });
+
     let worker = {
     firstName:'khalid',
     lastName:'qasim',
     email:'k8474@gmail.com',
     phoneNumber:'966548546325',
-    password:'hud72947', 
+    password:'kiugh525', 
     warehouseID:78948
     } 
 
-    let sql = 'SELECT firstName FROM workers WHERE workerID = ' + req.params.workerID;
-    console.log(sql);
-    let query = connection.query(sql,worker, (err, result)=>{
-        if (err) {
-            throw err;
-        }
-        console.log(result);
-        res.send("worker is added");
-    });
+    let user = {
+        email: 'k8474@gmail.com',
+        password: 'kiugh525'
+    }
+
+app.post("/SignIn", (req, res)=>{
+
 
 });
 

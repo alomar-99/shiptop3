@@ -3,8 +3,8 @@ const utility = require('./accessibility/utility');
 const employee = require('./employee');
 
 class logisticManager extends employee.Employee{
-    constructor(logisticManagerID, firstName, lastName,email, phoneNumber, password){
-        super(logisticManagerID, firstName,lastName,email,phoneNumber,password);
+    constructor(firstName, lastName,email, phoneNumber, password){
+        super(firstName,lastName,email,phoneNumber,password);
     }
     addWarehouseManager(warehouseManager){
         //create connection
