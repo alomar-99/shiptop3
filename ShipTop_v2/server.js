@@ -18,7 +18,7 @@ const urlEncodedParser = bodyParser.urlencoded({ extended: false })
 //     console.log("hi")
 //     res.send("post recieved")
 // })
-
+//
 
 
 const slash = '/';
@@ -27,7 +27,7 @@ const method = 'addWorker'
 const path = slash + role + slash + method;
 
 //create connection
-const connection=conn.startConnection();
+const connection = conn.startConnection();
 connection.connect(err => {
     if (err) {
         console.log(err);
@@ -57,21 +57,21 @@ connection.connect(err => {
 
 // });
 
-    let worker = {
-    firstName:'khalid',
-    lastName:'qasim',
-    email:'k8474@gmail.com',
-    phoneNumber:'966548546325',
-    password:'kiugh525', 
-    warehouseID:78948
-    } 
+let worker = {
+    firstName: 'khalid',
+    lastName: 'qasim',
+    email: 'k8474@gmail.com',
+    phoneNumber: '966548546325',
+    password: 'kiugh525',
+    warehouseID: 78948
+}
 
-    let user = {
-        email: 'k8474@gmail.com',
-        password: 'kiugh525'
-    }
+let user = {
+    email: 'k8474@gmail.com',
+    password: 'kiugh525'
+}
 
-app.post("/signIn", urlEncodedParser ,(req, res)=>{
+app.post("/signIn", urlEncodedParser, (req, res) => {
 
     // let email = req.body.email;
     // let password = req.body.password;
