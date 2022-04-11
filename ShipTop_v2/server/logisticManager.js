@@ -8,7 +8,7 @@ class logisticManager extends employee.Employee{
     }
     addWarehouseManager(warehouseManager){
         //create connection
-        const connection=conn.startConnection();
+        const connection = conn.startConnection();
         //getDate
         const today = utility.getDateTime();
         //setup query
@@ -110,28 +110,28 @@ class logisticManager extends employee.Employee{
 
 
 
-    setShelfQuery(shelf){
-        let myShelf = shelf.toArray();
-        let shelfQuery = "INSERT into shelfs("
-        for (let i = 0; i < myShelf[0].length; i++){
-            shelfQuery += myShelf[0][i];
-            if (i< myShelf[0].length-1)
-            shelfQuery += ", ";
-        }
-        shelfQuery += ')values(';
-        for (let i = 0; i < myShelf[1].length; i++){
-            if (Number(myShelf[1][i])>=0)
-            shelfQuery += myShelf[1][i];
-            else
-            {
-                shelfQuery += "'";
-                shelfQuery += myShelf[1][i];
-                shelfQuery += "'";
-            }
-            shelfQuery += ", ";
-        }
-        return shelfQuery;
-    }
+    // setShelfQuery(shelf){
+    //     let myShelf = shelf.toArray();
+    //     let shelfQuery = "INSERT into shelfs("
+    //     for (let i = 0; i < myShelf[0].length; i++){
+    //         shelfQuery += myShelf[0][i];
+    //         if (i< myShelf[0].length-1)
+    //         shelfQuery += ", ";
+    //     }
+    //     shelfQuery += ')values(';
+    //     for (let i = 0; i < myShelf[1].length; i++){
+    //         if (Number(myShelf[1][i])>=0)
+    //         shelfQuery += myShelf[1][i];
+    //         else
+    //         {
+    //             shelfQuery += "'";
+    //             shelfQuery += myShelf[1][i];
+    //             shelfQuery += "'";
+    //         }
+    //         shelfQuery += ", ";
+    //     }
+    //     return shelfQuery;
+    // }
 
     toArray(){
         const pair = [];

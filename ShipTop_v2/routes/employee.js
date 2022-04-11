@@ -4,16 +4,17 @@ const conn = require('./connection');
 // middleware handler
 const urlEncodedParser = bodyParser.urlencoded({ extended: false })
 
+router.post("/signIn",urlEncodedParser, (req, res) => {
+
     //create connection
     const connection = conn.startConnection();
     connection.connect(err => {
         if (err) {
             console.log(err);
+            return;
         }
         console.log("database connected successfully");
     });
-
-router.post("/signIn",urlEncodedParser, (req, res) => {
 
     let email = req.body.email;
     let password = req.body.password;
@@ -31,6 +32,8 @@ router.post("/signIn",urlEncodedParser, (req, res) => {
             response = "signed in successfully";
             res.send(response)
         });
+    
+    connection.end();
 });
 
 module.exports = router;
