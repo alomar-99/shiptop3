@@ -20,9 +20,17 @@
             let email = document.getElementById('email').value
             let password = document.getElementById('password').value
         });
-        fetch("/signIn").then((res)=>{
-          console.log(res);
-        }).catch((err)=>{
+        fetch('/signIn',{
+          method: 'POST',
+          header: {
+            'Content-Type': 'application.json'
+          },
+          body: JSON.stringify({
+            email: 'WM123',
+            password: 'WM123p'
+          })
+        }).then((res)=>res.json()).then(data => console.log(data))
+        .catch((err)=>{
           console.log("couldn't send data")
         });
     </script>
