@@ -1,15 +1,12 @@
 //imports
 const express = require('express');
-const router = require("express").Router();
 const bodyParser = require('body-parser');
-// const conn = require('./routes/connection');
+const conn = require('./connection');
+const time = require('./server/accessibility/utility');
+// const router = require("express").Router();
 
-//import routers
-const logisticManagerRouter = require('./routes/logisticManager')
-const employeeRouter = require('./routes/employee')
-
-// // middleware handler
-// const urlEncodedParser = bodyParser.urlencoded({ extended: false })
+// middleware handler
+const urlEncodedParser = bodyParser.urlencoded({ extended: false })
 
 //initializing express
 const app = express();
@@ -18,75 +15,127 @@ const port = process.env.PORT || 3000;
 //accepting json files
 app.use(express.json());
 
-//using routers
-// app.use('/api/logisticManager',logisticManagerRouter);
-app.use('/api/employee',employeeRouter);
+//create connection
+const connection = conn.startConnection();
+connection.connect(err => {
+    if (err) {
+        console.log(err);
+    }
+    console.log("database connected successfully");
+});
 
-// //create connection
-// const connection = conn.startConnection();
-// connection.connect(err => {
-//     if (err) {
-//         console.log(err);
-//     }
-//     console.log("database connected successfully");
-// });
+//EMPLOYEE //////////////////////////////////////////////////////
+// sign in for any employee
+app.post("/api/employee/signIn",urlEncodedParser, (req, res) => {
+    let sql = "SELECT * FROM employees WHERE email = '" + req.body.email + "' AND password = '"+ req.body.password +"'";
+    connection.query(sql, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+            if (result=="")response ={
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            };
+            else response = result[0];
+            res.send(response);
+    });
+});
+
+//LOGISTIC MANAGER //////////////////////////////////////////////////////
+//adding warehouseManager for any logistic manager
+app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        console.log(result[0]);
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO warehousemanagers(firstName, lastName, email, phoneNumber, password, warehouseID, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', " + req.body.warehouseID +", '"+ today+"')"
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'LM" + req.body.employeeID +"', '"+ today+"')"
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(employeeSQL);
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+//updating warehouseManager for any logistic manager
+app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        console.log(result[0]);
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "UPDATE warehousemanagers SET (firstName, lastName, email, phoneNumber, password, warehouseID, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', " + req.body.warehouseID +", '"+ today+"')"
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = " UPDATE employees SET(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'LM" + req.body.employeeID +"', '"+ today+"')"
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(employeeSQL);
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
 
 
 
-//signIn for any employee
-// router.post("/api/signIn",urlEncodedParser, (req, res) => {
-//     let email = req.body.email;
-//     let password = req.body.password;
-//     let sql = "SELECT * FROM employees WHERE email = '" + email+ "' AND password = '"+ password +"'";
-//     console.log(req.body);
-    
-//     connection.query(sql, (err, result)=>{
-//         if (err) {
-//             throw err;
-//             console.log(err);
-//         }
-//             if (result=="")
-//             response = "there are no employee with given info";
-//             else{
-//                 // response = {
-//                         // "id" = 
-//                 //     "email": "k8474@gmail.com",
-//                 //     "password": "hud72947"
-//                 // }
-//                 console.log(result);
-//             }
-            
-//         res.send(response);
-//     });
-// });
 
-// //adding warehouseManager for any logistic manager
-// router.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res) => {
-//     // const email = req.body.email;
-//     // const password = req.body.password;
-//     // const updatedBy = req.body
-//     // let sql = "INSERT INTO warehousemanagers WHERE email = '" + email+ "' AND password = '"+ password +"'";
-//     console.log(req.body);
-    
-//     // connection.query(sql, (err, result)=>{
-//     //     if (err) {
-//     //         throw err;
-//     //         console.log(err);
-//     //     }
-//     //         if (result=="")
-//     //         response = "there are no employee with given info";
-//     //         else{
-//     //             // response = {
-//     //             //      "id" = 
-//     //             //     "email": "k8474@gmail.com",
-//     //             //     "password": "hud72947"
-//     //             // }
-//     //             console.log(result);
-//     //         }
-            
-//     //     res.send(response);
-//     // });
-// });
+
+
+
+
+
+
+
+//DRIVER //////////////////////////////////////////////
+
+
+
+
 
 //listening
 app.listen(port, () => console.log("listening to port " + port + " ..."));

@@ -19,7 +19,7 @@ let myConsignor = new consignor.Consignor('Al','halidy','aliKhalid@gmail.com','9
 let myLogisticManager = new logManager.logisticManager('sedrfgi','Al-ktfdhgsidy','aliKfghslid@gmail.com','996557872100','dsgsdg')
 // myWorker.locateShipmet(myShipment,myShelf);
 
-myWManager.addWorker(myWorker,4);
+myWManager.addWorker(myWorker,5);
 // myWManager.addWorker(myWorker);
 // myWManager.addConsignor(myConsignor);
 // myWManager.deleteWorker(myWorker);

@@ -7,9 +7,8 @@ function startConnection(){
         password: '',
         database: 'shiptop'
     });
-    return mysql.createPool(connection);
+    return connection;
 }
-
 
 module.exports = {
     startConnection,
