@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const conn = require('./connection');
-const time = require('./server/accessibility/utility');
+const time = require('./utility');
 // const router = require("express").Router();
 
 // middleware handler

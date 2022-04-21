@@ -1,3 +1,0 @@
-- json splitting string into different objects using JSON.parse(file.json). (optional)
-- complete inserting shelfs.
-- converting toArray into toJSON. (optional)
