@@ -59,7 +59,7 @@ app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res)
     
         else{
             today = time.getDateTime();
-            const sql = "INSERT INTO warehousemanagers(firstName, lastName, email, phoneNumber, password, warehouseID, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', " + req.body.warehouseID +", 'LM" + req.body.employeeID +"', '"+ today+"')";
+            const sql = "INSERT INTO warehousemanagers(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'LM" + req.body.employeeID +"', '"+ today+"')";
             connection.query(sql, (err)=>{
             if (err) {
                 console.log(err);
@@ -116,6 +116,44 @@ app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, r
             });
         }
     });
+});
+
+//deleting warehouseManager for any logistic manager
+app.post("/api/logisticManager/deleteWarehouseManager",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.warehouseManagerID +"' AND role = 'WM'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "DELETE FROM warehousemanagers WHERE warehouseManagerID = "+req.body.warehouseManagerID;
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "DELETE FROM employees WHERE employeeID = "+req.body.warehouseManagerID + " AND role = 'WM'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+
 });
 
 

@@ -1,0 +1,10 @@
+URL = http://localhost:3000/api/logisticManager/addWarehouseManager
+
+{
+    "employeeID": 75,
+    "firstName": "ahmed",
+    "lastName": "ali",
+    "email": "lop@gmail.com",
+    "phoneNumber": "053698745",
+    "password": "ophv1864"
+}
