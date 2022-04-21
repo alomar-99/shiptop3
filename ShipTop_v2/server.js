@@ -51,12 +51,12 @@ app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res)
             console.log(err);
             throw err;
         }
-        console.log(result[0]);
         if (result!="")    
             res.send({
                 "status": "EXISTING ACC", 
                 "err": true
             });
+    
         else{
             today = time.getDateTime();
             const sql = "INSERT INTO warehousemanagers(firstName, lastName, email, phoneNumber, password, warehouseID, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', " + req.body.warehouseID +", 'LM" + req.body.employeeID +"', '"+ today+"')";
@@ -70,7 +70,7 @@ app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res)
                 "err": false
             });
             });
-            const employeeSQL = "INSERT INTO employees(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'LM" + req.body.employeeID +"', '"+ today+"')";
+            const employeeSQL = "INSERT INTO employees SELECT email, warehouseManagerID, 'WM', firstName, lastName, phoneNumber, password, updatedBy,lastUpdate FROM warehousemanagers Where warehousemanagers.email = '"+req.body.email+"'";
             connection.query(employeeSQL, (err)=>{
                 if (err) {
                     console.log(err);
@@ -83,13 +83,12 @@ app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res)
 
 //updating warehouseManager for any logistic manager
 app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, res) => {
-    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.warehouseManagerID +"' AND role = 'WM'";
     connection.query(errSQL, (err, result)=>{
         if (err) {
             console.log(err);
             throw err;
         }
-        console.log(result[0]);
         if (result=="")    
             res.send({
                 "status": "ACC DOESN't EXIST", 
@@ -97,7 +96,7 @@ app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, r
             });
         else{
             today = time.getDateTime();
-            const sql = "UPDATE warehousemanagers SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE warehouseManagerID = "+req.body.warehouseManagerID+"'";
+            const sql = "UPDATE warehousemanagers SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE warehouseManagerID = "+req.body.warehouseManagerID;
             connection.query(sql, (err)=>{
             if (err) {
                 console.log(err);
@@ -108,10 +107,9 @@ app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, r
                 "err": false
             });
             });
-            const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = '"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE warehouseManagerID = WM"+req.body.employeeID+"'";
+            const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE employeeID = "+req.body.warehouseManagerID + " AND role = 'WM'";
             connection.query(employeeSQL, (err)=>{
                 if (err) {
-                    console.log(employeeSQL);
                     console.log(err);
                     throw err;
                 }
