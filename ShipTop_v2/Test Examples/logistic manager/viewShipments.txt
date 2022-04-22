@@ -1,0 +1,21 @@
+URL = http://localhost:3000/api/logisticManager/viewShipments
+
+{
+    "employeeID": 75,
+    "senderType": "CO",
+    "filteredBy":{
+        "weight": "!=35",
+        "isBreakable":true,
+        "status":"new"
+    },
+    "sortedBy":[
+        {
+        "type":"description", 
+        "order":"ASC"
+        },
+        {
+        "type":"currentCity",
+        "order": "DESC"
+        }
+    ]
+}

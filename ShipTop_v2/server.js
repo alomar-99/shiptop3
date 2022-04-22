@@ -42,10 +42,54 @@ app.post("/api/employee/signIn",urlEncodedParser, (req, res) => {
     });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //LOGISTIC MANAGER //////////////////////////////////////////////////////
 //adding warehouseManager for any logistic manager
 app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res) => {
-    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.warehouseManagerID +"' AND role = 'WM'";
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
     connection.query(errSQL, (err, result)=>{
         if (err) {
             console.log(err);
@@ -299,7 +343,7 @@ app.post("/api/logisticManager/deleteDispatcher",urlEncodedParser, (req, res) =>
 
 //viewing list of dispatchers for any logistic manager
 app.post("/api/logisticManager/viewDispatchers",urlEncodedParser, (req, res) =>{
-    const SQL = "SELECT * FROM dispatchers";
+    const SQL = "SELECT * FROM dispatchers WHERE updatedBy = 'LM" + req.body.employeeID+"'";
     connection.query(SQL, (err,result)=>{
         if (err) {
             console.log(err);
@@ -311,7 +355,7 @@ app.post("/api/logisticManager/viewDispatchers",urlEncodedParser, (req, res) =>{
 
 //viewing list of warehouseManagers for any logistic manager
 app.post("/api/logisticManager/viewWarehouseManagers",urlEncodedParser, (req, res) =>{
-    const SQL = "SELECT * FROM warehouseManagers";
+    const SQL = "SELECT * FROM warehouseManagers WHERE updatedBy = 'LM" + req.body.employeeID+"'";
     connection.query(SQL, (err,result)=>{
         if (err) {
             console.log(err);
@@ -320,6 +364,221 @@ app.post("/api/logisticManager/viewWarehouseManagers",urlEncodedParser, (req, re
         res.send(result);
     });
 });
+
+//view all shipments for any logistic manager
+app.post("/api/logisticManager/viewShipments",urlEncodedParser, (req, res) =>{
+    let SQL = "SELECT * FROM shipments WHERE currentUserID REGEXP '^"+req.body.senderType+"' ";
+    for (const i in req.body.filteredBy){
+        SQL += "AND " + i; 
+        if(String(req.body.filteredBy[i]).includes("<x<"))
+        SQL += " BETWEEN "+ req.body.filteredBy[i].substring(0,req.body.filteredBy[i].indexOf("<")) + " AND " + req.body.filteredBy[i].substring(req.body.filteredBy[i].lastIndexOf("<")+1) + " ";
+        else if (String(req.body.filteredBy[i]).includes("<")||String(req.body.filteredBy[i]).includes(">")||String(req.body.filteredBy[i]).includes("!="))
+        SQL += req.body.filteredBy[i] + " ";
+        else if(typeof req.body.filteredBy[i]=="string")
+        SQL += " = '"+ req.body.filteredBy[i] + "' ";
+        else 
+        SQL += " = "+ req.body.filteredBy[i] + " ";
+    }
+    if (req.body.sortedBy.length>0)
+        SQL += "ORDER BY "
+    for (let j=0;j<req.body.sortedBy.length;j++){
+        SQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
+        if(j<req.body.sortedBy.length-1)
+        SQL += ", "
+    }
+    connection.query(SQL, (err,result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        res.send(result);
+    }); 
+});
+
+//assigning shipments for any dispatcher for any logistic manager
+app.post("/api/logisticManager/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
+    
+    let SQL = "UPDATE shipments SET currentUserID = 'DI" + req.body.dispatcherID + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+time.getDateTime()+"' WHERE shipmentID IN (";
+    for(let i =0;i<req.body.shipmentID.length;i++){
+        SQL += req.body.shipmentID[i];
+        if(i<req.body.shipmentID.length-1)
+        SQL += ", "
+    }
+    SQL += ")"
+    connection.query(SQL, (err)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        res.send({
+            "status": "SUCCESS", 
+            "err": false
+        });
+    }); 
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Owner /////////////////////////////////
+//adding administrator 
+app.post("/api/owner/addAdministrator",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO administrators(firstName, lastName, email, phoneNumber, password, office, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', '" + req.body.office +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, administratorID, 'AD', firstName, lastName, phoneNumber, password, 'OW', lastUpdate FROM administrators Where administrators.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Administrator //////////////////////////////////////////////
+//adding logistic Manager for any administrator
+app.post("/api/administrator/addLogisticManager",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO logisticmanagers(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'AD" + req.body.employeeID +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, logisticManagerID, 'LM', firstName, lastName, phoneNumber, password, updatedBy, lastUpdate FROM logisticmanagers Where logisticmanagers.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
