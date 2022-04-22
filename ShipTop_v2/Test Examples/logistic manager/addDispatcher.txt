@@ -1,0 +1,9 @@
+URL = http://localhost:3000/api/logisticManager/addDispatcher
+{
+    "employeeID": 75,
+    "firstName": "fadi",
+    "lastName": "ali",
+    "email": "lofhp@gmail.com",
+    "phoneNumber": "0536938745",
+    "password": "opt1864"
+}

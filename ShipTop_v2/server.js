@@ -45,7 +45,7 @@ app.post("/api/employee/signIn",urlEncodedParser, (req, res) => {
 //LOGISTIC MANAGER //////////////////////////////////////////////////////
 //adding warehouseManager for any logistic manager
 app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res) => {
-    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.warehouseManagerID +"' AND role = 'WM'";
     connection.query(errSQL, (err, result)=>{
         if (err) {
             console.log(err);
@@ -95,25 +95,40 @@ app.post("/api/logisticManager/modifyWarehouseManager",urlEncodedParser, (req, r
                 "err": true
             });
         else{
-            today = time.getDateTime();
-            const sql = "UPDATE warehousemanagers SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE warehouseManagerID = "+req.body.warehouseManagerID;
-            connection.query(sql, (err)=>{
+            const errSQL2 = "SELECT employeeID FROM employees WHERE email ='" +req.body.email +"'";
+            connection.query(errSQL2, (err, result)=>{
             if (err) {
                 console.log(err);
                 throw err;
-            }
-            res.send({
-                "status": "SUCCESS", 
-                "err": false
-            });
-            });
-            const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE employeeID = "+req.body.warehouseManagerID + " AND role = 'WM'";
-            connection.query(employeeSQL, (err)=>{
-                if (err) {
+            }   
+            if (result[0].employeeID!=req.body.warehouseManagerID)  
+                res.send({
+                    
+                    "status": "DUPLICATE EMAIL", 
+                    "err": true
+                });
+            else{
+                today = time.getDateTime();
+                const sql = "UPDATE warehouseManagers SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE warehouseManagerID = "+req.body.warehouseManagerID;
+                connection.query(sql, (err)=>{
+                if (err) { 
                     console.log(err);
                     throw err;
                 }
-            });
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+                });
+                const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE employeeID = "+req.body.warehouseManagerID + " AND role = 'WM'";
+                connection.query(employeeSQL, (err)=>{
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                });
+            }
+        });
         }
     });
 });
@@ -153,8 +168,165 @@ app.post("/api/logisticManager/deleteWarehouseManager",urlEncodedParser, (req, r
             });
         }
     });
-
 });
+
+//adding dispatcher for any logistic manager
+app.post("/api/logisticManager/addDispatcher",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+    
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO dispatchers(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'LM" + req.body.employeeID +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, dispatcherID, 'DI', firstName, lastName, phoneNumber, password, updatedBy,lastUpdate FROM dispatchers Where dispatchers.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+//updating dispatcher for any logistic manager
+app.post("/api/logisticManager/modifyDispatcher",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.dispatcherID +"' AND role = 'DI'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            const errSQL2 = "SELECT employeeID FROM employees WHERE email ='" +req.body.email +"'";
+            connection.query(errSQL2, (err, result)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }   
+            if (result[0].employeeID!=req.body.dispatcherID)  
+                res.send({
+                    
+                    "status": "DUPLICATE EMAIL", 
+                    "err": true
+                });
+            else{
+                today = time.getDateTime();
+                const sql = "UPDATE dispatchers SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE dispatcherID = "+req.body.dispatcherID;
+                connection.query(sql, (err)=>{
+                if (err) { 
+                    console.log(err);
+                    throw err;
+                }
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+                });
+                const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+today+"' WHERE employeeID = "+req.body.dispatcherID + " AND role = 'DI'";
+                connection.query(employeeSQL, (err)=>{
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                });
+            }
+        });
+        }
+    });
+});
+
+//deleting dispatcher for any logistic manager
+app.post("/api/logisticManager/deleteDispatcher",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.dispatcherID +"' AND role = 'DI'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "DELETE FROM dispatchers WHERE dispatcherID = "+req.body.dispatcherID;
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "DELETE FROM employees WHERE employeeID = "+req.body.dispatcherID + " AND role = 'DI'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+//viewing list of dispatchers for any logistic manager
+app.post("/api/logisticManager/viewDispatchers",urlEncodedParser, (req, res) =>{
+    const SQL = "SELECT * FROM dispatchers";
+    connection.query(SQL, (err,result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        res.send(result);
+    });
+});
+
+//viewing list of warehouseManagers for any logistic manager
+app.post("/api/logisticManager/viewWarehouseManagers",urlEncodedParser, (req, res) =>{
+    const SQL = "SELECT * FROM warehouseManagers";
+    connection.query(SQL, (err,result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        res.send(result);
+    });
+});
+
+
+
+
+
+
+
 
 
 
@@ -211,7 +383,6 @@ app.post("/api/driver/viewListShipments",urlEncodedParser, (req, res) => {
             console.log(err);
             throw err;
         }
-       
         if (result=="")    
             res.send({
                 "status": "no EXISTING shipments", 

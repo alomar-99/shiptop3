@@ -5,5 +5,5 @@ URL = http://localhost:3000/api/logisticManager/modifyWarehouseManager
     "warehouseManagerID":22,
     "email": "lop@gmail.com",
     "phoneNumber": "021846544",
-    "password": "ophv1864",
+    "password": "ophv1864"
 }

@@ -1,0 +1,9 @@
+URL = http://localhost:3000/api/logisticManager/modifyDispatcher
+
+{
+    "employeeID": 75,
+    "dispatcherID": 5,
+    "email": "gh98@gmail.com",
+    "phoneNumber": "0522218745",
+    "password": "bb54"
+}
