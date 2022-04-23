@@ -1,0 +1,10 @@
+URL = http://localhost:3000/api/warehouseManager/addWorker
+
+{
+    "employeeID": 22,
+    "firstName": "faleh",
+    "lastName": "qasim",
+    "email": "th46r56tyu@gmail.com",
+    "phoneNumber": "051681445",
+    "password": "6458cfjj"
+}

@@ -479,10 +479,106 @@ app.post("/api/owner/addAdministrator",urlEncodedParser, (req, res) => {
     });
 });
 
+//updating admnistrator
+app.post("/api/owner/modifyAdministrator",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.adminID +"' AND role = 'AD'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            const errSQL2 = "SELECT employeeID FROM employees WHERE email ='" +req.body.email +"'";
+            connection.query(errSQL2, (err, result)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }   
+            if (result[0].employeeID!=req.body.adminID)  
+                res.send({
+                    
+                    "status": "DUPLICATE EMAIL", 
+                    "err": true
+                });
+            else{
+                today = time.getDateTime();
+                const sql = "UPDATE administrators SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password + "', office = '"+ req.body.office + "', lastUpdate = '"+today+"' WHERE administratorID = "+req.body.adminID;
+                connection.query(sql, (err)=>{
+                if (err) { 
+                    console.log(err);
+                    throw err;
+                }
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+                });
+                const employeeSQL = "UPDATE employees SET email = '"+req.body.email+"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+req.body.password + "', updatedBy = 'OW', lastUpdate = '"+today+"' WHERE employeeID = "+req.body.adminID + " AND role = 'AD'";
+                connection.query(employeeSQL, (err)=>{
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                });
+            }
+        });
+        }
+    });
+});
 
+//deleting administrator 
+app.post("/api/owner/deleteAdministrator",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE employeeID ='" +req.body.adminID +"' AND role = 'AD'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "DELETE FROM administrators WHERE administratorID = "+req.body.adminID;
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "DELETE FROM employees WHERE employeeID = "+req.body.adminID + " AND role = 'AD'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
 
-
-
+//viewing list of administrators
+app.post("/api/owner/viewAdministrators",urlEncodedParser, (req, res) =>{
+    const SQL = "SELECT * FROM administrators";
+    connection.query(SQL, (err,result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        res.send(result);
+    });
+});
 
 
 
@@ -567,6 +663,249 @@ app.post("/api/administrator/addLogisticManager",urlEncodedParser, (req, res) =>
         }
     });
 });
+
+//adding freight broker for any administrator
+app.post("/api/administrator/addFreightBroker",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO freightbrokers(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'AD" + req.body.employeeID +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, freightBrokerID, 'FB', firstName, lastName, phoneNumber, password, updatedBy, lastUpdate FROM freightbrokers Where freightbrokers.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+//adding customer server for any administrator
+app.post("/api/administrator/addCustomerServer",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO customerservers(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'AD" + req.body.employeeID +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, customerServerID, 'CS', firstName, lastName, phoneNumber, password, updatedBy, lastUpdate FROM customerservers Where customerservers.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+//adding accountant for any administrator
+app.post("/api/administrator/addAccountant",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employees WHERE email ='" +req.body.email +"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result!="")    
+            res.send({
+                "status": "EXISTING ACC", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO accountants(firstName, lastName, email, phoneNumber, password, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', 'AD" + req.body.employeeID +"', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, accountantID, 'AC', firstName, lastName, phoneNumber, password, updatedBy, lastUpdate FROM accountants Where accountants.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// warehouse manager ///////////////////////////////////
+// adding worker for any warehouse manager 
+app.post("/api/warehouseManager/addWorker",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT warehouseID FROM warehousemanagers WHERE warehouseManagerID ='" +req.body.employeeID+"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result[0].warehouseID==0)    
+            res.send({
+                "status": "WAREHOUSE DOESN'T EXIST", 
+                "err": true
+            });
+        else{ 
+            today = time.getDateTime();
+            const sql = "INSERT INTO workers(firstName, lastName, email, phoneNumber, password, warehouseID, updatedBy, lastUpdate)"+ "values('"+ req.body.firstName +"', '" + req.body.lastName + "', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password + "', " + result[0].warehouseID+", 'WM" + req.body.employeeID +"', '"+ today+"')"
+            console.log(sql);
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const employeeSQL = "INSERT INTO employees SELECT email, workerID, 'WO', firstName, lastName, phoneNumber, password, updatedBy, lastUpdate FROM workers Where workers.email = '"+req.body.email+"'";
+            connection.query(employeeSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+app.post("/api/warehouseManager/addWarehouse",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT warehouseID FROM warehousemanagers WHERE warehouseManagerID ='" +req.body.employeeID+"'";
+    connection.query(errSQL, (err, result)=>{
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        if (result[0].warehouseID!=0)    
+            res.send({
+                "status": "EXISTING WAREHOUSE", 
+                "err": true
+            });
+        else{
+            today = time.getDateTime();
+            const sql = "INSERT INTO warehouses(city, telephone, warehouseManagerID, lastUpdate)"+ "values('" + req.body.city + "', " + req.body.telephone + ", '" + req.body.employeeID + "', '"+ today+"')";
+            connection.query(sql, (err)=>{
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });
+            });
+            const updateSQL = "UPDATE warehousemanagers SET warehouseID = (SELECT warehouseID FROM warehouses WHERE warehouseManagerID = "+req.body.employeeID +") WHERE warehouseManagerID = "+req.body.employeeID;
+            connection.query(updateSQL, (err)=>{
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+            });
+        }
+    });
+});
+
+
+
+
+app.post("/api/warehouseManager/assignShipmentToDispatcher",urlEncodedParser, (req, res) => {
+
+
+
+
+});
+
+//assigning shipments to workers for any warehouse manager
+app.post("/api/warehouseManager/assignShipmentToWorker",urlEncodedParser, (req, res) => {
+
+
+
+    
+});
+
+
+
+
+
+
+
+
 
 
 

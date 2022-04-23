@@ -1,0 +1,10 @@
+URL = http://localhost:3000/api/administrator/addAccountant
+
+{
+    "employeeID": 2,
+    "firstName": "fadi",
+    "lastName": "ahmed",
+    "email": "dtgfut76@gmail.com",
+    "phoneNumber": "051681445",
+    "password": "6458cfjj"
+}

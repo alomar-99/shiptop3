@@ -1,0 +1,7 @@
+URL = http://localhost:3000/api/warehouseManager/addWarehouse
+
+{
+    "employeeID": 22,
+    "city": "Dhahran",
+    "telephone": "0135846925"
+}
