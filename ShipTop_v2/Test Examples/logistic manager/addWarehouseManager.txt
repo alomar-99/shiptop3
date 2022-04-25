@@ -9,6 +9,7 @@ URL = http://localhost:3000/api/logisticManager/addWarehouseManager
     "password": "ophv1864",
     "office": {
         "location":"Dammam",
-        "telephone": "0138763937"
+        "telephone": "0138763937",
+	"roomNumber": 329
     }
 }
