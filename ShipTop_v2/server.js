@@ -1,12 +1,9 @@
 //imports
 const express = require('express');
-const bodyParser = require('body-parser');
-const conn = require('./connection');
+const connection = require('./connection').connection;
 const time = require('./utility');
-// const router = require("express").Router();
-
-// middleware handler
-const urlEncodedParser = bodyParser.urlencoded({ extended: false })
+const router = require("express").Router();
+const urlEncodedParser = require('./connection').middleware;
 
 //initializing express
 const app = express();
@@ -15,14 +12,18 @@ const port = process.env.PORT || 3000;
 //accepting json files
 app.use(express.json());
 
-//create connection
-const connection = conn.startConnection();
-connection.connect(err => {
-    if (err) {
-        console.log(err);
-    } 
-    console.log("database connected successfully");
-});
+
+
+
+
+
+
+
+
+
+
+
+
 
 //EMPLOYEE //////////////////////////////////////////////////////
 // sign in for any employee
@@ -84,6 +85,8 @@ app.post("/api/employee/signIn",urlEncodedParser, (req, res) => {
 
 
 //LOGISTIC MANAGER //////////////////////////////////////////////////////
+
+
 //adding warehouseManager for any logistic manager
 app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res) => {
     const errSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
@@ -94,7 +97,6 @@ app.post("/api/logisticManager/addWarehouseManager",urlEncodedParser, (req, res)
                 "status": "EXISTING ACC", 
                 "err": true
             });
-    
         else{
             const employeeSQL = "INSERT INTO employee(firstName, lastName, role, email, phoneNumber, password)"+ "VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'WO', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"') ";
             const officeSQL = "INSERT INTO office (employeeID, location, telephone) VALUES(" + "(SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "')";
