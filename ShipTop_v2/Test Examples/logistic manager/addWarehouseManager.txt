@@ -12,4 +12,4 @@ URL = http://localhost:3000/api/logisticManager/addWarehouseManager
         "telephone": "0138763937",
 	"roomNumber": 329
     }
-}
+} 

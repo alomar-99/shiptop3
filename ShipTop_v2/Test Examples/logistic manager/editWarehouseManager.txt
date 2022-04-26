@@ -1,9 +1,16 @@
 URL = http://localhost:3000/api/logisticManager/modifyWarehouseManager
 
 {
-    "employeeID": 75,
-    "warehouseManagerID":22,
-    "email": "lop@gmail.com",
-    "phoneNumber": "021846544",
-    "password": "ophv1864"
+    "employeeID": 60,
+    "firstName":"Ahmed",
+    "lastName":"abdu",
+    "warehouseManagerID":6,
+    "email": "rvvhkk5t@gmail.com",
+    "phoneNumber": "0458461344",
+    "password": "rst5qyt",
+    "office": {
+        "location":"JUBAIL",
+        "telephone": "0138736977",
+	    "roomNumber": 116
+    }
 }

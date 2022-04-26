@@ -10,7 +10,8 @@ const connection = mysql.createConnection({
     host: 'shiptop.cutl0z5usu28.us-east-1.rds.amazonaws.com',
     user: 'admin',
     password: 'BX7i-tZ!j=TM6XH',
-    database: 'shiptop'
+    database: 'shiptop',
+    multipleStatements: true
 });
 
 //start connecting to database using the previous link

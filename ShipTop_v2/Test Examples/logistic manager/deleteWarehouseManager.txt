@@ -3,4 +3,4 @@ URL = http://localhost:3000/api/logisticManager/deleteWarehouseManager
 {
     "employeeID": 75,
     "warehouseManagerID":23
-}
+} 
