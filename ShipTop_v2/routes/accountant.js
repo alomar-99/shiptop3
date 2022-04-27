@@ -40,3 +40,5 @@ router.post("/addconsignorrate", urlEncodedParser, (req, res) => {
         }
     });
 });
+
+module.exports = router;

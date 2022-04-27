@@ -41,3 +41,6 @@ const urlEncodedParser = require('./tools/config').middleware;
 //         }
 //     });
 // });
+
+
+module.exports = router;

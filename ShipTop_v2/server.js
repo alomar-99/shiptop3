@@ -14,9 +14,9 @@ const CO = require("./routes/consignor");
 const FB = require("./routes/freightBroker");
 const DI = require("./routes/dispatcher");
 const DR = require("./routes/driver");
-// const OW = require("./routes/owner");
-// const AC = require("./routes/accountant");
-// const CS = require("./routes/customerService");
+const OW = require("./routes/owner");
+const AC = require("./routes/accountant");
+const CS = require("./routes/customerService");
 
 //
 //accepting json files
@@ -34,8 +34,6 @@ app.use("/api/driver",DR);
 // app.use("/api/owner",OW);
 // app.use("/api/accountant",AC);
 // app.use("/api/customerService",CS);
-
-
 
 
 

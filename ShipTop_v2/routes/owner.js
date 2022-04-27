@@ -142,3 +142,6 @@ router.post("/viewWarehouseManagers",urlEncodedParser, (req, res) =>{
         res.send(result);
     });
 });
+
+
+module.exports = router;
