@@ -52,7 +52,7 @@ router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
                 "status": "EXISTING ACC", 
                 "err": true 
             }); 
-        else{
+        else{ 
             const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
