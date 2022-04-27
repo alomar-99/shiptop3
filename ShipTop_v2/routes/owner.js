@@ -131,12 +131,11 @@ router.post("/modifyadministrator",urlEncodedParser, (req, res) => {
     });
 });
 
-//view list of Administrators that are related to current logistic manager
-router.post("/viewWarehouseManagers",urlEncodedParser, (req, res) =>{
+//view list of Administrators 
+router.post("/viewadministrator",urlEncodedParser, (req, res) =>{
     let SQL = "SELECT AD.*,\n ADof.location,ADof.roomNumber,ADof.telephone,\n ADup.updatedBy,ADup.lastUpdate\n FROM employee AD\n";
     SQL += "INNER JOIN employeeupdate ADup\n ON ADM.employeeID = ADup.employeeID AND AD.role='AD'";
     SQL += "INNER JOIN office ADof\n ON AD.employeeID  = ADof.employeeID AND AD.role='AD'";
-    SQL += "JOIN office LMof\n ON LMof.employeeID = "+req.body.adminID+" AND LMof.location = ADof.location";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);

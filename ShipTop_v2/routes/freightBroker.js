@@ -4,7 +4,7 @@ const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
-//add warehouse manager
+//add consignor
 router.post("/addConsignor",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
     DB.query(checkEmailSQL, (err, result)=>{
@@ -45,6 +45,30 @@ router.post("/addConsignor",urlEncodedParser, (req, res) => {
 });
 
 
+
+
+//delete consignor
+router.post("/deleteconsignor",urlEncodedParser, (req, res) => {
+    const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.consignorID;
+    DB.query(errSQL, (err, result)=>{
+        if (err) throw err;
+        if (result=="")    
+            res.send({
+                "status": "ACC DOESN't EXIST", 
+                "err": true
+            });
+        else{
+            const employeeSQL = "DELETE FROM employee WHERE employeeID = "+req.body.consignorID ;
+            DB.query(employeeSQL, (err)=>{
+                if (err) throw err;
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                }); 
+            });
+        }
+    });
+});
 
 
 
