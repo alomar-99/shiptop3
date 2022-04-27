@@ -81,7 +81,7 @@ router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
 });
 
 
-//add Accountant
+//add Accountant1
 router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
     DB.query(checkEmailSQL, (err, result)=>{
