@@ -26,6 +26,7 @@ app.use("/api/administrator",AD);
 app.use("/api/consignor",CO);
 app.use("/api/freightBroker",FB);
 app.use("/api/dispatcher",DI);
+app.use("/api/driver",DR);
 
 
 //listening

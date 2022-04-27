@@ -313,6 +313,32 @@ router.post("/viewDispatchers",urlEncodedParser, (req, res) =>{
 //viewWarehouses
 
 
+// //view all shipments for any logistic manager
+// app.post("/api/logisticManager/viewShipments",urlEncodedParser, (req, res) =>{
+//     let SQL = "SELECT * FROM shipments WHERE currentUserID REGEXP '^"+req.body.senderType+"' ";
+//     for (const i in req.body.filteredBy){
+//         SQL += "AND " + i; 
+//         if(String(req.body.filteredBy[i]).includes("<x<"))
+//         SQL += " BETWEEN "+ req.body.filteredBy[i].substring(0,req.body.filteredBy[i].indexOf("<")) + " AND " + req.body.filteredBy[i].substring(req.body.filteredBy[i].lastIndexOf("<")+1) + " ";
+//         else if (String(req.body.filteredBy[i]).includes("<")||String(req.body.filteredBy[i]).includes(">")||String(req.body.filteredBy[i]).includes("!="))
+//         SQL += req.body.filteredBy[i] + " ";
+//         else if(typeof req.body.filteredBy[i]=="string")
+//         SQL += " = '"+ req.body.filteredBy[i] + "' ";
+//         else 
+//         SQL += " = "+ req.body.filteredBy[i] + " ";
+//     }
+//     if (req.body.sortedBy.length>0)
+//         SQL += "ORDER BY "
+//     for (let j=0;j<req.body.sortedBy.length;j++){
+//         SQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
+//         if(j<req.body.sortedBy.length-1)
+//         SQL += ", "
+//     }
+//     connection.query(SQL, (err,result)=>{
+//         if (err) throw err;        
+//         res.send(result);
+//     }); 
+// });
 
 
 
