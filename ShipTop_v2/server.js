@@ -11,6 +11,9 @@ const WM = require("./routes/warehouseManager")
 const US = require("./routes/user");
 const AD = require("./routes/administrator");
 const CO = require("./routes/consignor");
+const FB = require("./routes/freightBroker");
+const DI = require("./routes/dispatcher");
+const DR = require("./routes/driver");
 
 //accepting json files
 app.use(express.json());
@@ -21,6 +24,9 @@ app.use("/api/warehouseManager",WM);
 app.use("/api/user",US);
 app.use("/api/administrator",AD);
 app.use("/api/consignor",CO);
+app.use("/api/freightBroker",FB);
+app.use("/api/dispatcher",DI);
+
 
 //listening
 app.listen(port, () => console.log("server started on port " + port + " !"));
