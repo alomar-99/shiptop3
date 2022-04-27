@@ -31,9 +31,9 @@ app.use("/api/consignor",CO);
 app.use("/api/freightBroker",FB);
 app.use("/api/dispatcher",DI);
 app.use("/api/driver",DR);
-// app.use("/api/owner",OW);
-// app.use("/api/accountant",AC);
-// app.use("/api/customerService",CS);
+app.use("/api/owner",OW);
+app.use("/api/accountant",AC);
+app.use("/api/customerService",CS);
 
 
 
