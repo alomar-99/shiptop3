@@ -17,6 +17,7 @@ const DR = require("./routes/driver");
 const OW = require("./routes/owner");
 const AC = require("./routes/accountant");
 const CS = require("./routes/customerService");
+const WO = require("./routes/worker")
 
 //accepting json files
 app.use(express.json());
@@ -33,9 +34,8 @@ app.use("/api/driver",DR);
 app.use("/api/owner",OW);
 app.use("/api/accountant",AC);
 app.use("/api/customerService",CS);
+app.use("/api/warehouseWorker",WO);
 
-
-//
 //listening
 app.listen(port, () => console.log("server started on port " + port + " !"));
 

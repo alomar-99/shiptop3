@@ -1,18 +1,16 @@
-http://localhost:3000/api/warehouseManager/addWorker
-
+http://localhost:3000/api/warehouseManager/modifyWorker
 
 {
     "employeeID": 11,
-    "firstName": "saad",
-    "lastName": "ali",
-    "email": "gneuryreer7@gmail.com",
+    "workerID": 6,
+    "email": "gnwlo7@gmail.com",
     "phoneNumber": "053698745",
     "password": "tgfujol64",
     "warehouseID":1,
     "office": {
         "location":"JEDDAH",
         "telephone": "0138763937",
-	"roomNumber": 786
+	    "roomNumber": 786
     },
     "shelfs":[1,2,3,4]
 } 

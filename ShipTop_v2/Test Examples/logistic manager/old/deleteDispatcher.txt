@@ -1,6 +1,0 @@
-URL = http://localhost:3000/api/logisticManager/deleteDispatcher
-
-{
-    "employeeID": 75,
-    "dispatcherID":4
-}

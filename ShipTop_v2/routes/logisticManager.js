@@ -76,7 +76,7 @@ router.post("/modifyWarehouseManager",urlEncodedParser, (req, res) => {
                             employeeSQL += "START TRANSACTION; \n" 
                             employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                             employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n"
+                            employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                             employeeSQL+= "COMMIT; "
                             DB.query(employeeSQL, (err)=>{
                                 if (err) throw err; 
@@ -91,8 +91,8 @@ router.post("/modifyWarehouseManager",urlEncodedParser, (req, res) => {
                         employeeSQL += "START TRANSACTION; \n" 
                         employeeSQL+= "UPDATE employee \n SET email= '"+ req.body.email +"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n"
-                        employeeSQL+= "COMMIT; "
+                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
+                        employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
                             res.send({

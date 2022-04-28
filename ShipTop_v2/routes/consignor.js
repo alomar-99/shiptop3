@@ -4,7 +4,7 @@ const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
-//add shipment 
+//add order 
 router.post("/addOrder",urlEncodedParser,(req,res)=>{
     let shipmentSQL ="START TRANSACTION; \n";
     shipmentSQL += "INSERT INTO consignororder()VALUES(); \n";
@@ -27,19 +27,19 @@ router.post("/addOrder",urlEncodedParser,(req,res)=>{
     });
 });
 
+//cancel order 
 
-//add Rating
+
+
+//rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {
-  
-
-            let rateSQL = "update  consignorrate set rate='" + req.body.rate + "', comment = '" + req.body.comment + "' WHERE employeeID = " + req.body.consignorID;
-            DB.query(rateSQL, (err) => {
-                if (err) throw err;
-                res.send({
-                    "status": "SUCCESS",
-                    "err": false
-                });
-            });
-        
+    let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE employeeID = " + req.body.consignorID;
+    DB.query(rateSQL, (err) => {
+        if (err) throw err;
+        res.send({
+            "status": "SUCCESS",
+            "err": false
+        });
+    });
     });
 module.exports = router;
