@@ -54,7 +54,7 @@ router.post("/modifyWarehouseManager",urlEncodedParser, (req, res) => {
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.warehouseManagerID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 if (result!="")
@@ -63,36 +63,20 @@ router.post("/modifyWarehouseManager",urlEncodedParser, (req, res) => {
                         "err": true 
                     });
                 else{
-                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"'";
+                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.warehouseManagerID;
                     DB.query(checkEmailSQL, (err, result)=>{ 
                     if (err) throw err;  
-                    if (result[0]!=undefined){
-                        if(result[0].employeeID!=req.body.warehouseManagerID)
-                            res.send({
-                                "status": "DUPLICATE EMAIL", 
-                                "err": true
-                            });
-                        else{
-                            employeeSQL += "START TRANSACTION; \n" 
-                            employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "COMMIT; "
-                            DB.query(employeeSQL, (err)=>{
-                                if (err) throw err; 
-                                res.send({
-                                    "status": "SUCCESS", 
-                                    "err": false
-                                });
-                            });
-                        }
-                    }
+                    if(result[0]!=undefined)
+                        res.send({
+                            "status": "DUPLICATE EMAIL", 
+                            "err": true
+                        });
                     else{
                         employeeSQL += "START TRANSACTION; \n" 
-                        employeeSQL+= "UPDATE employee \n SET email= '"+ req.body.email +"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
+                        employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                        employeeSQL+= "COMMIT; ";
+                        employeeSQL+= "COMMIT; "
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
                             res.send({
@@ -193,7 +177,7 @@ router.post("/modifyDispatcher",urlEncodedParser, (req, res) => {
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.dispatcherID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 if (result!="")
@@ -202,35 +186,19 @@ router.post("/modifyDispatcher",urlEncodedParser, (req, res) => {
                         "err": true 
                     });
                 else{
-                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"'";
+                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.dispatcherID;
                     DB.query(checkEmailSQL, (err, result)=>{ 
                     if (err) throw err;  
-                    if (result[0]!=undefined){
-                        if(result[0].employeeID!=req.body.dispatcher)
-                            res.send({
-                                "status": "DUPLICATE EMAIL", 
-                                "err": true
-                            });
-                        else{
-                            employeeSQL += "START TRANSACTION; \n" 
-                            employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                            employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.dispatcher + ";\n"
-                            employeeSQL+= "COMMIT; "
-                            DB.query(employeeSQL, (err)=>{
-                                if (err) throw err; 
-                                res.send({
-                                    "status": "SUCCESS", 
-                                    "err": false
-                                });
-                            });
-                        }
-                    }
+                    if(result[0]!=undefined)
+                        res.send({
+                            "status": "DUPLICATE EMAIL", 
+                            "err": true
+                        });
                     else{
                         employeeSQL += "START TRANSACTION; \n" 
-                        employeeSQL+= "UPDATE employee \n SET email= '"+ req.body.email +"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                        employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n"
+                        employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.dispatcherID + ";\n";
+                        employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.dispatcherID + ";\n";
+                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.dispatcher + ";\n"
                         employeeSQL+= "COMMIT; "
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 

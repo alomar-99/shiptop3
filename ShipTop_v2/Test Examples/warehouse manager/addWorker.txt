@@ -8,7 +8,6 @@ http://localhost:3000/api/warehouseManager/addWorker
     "email": "gneuryreer7@gmail.com",
     "phoneNumber": "053698745",
     "password": "tgfujol64",
-    "warehouseID":1,
     "office": {
         "location":"JEDDAH",
         "telephone": "0138763937",

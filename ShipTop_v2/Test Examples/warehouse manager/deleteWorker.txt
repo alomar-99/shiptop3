@@ -1,0 +1,7 @@
+http://localhost:3000/api/warehouseManager/deleteWorker
+
+
+{
+    "employeeID": 11,
+    "workerID":4
+} 
