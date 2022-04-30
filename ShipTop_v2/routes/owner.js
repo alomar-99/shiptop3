@@ -66,56 +66,42 @@ router.post("/deleteadministrator",urlEncodedParser, (req, res) => {
 });
 
 //modify Administrator
-router.post("/modifyadministrator",urlEncodedParser, (req, res) => {
+router.post("/modifyAdministrator",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.adminID;
     DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
         let employeeSQL="";
         if (result=="")    
-            res.send({
+            res.send({ 
                 "status": "ACC DOESN't EXIST", 
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.adminID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
+                console.log(result);
                 if (result!="")
                     res.send({
                         "status": "DUPLICATE LOC", 
                         "err": true 
                     });
-                else{
-                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"'";
+                else{ 
+                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.adminID;
                     DB.query(checkEmailSQL, (err, result)=>{ 
                     if (err) throw err;  
-                    if (result[0]!=undefined){
-                        if(result[0].employeeID!=req.body.adminID)
-                            res.send({
-                                "status": "DUPLICATE EMAIL", 
-                                "err": true
-                            });
-                        else{
-                            employeeSQL += "START TRANSACTION; \n" 
-                            employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.adminID + ";\n";
-                            employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.adminID + ";\n";
-                            employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.adminID + ";\n"
-                            employeeSQL+= "COMMIT; "
-                            DB.query(employeeSQL, (err)=>{
-                                if (err) throw err; 
-                                res.send({
-                                    "status": "SUCCESS", 
-                                    "err": false
-                                });
-                            });
-                        }
-                    }
+                    if(result[0]!=undefined)
+                        res.send({
+                            "status": "DUPLICATE EMAIL", 
+                            "err": true
+                        });
                     else{
-                        employeeSQL += "START TRANSACTION; \n" 
-                        employeeSQL+= "UPDATE employee \n SET email= '"+ req.body.email +"', phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.adminID + ";\n";
+                        employeeSQL+= "START TRANSACTION; \n" 
+                        employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.adminID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.adminID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.adminID + ";\n"
-                        employeeSQL+= "COMMIT; "
+                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.adminID + ";\n";  
+                        employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.adminID + ";\n";
+                        employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
                             res.send({

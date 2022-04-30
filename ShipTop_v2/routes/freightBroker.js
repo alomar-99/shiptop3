@@ -70,7 +70,7 @@ router.post("/deleteconsignor",urlEncodedParser, (req, res) => {
     });
 });
 
-//
+
 
 
 
