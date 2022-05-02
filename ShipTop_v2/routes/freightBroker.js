@@ -44,6 +44,7 @@ router.post("/addConsignor",urlEncodedParser, (req, res) => {
     });
 });
 
+//modifyConsignor
 
 
 
@@ -70,7 +71,7 @@ router.post("/deleteconsignor",urlEncodedParser, (req, res) => {
     });
 });
 
-
+//view Consignors
 
 
 

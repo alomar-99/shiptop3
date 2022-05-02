@@ -89,7 +89,6 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
     });
 });
 
-
 // modify worker
 router.post("/modifyWorker",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.workerID;

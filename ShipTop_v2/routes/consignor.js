@@ -27,9 +27,20 @@ router.post("/addOrder",urlEncodedParser,(req,res)=>{
     });
 });
 
-//cancel order 
-
-
+//cancel order //TODO: test this UC
+router.post("/cancelOrder", urlEncodedParser, (req, res) => {
+    let cancelSQL = "START TRANSACTION; \n";
+    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = "+time.getDateTime()+"WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "COMMIT; ";
+    DB.query(cancelSQL, (err) => {
+        if (err) throw err;
+        res.send({
+            "status": "SUCCESS",
+            "err": false
+        });
+    });
+    });
 
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {

@@ -3,11 +3,9 @@ const router = express.Router();
 const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
-//
+
 //add invoice
 router.post("/addInvoice", urlEncodedParser, (req, res) => {
-  
-
     let rateSQL = "INSERT INTO  invoice (invoiceID, date, paymentMethod)\n VALUES('"+ req.body.invoiceID +"', '" + time.getDateTime()+"','"+ req.body.paymentMethod +"','"+ req.body.paymentMethod;
     DB.query(rateSQL, (err) => {
         if (err) throw err;
@@ -21,8 +19,6 @@ router.post("/addInvoice", urlEncodedParser, (req, res) => {
 
 //modify invoice
 router.post("/modifyInvoice", urlEncodedParser, (req, res) => {
-  
-
     let rateSQL = "update  invoice set paymentMethod='" + req.body.paymentMethod + "', amount = '" + req.body.amount + "' WHERE invoiceID = " + req.body.invoiceID;
     DB.query(rateSQL, (err) => {
         if (err) throw err;
@@ -57,7 +53,9 @@ router.post("/deleteInvoice",urlEncodedParser, (req, res) => {
         }
     });
 });
-//view invoice
+
+//view invoices
+
 //view orders
 
 

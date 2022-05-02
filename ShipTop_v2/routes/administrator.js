@@ -41,7 +41,7 @@ router.post("/addlogisticManager",urlEncodedParser, (req, res) => {
         }
     });
 });
-///////////////
+
 //add Freight Broker
 router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
