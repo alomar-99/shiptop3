@@ -28,7 +28,7 @@ router.post("/addConsignor",urlEncodedParser, (req, res) => {
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'CO', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
                     employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
-                    employeeSQL += "INSERT INTO consignorrate(consignorID)VALUE((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"'));\n"
+                    employeeSQL += "INSERT INTO consignorrate(consignorID)VALUE((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"')); \n";
                     employeeSQL += "COMMIT; "
                     console.log(employeeSQL);
                     DB.query(employeeSQL, (err)=>{

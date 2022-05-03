@@ -6,6 +6,12 @@ const urlEncodedParser = require('./tools/config').middleware;
 
 
 //deliver shipment
+router.post("/deliverShipment",urlEncodedParser, (req, res) => {
+    let deliverySQL = "START TRANSACTION; \n"; 
+    deliverySQL += "UPDATE shipmentdelivery SET currentCity"
+    deliverySQL += "COMMIT; ";
+
+});
 
 
 //view assigned shipments
@@ -20,7 +26,10 @@ const urlEncodedParser = require('./tools/config').middleware;
         // if CE => 
             //consignee => *
         
-            
+router.get("/viewShipments", (req, res) => {
+    
+
+});            
 
 
 module.exports = router;

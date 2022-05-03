@@ -1,0 +1,15 @@
+http://localhost:3000/api/dispatcher/addDriver
+
+{
+    "employeeID": 41,
+    "firstName": "Jamal",
+    "lastName": "Khalid",
+    "email": "sdssdf@gmail.com",
+    "phoneNumber": "0568421595",
+    "password": "agrydfcv",
+    "office": {
+        "location":"MEKKAH",
+        "telephone": "0138763937",
+	    "roomNumber": 222
+    }
+} 

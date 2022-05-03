@@ -1,0 +1,15 @@
+http://localhost:3000/api/logisticManager/addDispatcher
+
+{
+    "employeeID": 75,
+    "firstName": "mrwan",
+    "lastName": "ali",
+    "email": "gnwweee7@gmail.com",
+    "phoneNumber": "053698745",
+    "password": "rgshsr",
+    "office": {
+        "location":"Dammam",
+        "telephone": "0138763937",
+	"roomNumber": 167
+    }
+} 

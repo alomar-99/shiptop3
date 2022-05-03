@@ -259,17 +259,19 @@ router.post("/viewDispatchers",urlEncodedParser, (req, res) =>{
 //     });
 // });
 
-//assignShipmentToWarehouse
+// assignShipmentToDispatcher //TODO: try this
 // router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
-    
-//     let SQL = "UPDATE shipment SET currentUserID = 'DI" + req.body.dispatcherID + "', updatedBy = 'LM"+req.body.employeeID+"', lastUpdate = '"+time.getDateTime()+"' WHERE shipmentID IN (";
+//     let employee = ""
+//     if (req.body.next == "WM") employee = "currentEmployee";
+//     else employee = "assignedEmployee";
+//     let shipmentSQL = "UPDATE shipmentdelivery\n SET "+employee+" = " + req.body.dispatcherID + "WHERE shipmentID IN(";
 //     for(let i =0;i<req.body.shipmentID.length;i++){
-//         SQL += req.body.shipmentID[i];
+//         shipmentSQL += req.body.shipmentID[i];
 //         if(i<req.body.shipmentID.length-1)
-//         SQL += ", ";
+//         shipmentSQL += ", ";
 //     }
-//     SQL += ")";
-//     DB.query(SQL, (err)=>{
+//     shipmentSQL += ")";
+//     DB.query(shipmentSQL, (err)=>{
 //         if (err) throw err;
 //         res.send({
 //             "status": "SUCCESS", 

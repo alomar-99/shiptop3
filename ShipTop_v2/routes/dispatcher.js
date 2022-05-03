@@ -45,7 +45,7 @@ router.post("/addDriver",urlEncodedParser, (req, res) => {
 
 //modify driver 
 router.post("/modifyDriver",urlEncodedParser, (req, res) => {
-    const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.workerID;
+    const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
     DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
         let employeeSQL="";
@@ -55,7 +55,7 @@ router.post("/modifyDriver",urlEncodedParser, (req, res) => {
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.workerID;
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.driverID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 console.log(result);
@@ -65,7 +65,7 @@ router.post("/modifyDriver",urlEncodedParser, (req, res) => {
                         "err": true 
                     });
                 else{ 
-                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.workerID;
+                    const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.driverID;
                     DB.query(checkEmailSQL, (err, result)=>{ 
                     if (err) throw err;  
                     if(result[0]!=undefined)
@@ -119,32 +119,133 @@ router.post("/deleteDriver",urlEncodedParser, (req, res) => {
 
 //view drivers 
 
-//add vehicles 
+
+
+//add vehicle 
 router.post("/addVehicle",urlEncodedParser, (req, res) => {
     let vehicleSQL = "START TRANSACTION; \n"; 
-    vehicleSQL += "INSERT INTO vehicle\n (currentLocation, capacity)\n VALUES ('"+req.body.location+"', '"+req.body.capacity+"'); \n";
-    vehicleSQL += "INSERT INTO vehicleRegistration\n (vehicleID, plateNumber, manufacturerCompany, model, yearOfManufactoring, color, weightInTons)\n VALUES((SELECT MAX(vehicleID) FROM Vehicle), '"+req.body.registration.plateNumber+"', '" 
+    vehicleSQL += "INSERT INTO vehicle\n (currentLocation, capacity)\n VALUES ((SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+req.body.capacity+"'); \n";
+    vehicleSQL += "INSERT INTO vehicleregistration\n (vehicleID, plateNumber, manufacturerCompany, model, yearOfManufactoring, color, weightInTons)\n VALUES((SELECT MAX(vehicleID) FROM vehicle), '"+req.body.registration.plateNumber+"', '" 
     vehicleSQL += req.body.registration.manufacturerCompany+"', '" + req.body.registration.model +"', '" + req.body.registration.yearOfManufactoring+ "', '" + req.body.registration.color + "', " + req.body.registration.weightInTons +"); \n"
-    vehicleSQL += "INSERT INTO vehicleupdate\n (vehicleID, dispatcherID, lastUpdate)\n VALUES ((SELECT MAX(vehicleID) FROM Vehicle), "+req.body.employeeID+ ", '" + time.getDateTime() + "'); \n";
+    vehicleSQL += "INSERT INTO vehicleupdate\n (vehicleID, dispatcherID, lastUpdate)\n VALUES ((SELECT MAX(vehicleID) FROM vehicle), "+req.body.employeeID+ ", '" + time.getDateTime() + "'); \n";
     vehicleSQL+= "COMMIT; ";
     DB.query(vehicleSQL, (err)=>{
         if (err) throw err;
         res.send({
             "status": "SUCCESS", 
             "err": false
-        });
+        }); 
     });
 });
 
-//modify vehicles
+//modify vehicle
 
-//delete vehicles
+
+//delete vehicle
+router.post("/deleteVehicle",urlEncodedParser, (req, res) => {
+    const checkVehicleSQL = "SELECT vehicleID FROM vehicle WHERE vehicleID =" + req.body.vehicleID;
+    DB.query(checkVehicleSQL, (err,result) => {
+        if (err) throw err;
+        if (result=="")
+        res.send({
+            "status": "VEHICLE DOESN'T EXIST", 
+            "err": true
+        });
+        else{
+            const vehicleSQL = "DELETE FROM vehicle WHERE vehicleID = " + req.body.vehicleID;
+            DB.query(vehicleSQL, (err)=>{
+            if (err) throw err;
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+            });
+        }
+    });
+});
 
 //view vehicles
 
+
 //assign driver to vehicle 
+router.post("/assignVehicleToDriver",urlEncodedParser, (req, res) => {
+    const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
+    DB.query(checkIDSQL, (err, result)=>{
+        if (err) throw err;
+        let assignmentSQL="";
+        if (result=="")    
+            res.send({ 
+                "status": "DRIVER DOESN't EXIST", 
+                "err": true
+            }); 
+        else{
+            const checkVehicleSQL = "SELECT vehicleID FROM vehicle WHERE vehicleID ="+ req.body.vehicleID;
+            DB.query(checkVehicleSQL, (err,result)=>{
+                if (err) throw err;
+                if (result=="")    
+                    res.send({ 
+                        "status": "VEHICLE DOESN't EXIST", 
+                        "err": true
+                    }); 
+                else{ 
+                    assignmentSQL += "START TRANSACTION; \n" 
+                    assignmentSQL += "UPDATE vehicledriver SET vehicleID = " + req.body.vehicleID + " WHERE driverID = " + req.body.driverID+"; \n";
+                    assignmentSQL += "UPDATE vehicleupdate SET dispatcherID = "+ req.body.employeeID +", lastUpdate = '"+ time.getDateTime() +"'\n WHERE vehicleID = " + req.body.vehicleID + "; \n"; 
+                    assignmentSQL += "UPDATE employeeupdate SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.driverID + "; \n";
+                    assignmentSQL += "UPDATE vehicledriver SET vehicleID = NULL WHERE driverID !="+ req.body.driverID +" AND vehicleID = "+req.body.vehicleID+"; \n";
+                    assignmentSQL += "COMMIT; ";
+                    console.log(assignmentSQL);
+                    DB.query(assignmentSQL, (err)=>{
+                        if (err) throw err; 
+                        res.send({
+                            "status": "SUCCESS", 
+                            "err": false
+                        });
+                    });
+                }
+            });
+        }
+    });
+});
 
 //assign shipment to driver
+router.post("/assignShipmentToDriver",urlEncodedParser, (req, res) => {
+    const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
+    DB.query(checkIDSQL, (err, result)=>{
+        if (err) throw err;
+        let assignmentSQL="";
+        if (result=="")    
+            res.send({ 
+                "status": "DRIVER DOESN't EXIST", 
+                "err": true
+            }); 
+        else{
+            const checkShipmentSQL = "SELECT shipmentID FROM shipment WHERE shipmentID ="+ req.body.shipmentID;
+            DB.query(checkShipmentSQL, (err,result)=>{
+                if (err) throw err;
+                if (result=="")    
+                    res.send({ 
+                        "status": "SHIPMENT DOESN't EXIST", 
+                        "err": true
+                    }); 
+                else{ 
+                    assignmentSQL += "START TRANSACTION; \n" 
+                    assignmentSQL += "UPDATE shipmentdelivery SET currentCity = (SELECT location FROM office WHERE employeeID = "+ req.body.employeeID +"), deliveryDate = '"+req.body.deliveryDate+"',currentEmployee ="+req.body.driverID+", assignedEmployee = "+req.body.assignedEmployeeID+"  WHERE shipmentID = " + req.body.shipmentID+"; \n";
+                    assignmentSQL += "UPDATE shipmentupdate SET updatedBy = "+ req.body.employeeID +", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID + "; \n"; 
+                    assignmentSQL += "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.driverID + "; \n";
+                    assignmentSQL += "COMMIT; ";
+                    DB.query(assignmentSQL, (err)=>{
+                        if (err) throw err; 
+                        res.send({
+                            "status": "SUCCESS", 
+                            "err": false
+                        });
+                    });
+                }
+            });
+        }
+    });
+});
 
 
 
