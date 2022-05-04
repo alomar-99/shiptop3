@@ -13,11 +13,11 @@ router.post("/addOrder",urlEncodedParser,(req,res)=>{
         shipmentSQL += "INSERT INTO shipmentdetails(shipmentID, height, weight, width, length, description)VALUES((SELECT MAX(shipmentID) FROM shipment), ";
         shipmentSQL += req.body.shipments[x].details.height + ", " + req.body.shipments[x].details.weight + ", " + req.body.shipments[x].details.width + ", "+ req.body.shipments[x].details.length + ", '" + req.body.shipments[x].details.description + "'); \n";
         shipmentSQL += "INSERT INTO shipmentupdate(shipmentID, updatedBy, lastUpdate)VALUES((SELECT MAX(shipmentID) FROM shipment), "+req.body.employeeID +", '"+ time.getDateTime() +"'); \n";
-        shipmentSQL += "INSERT INTO shipmentdelivery(shipmentID, currentCity, assignedEmployee) VALUES((SELECT MAX(shipmentID) FROM shipment), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), " + req.body.employeeID +"); \n"; 
-        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, action, actor) VALUES((SELECT MAX(shipmentID) FROM shipmentdelivery), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"),(SELECT lastUpdate FROM shipmentupdate WHERE shipmentID = (SELECT MAX(shipmentID) FROM shipmentdelivery)),'ADD', " + req.body.employeeID + "); \n";
+        shipmentSQL += "INSERT INTO shipmentdelivery(shipmentID, currentCity, currentEmployee) VALUES((SELECT MAX(shipmentID) FROM shipment), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), " + req.body.employeeID +"); \n"; 
+        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor) VALUES((SELECT MAX(shipmentID) FROM shipment), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"),(SELECT lastUpdate FROM shipmentupdate WHERE shipmentID = (SELECT MAX(shipmentID) FROM shipmentdelivery)),'ADD', " + req.body.employeeID + "); \n";
+        shipmentSQL += "INSERT INTO ordershipment(orderID, shipmentID) VALUES((SELECT MAX(ID) FROM consignororder),(SELECT MAX(shipmentID) FROM shipment)); \n";
     }
     shipmentSQL += "COMMIT; "
-    console.log(shipmentSQL);
     DB.query(shipmentSQL,(err)=>{
         if (err) throw err;
         res.send({
@@ -27,9 +27,20 @@ router.post("/addOrder",urlEncodedParser,(req,res)=>{
     });
 });
 
-//cancel order 
-
-
+//cancel order //TODO: test this UC
+router.post("/cancelOrder", urlEncodedParser, (req, res) => {
+    let cancelSQL = "START TRANSACTION; \n";
+    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = "+time.getDateTime()+"WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "COMMIT; ";
+    DB.query(cancelSQL, (err) => {
+        if (err) throw err;
+        res.send({
+            "status": "SUCCESS",
+            "err": false
+        });
+    });
+    });
 
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {

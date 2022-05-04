@@ -89,7 +89,6 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
     });
 });
 
-
 // modify worker
 router.post("/modifyWorker",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.workerID;
@@ -121,7 +120,7 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
                             "err": true
                         });
                     else{
-                        employeeSQL+= "START TRANSACTION; \n" 
+                        employeeSQL+= "START TRANSACTION; \n"; 
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.workerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.workerID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.workerID + ";\n";  
@@ -184,10 +183,6 @@ router.post("/viewWorkers",urlEncodedParser, (req, res) => {
 // FROM workerShelf WOsh 
 // INNER JOIN shelfreservation shelfRes
 // ON shelfRes.shelfID = WOsh.shelfID AND shelfRes.assignedShipment=null
-
-
-
-
 
 // SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
 //  WOup.updatedBy,WOup.lastUpdate, count(WOsh.shelfID) AS emptyShelfs 

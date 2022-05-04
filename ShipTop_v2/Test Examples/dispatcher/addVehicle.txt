@@ -1,0 +1,14 @@
+http://localhost:3000/api/dispatcher/addVehicle
+
+{
+    "employeeID": 41,
+    "capacity": 3.57,
+    "registration":{
+        "plateNumber": "ABCD 5321",
+        "manufacturerCompany": "Toyota",
+        "model": "Van",
+        "yearOfManufactoring": 2018,
+        "color": "silver",
+        "weightInTons": 1.72
+    }
+}
