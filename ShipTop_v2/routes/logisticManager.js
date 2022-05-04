@@ -117,11 +117,11 @@ router.post("/deleteWarehouseManager",urlEncodedParser, (req, res) => {
 });
 
 //view list of warehouseManagers that are related to current logistic manager
-router.post("/viewWarehouseManagers",urlEncodedParser, (req, res) =>{
+router.get("/viewWarehouseManagers", (req, res) =>{
     let SQL = "SELECT WM.*,\n WMof.location,WMof.roomNumber,WMof.telephone,\n WMup.updatedBy,WMup.lastUpdate\n FROM employee WM\n";
     SQL += "INNER JOIN employeeupdate WMup\n ON WM.employeeID = WMup.employeeID AND WM.role='WM'";
     SQL += "INNER JOIN office WMof\n ON WM.employeeID  = WMof.employeeID AND WM.role='WM'";
-    SQL += "JOIN office LMof\n ON LMof.employeeID = "+req.body.warehouseManagerID+" AND LMof.location = WMof.location";
+    SQL += "INNER JOIN office LMof\n ON LMof.employeeID = "+req.params.employeeID+" AND LMof.location = WMof.location";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -251,17 +251,6 @@ router.post("/viewDispatchers",urlEncodedParser, (req, res) =>{
     });
 });
 
-//view list of shipments that are related to current logistic manager
-router.post("/viewshipments",urlEncodedParser, (req, res) =>{
-    let shipmentSQL = "START TRANSACTION; \n"; 
-    shipmentSQL += "SELECT "
-    shipmentSQL += "COMMIT; ";
-    DB.query(shipmentSQL, (err,result)=>{
-        if (err) throw err;
-        res.send(result);
-    });
-});
-
 // assignShipmentToDispatcher
 router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
     let employee = ""
@@ -296,18 +285,14 @@ router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
 
 //viewWarehouses
 router.get("/viewWarehouses", (req, res) =>{
-    let warehousesSQL = "SELECT wa.*, wm.memberID\n FROM warehouse wa \n INNER JOIN warehousemember wm\n ON wa.warehouseID = wm.warehouseID\n";
+    let warehousesSQL = "SELECT wa.*, wm.memberID AS managerID\n FROM warehouse wa \n INNER JOIN warehousemember wm\n ON wa.warehouseID = wm.warehouseID\n";
     warehousesSQL += "INNER JOIN employee em\n ON em.employeeID = wm.memberID AND em.role = 'WM'\n";
     warehousesSQL += "INNER JOIN office off\n ON off.location = wa.location AND off.employeeID = "+req.body.employeeID;
-    DB.query(warehousesSQL, (err)=>{
+    DB.query(warehousesSQL, (err,result)=>{
         if (err) throw err;
-        res.send({
-            "status": "SUCCESS", 
-            "err": false
-        });
-    }); 
-});
-
+        res.send(result); 
+    });
+}); 
 
 //view all shipments for any logistic manager
 router.get("/viewShipments", (req, res) =>{
@@ -323,13 +308,13 @@ router.get("/viewShipments", (req, res) =>{
         }
         // shipmentsSQL+= equality(req.body.filteredBy,i)
     }
-    if (req.body.sortedBy.length>0)
-    shipmentsSQL += "ORDER BY "
-    for (let j=0;j<req.body.sortedBy.length;j++){
-        shipmentsSQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
-        if(j<req.body.sortedBy.length-1)
-        shipmentsSQL += ", "
-    }
+    // if (req.body.sortedBy.length>0)
+    // shipmentsSQL += "ORDER BY "
+    // for (let j=0;j<req.body.sortedBy.length;j++){
+    //     shipmentsSQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
+    //     if(j<req.body.sortedBy.length-1)
+    //     shipmentsSQL += ", "
+    // }
 
 
     res.send(shipmentsSQL);
