@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
+const equality = require('./tools/utility').equality;
 const urlEncodedParser = require('./tools/config').middleware;
 
 //add warehouse manager
@@ -250,65 +251,93 @@ router.post("/viewDispatchers",urlEncodedParser, (req, res) =>{
     });
 });
 
-// //view list of shipments that are related to current logistic manager
-// router.post("/viewshipments",urlEncodedParser, (req, res) =>{
-//     let SQL = "";
-//     DB.query(SQL, (err,result)=>{
-//         if (err) throw err;
-//         res.send(result);
-//     });
-// });
+//view list of shipments that are related to current logistic manager
+router.post("/viewshipments",urlEncodedParser, (req, res) =>{
+    let shipmentSQL = "START TRANSACTION; \n"; 
+    shipmentSQL += "SELECT "
+    shipmentSQL += "COMMIT; ";
+    DB.query(shipmentSQL, (err,result)=>{
+        if (err) throw err;
+        res.send(result);
+    });
+});
 
-// assignShipmentToDispatcher //TODO: try this
-// router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
-//     let employee = ""
-//     if (req.body.next == "WM") employee = "currentEmployee";
-//     else employee = "assignedEmployee";
-//     let shipmentSQL = "UPDATE shipmentdelivery\n SET "+employee+" = " + req.body.dispatcherID + "WHERE shipmentID IN(";
-//     for(let i =0;i<req.body.shipmentID.length;i++){
-//         shipmentSQL += req.body.shipmentID[i];
-//         if(i<req.body.shipmentID.length-1)
-//         shipmentSQL += ", ";
-//     }
-//     shipmentSQL += ")";
-//     DB.query(shipmentSQL, (err)=>{
-//         if (err) throw err;
-//         res.send({
-//             "status": "SUCCESS", 
-//             "err": false
-//         });
-//     }); 
-// });
+// assignShipmentToDispatcher
+router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
+    let employee = ""
+    if (req.body.next == "WM") employee = "currentEmployee";
+    else employee = "assignedEmployee";
+    let shipmentSQL = "START TRANSACTION; \n";
+    shipmentSQL += "UPDATE shipmentdelivery\n SET "+employee+" = " + req.body.dispatcherID + " WHERE shipmentID IN(";
+    for(let i =0;i<req.body.shipmentID.length;i++){
+        shipmentSQL += req.body.shipmentID[i];
+        if(i<req.body.shipmentID.length-1)
+        shipmentSQL += ", ";
+    }
+    shipmentSQL += "); \n UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN(";
+    for(let i =0;i<req.body.shipmentID.length;i++){
+        shipmentSQL += req.body.shipmentID[i];
+        if(i<req.body.shipmentID.length-1)
+        shipmentSQL += ", ";
+    }
+    shipmentSQL += "); \n"; 
+    for(let i =0;i<req.body.shipmentID.length;i++){
+        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, action, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
+    }
+    shipmentSQL += "COMMIT; ";
+    DB.query(shipmentSQL, (err)=>{
+        if (err) throw err;
+        res.send({
+            "status": "SUCCESS", 
+            "err": false
+        });
+    }); 
+});
 
 //viewWarehouses
+router.get("/viewWarehouses", (req, res) =>{
+    let warehousesSQL = "SELECT wa.*, wm.memberID\n FROM warehouse wa \n INNER JOIN warehousemember wm\n ON wa.warehouseID = wm.warehouseID\n";
+    warehousesSQL += "INNER JOIN employee em\n ON em.employeeID = wm.memberID AND em.role = 'WM'\n";
+    warehousesSQL += "INNER JOIN office off\n ON off.location = wa.location AND off.employeeID = "+req.body.employeeID;
+    DB.query(warehousesSQL, (err)=>{
+        if (err) throw err;
+        res.send({
+            "status": "SUCCESS", 
+            "err": false
+        });
+    }); 
+});
 
 
-// //view all shipments for any logistic manager
-// app.post("/api/logisticManager/viewShipments",urlEncodedParser, (req, res) =>{
-//     let SQL = "SELECT * FROM shipments WHERE currentUserID REGEXP '^"+req.body.senderType+"' ";
-//     for (const i in req.body.filteredBy){
-//         SQL += "AND " + i; 
-//         if(String(req.body.filteredBy[i]).includes("<x<"))
-//         SQL += " BETWEEN "+ req.body.filteredBy[i].substring(0,req.body.filteredBy[i].indexOf("<")) + " AND " + req.body.filteredBy[i].substring(req.body.filteredBy[i].lastIndexOf("<")+1) + " ";
-//         else if (String(req.body.filteredBy[i]).includes("<")||String(req.body.filteredBy[i]).includes(">")||String(req.body.filteredBy[i]).includes("!="))
-//         SQL += req.body.filteredBy[i] + " ";
-//         else if(typeof req.body.filteredBy[i]=="string")
-//         SQL += " = '"+ req.body.filteredBy[i] + "' ";
-//         else 
-//         SQL += " = "+ req.body.filteredBy[i] + " ";
-//     }
-//     if (req.body.sortedBy.length>0)
-//         SQL += "ORDER BY "
-//     for (let j=0;j<req.body.sortedBy.length;j++){
-//         SQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
-//         if(j<req.body.sortedBy.length-1)
-//         SQL += ", "
-//     }
-//     connection.query(SQL, (err,result)=>{
-//         if (err) throw err;        
-//         res.send(result);
-//     }); 
-// });
+//view all shipments for any logistic manager
+router.get("/viewShipments", (req, res) =>{
+    let shipmentsSQL = "SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width,\n shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,\n shipUp.updatedBy, shipUp.lastUpdate FROM shipments\n";
+    shipmentsSQL += "INNER JOIN shipmentdetails shipDet\n INNER JOIN shipmentdelivery shipDel\n INNER JOIN shipmentupdate shipUp\n INNER JOIN ordershipment ord\n ";
+    shipmentsSQL += "ON ship.shipmentID = shipDet.shipmentID\n AND ship.shipmentID = shipDel.shipmentID\n AND ship.shipmentID = shipUp.shipmentID\n AND ship.shipmentID = ord.shipmentID\n ";
+
+    for (const i in req.body.filteredBy){
+        if((!(Object.keys(req.body.filteredBy[i]).length===0 && Object.getPrototypeOf(req.body.filteredBy[i]) === Object.prototype) && req.body.filteredBy[i]=="")  || typeof req.body.filteredBy[i] === "string")
+            shipmentsSQL += " AND ship."+i+" = "+req.body.filteredBy[i] + "\n ";
+        for(const j in req.body.filteredBy[i]){
+            console.log(j, i);
+        }
+        // shipmentsSQL+= equality(req.body.filteredBy,i)
+    }
+    if (req.body.sortedBy.length>0)
+    shipmentsSQL += "ORDER BY "
+    for (let j=0;j<req.body.sortedBy.length;j++){
+        shipmentsSQL += req.body.sortedBy[j].type + " " + req.body.sortedBy[j].order 
+        if(j<req.body.sortedBy.length-1)
+        shipmentsSQL += ", "
+    }
+
+
+    res.send(shipmentsSQL);
+    // DB.query(shipmentsSQL, (err,result)=>{
+    //     if (err) throw err;        
+    //     res.send(result);
+    // }); 
+});
 
 
 

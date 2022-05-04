@@ -139,7 +139,30 @@ router.post("/addVehicle",urlEncodedParser, (req, res) => {
 });
 
 //modify vehicle
-
+router.post("/modifyVehicle",urlEncodedParser, (req, res) => {
+    const checkIDSQL = "SELECT * FROM vehicle WHERE vehicleID = " +req.body.vehicleID;
+    DB.query(checkIDSQL, (err, result)=>{
+        if (err) throw err;
+        if (result=="")    
+            res.send({ 
+                "status": "VEHICLE DOESN't EXIST", 
+                "err": true
+            }); 
+        else{
+            let vehicleSQL= "START TRANSACTION; \n"; 
+            vehicleSQL+= "UPDATE vehicle \n SET currentLocation = '" + req.body.location + "', capacity = " + req.body.capacity + " WHERE vehicleID = " + req.body.vehicleID + "; \n";
+            vehicleSQL+= "UPDATE vehicleupdate \n SET dispatcherID = " + req.body.registration.employeeID + ", lastUpdate = '" + time.getDateTime() + "' WHERE vehicleID = " + req.body.vehicleID + "; \n";
+            vehicleSQL+= "COMMIT; ";
+            DB.query(vehicleSQL, (err)=>{
+                if (err) throw err; 
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+            });
+        }
+    });
+});
 
 //delete vehicle
 router.post("/deleteVehicle",urlEncodedParser, (req, res) => {

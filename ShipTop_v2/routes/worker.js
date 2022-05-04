@@ -4,7 +4,7 @@ const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
-// view shipments
+//view shipments
 
 
 //view shelfs
@@ -16,9 +16,9 @@ const urlEncodedParser = require('./tools/config').middleware;
 //pick up shipment
 
 
+
+
 //merge shelfs
-
-
 //reset merged shelfs
 
 

@@ -7,8 +7,12 @@ const urlEncodedParser = require('./tools/config').middleware;
 
 //deliver shipment
 router.post("/deliverShipment",urlEncodedParser, (req, res) => {
+    let location = "";
+    if (req.body.next == "CE") location = "(SELECT location FROM consignee WHERE orderID = (SELECT orderID FROM ordershipment WHERE shipmentID = "+req.body.shipmentID+"))"
+    else location = "(SELECT location FROM office WHERE employeeID = "+req.body.next+")";
+
     let deliverySQL = "START TRANSACTION; \n"; 
-    deliverySQL += "UPDATE shipmentdelivery SET currentCity"
+    deliverySQL += "UPDATE shipmentdelivery SET currentCity = " + location + ", currentEmployee = "
     deliverySQL += "COMMIT; ";
 
 });
@@ -27,7 +31,7 @@ router.post("/deliverShipment",urlEncodedParser, (req, res) => {
             //consignee => *
         
 router.get("/viewShipments", (req, res) => {
-    
+    let shipmentSQL = "";
 
 });            
 

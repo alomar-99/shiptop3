@@ -186,8 +186,6 @@ router.post("/viewWorkers",urlEncodedParser, (req, res) => {
 
 
 
-
-
 // SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
 //  WOup.updatedBy,WOup.lastUpdate, count(WOsh.shelfID) AS emptyShelfs 
 //  FROM employee WO
