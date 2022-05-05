@@ -251,13 +251,14 @@ router.get("/viewDispatchers", (req, res) =>{
     });
 });
 
-// assignShipmentToDispatcher
+//assignShipmentsToDispatcher
 router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
-    let employee = ""
-    if (req.body.next == "WM") employee = "currentEmployee";
-    else employee = "assignedEmployee";
     let shipmentSQL = "START TRANSACTION; \n";
-    shipmentSQL += "UPDATE shipmentdelivery\n SET "+employee+" = " + req.body.dispatcherID + " WHERE shipmentID IN(";
+    shipmentSQL += "UPDATE shipmentdelivery\n SET currentEmployee = " + req.body.dispatcherID + ", assignedEmployee = ";
+    if (req.body.warehouseManagerID==null)
+    shipmentSQL += req.body.dispatcherID ;
+    else shipmentSQL += req.body.warehouseManagerID
+    shipmentSQL+= " WHERE shipmentID IN(";
     for(let i =0;i<req.body.shipmentID.length;i++){
         shipmentSQL += req.body.shipmentID[i];
         if(i<req.body.shipmentID.length-1)
@@ -271,7 +272,7 @@ router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
     }
     shipmentSQL += "); \n"; 
     for(let i =0;i<req.body.shipmentID.length;i++){
-        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, action, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
+        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
     }
     shipmentSQL += "COMMIT; ";
     DB.query(shipmentSQL, (err)=>{

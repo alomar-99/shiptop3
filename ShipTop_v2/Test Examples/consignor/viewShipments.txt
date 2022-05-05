@@ -3,8 +3,10 @@ http://localhost:3000/api/logisticManager/viewShipments
 {
     "employeeID": 12,
     "filteredBy":{
+
         "isBreakable":false,
         "category":"office supplies",
+
         "details":{
             "weight": "0.05<x<0.1",
             "length": "<0.5"

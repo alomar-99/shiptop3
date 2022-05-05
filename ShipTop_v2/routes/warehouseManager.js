@@ -193,8 +193,6 @@ router.post("/viewWorkers",urlEncodedParser, (req, res) => {
 });
 
 //view shipments in a warehouse
-
-
 router.post("/viewShipments",urlEncodedParser, (req, res) => {
 
 

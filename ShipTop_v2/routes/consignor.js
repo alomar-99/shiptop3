@@ -5,13 +5,13 @@ const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
 //add order 
-router.get("/createOrder",(req,res)=>{
+router.post("/createOrder",urlEncodedParser,(req,res)=>{
     let orderSQL ="START TRANSACTION; \n";
     orderSQL += "INSERT INTO consignororder()VALUES(); \n";
-    orderSQL += "INSERT INTO consignee (orderID, location, address, phoneNumber) VALUES ((SELECT MAX(ID) FROM consignororder), '" + req.params.location + "', '"+req.body.address + "', '" + req.body.phoneNumber + "'); \n";
-    orderSQL += "INSERT INTO orderupdate(orderID, updatedBy, lastUpdate)VALUES((SELECT MAX(ID) FROM consignororder), "+req.params.employeeID +", '"+ time.getDateTime() +"'); \n";
+    orderSQL += "INSERT INTO consignee (orderID, location, address, phoneNumber) VALUES ((SELECT MAX(ID) FROM consignororder), '" + req.body.location + "', '"+req.body.address + "', '" + req.body.phoneNumber + "'); \n";
+    orderSQL += "INSERT INTO orderupdate(orderID, updatedBy, lastUpdate)VALUES((SELECT MAX(ID) FROM consignororder), "+req.body.employeeID +", '"+ time.getDateTime() +"'); \n";
     orderSQL += "SELECT MAX(co.ID) AS ID\n FROM consignororder co\n INNER JOIN orderupdate ord\n";
-    orderSQL += "ON co.ID = ord.orderID AND ord.updatedBy = "+req.params.employeeID+"; \n";
+    orderSQL += "ON co.ID = ord.orderID AND ord.updatedBy = "+req.body.employeeID+"; \n";
     orderSQL += "COMMIT; "
     DB.query(orderSQL,(err,result)=>{
         if (err) throw err;
@@ -40,14 +40,15 @@ router.post("/addShipment",urlEncodedParser,(req,res)=>{
 });  
 
 
-//cancel order //TODO: test this UC
+//cancel order
 router.post("/cancelOrder", urlEncodedParser, (req, res) => {
     let cancelSQL = "START TRANSACTION; \n";
-    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
-    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = "+time.getDateTime()+"WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = '"+time.getDateTime()+"' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE orderupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = '"+time.getDateTime()+"' WHERE orderID = "+req.body.orderID+"; \n";
     cancelSQL += "COMMIT; ";
     DB.query(cancelSQL, (err) => {
-        if (err) throw err;
+        if (err) throw err; 
         res.send({
             "status": "SUCCESS",
             "err": false
@@ -66,7 +67,7 @@ router.get("/viewOrders", (req, res) => {
 
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {
-    let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE employeeID = " + req.body.consignorID;
+    let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE employeeID = " + req.body.employeeID;
     DB.query(rateSQL, (err) => {
         if (err) throw err;
         res.send({
@@ -74,5 +75,6 @@ router.post("/rateService", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-    });
+});
+
 module.exports = router;

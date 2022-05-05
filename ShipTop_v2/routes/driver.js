@@ -20,7 +20,7 @@ router.post("/deliverShipment",urlEncodedParser, (req, res) => {
 
 //view assigned shipments
     //shipmentDelivery => shipmentID, date, city, status
-    //employee => *
+    //shi => *
     //assigned employee => 
         // if WM =>
             //warehouse => location
@@ -31,7 +31,26 @@ router.post("/deliverShipment",urlEncodedParser, (req, res) => {
             //consignee => *
         
 router.get("/viewShipments", (req, res) => {
-    let shipmentSQL = "";
+    let shipmentSQL = "SELECT shipmentID, deliveryDate, deliveryStatus, assignedEmployee FROM shipmentdelivery";
+
+//     SELECT shipmentID, deliveryDate, deliveryStatus, 
+// IF(assignedEmployee=42 ,
+// (SELECT location
+// From consignee co
+// INNER JOIN ordershipment ord
+// INNER JOIN shipmentdelivery ship 
+// ON ord.orderID = co.orderID
+// AND ord.shipmentID = ship.shipmentID
+// AND ship.currentEmployee = 42),
+// (SELECT location 
+// FROM office off
+// INNER JOIN shipmentdelivery ship
+// ON ship.assignedEmployee = off.employeeID
+// AND currentEmployee = 42
+// )) AS destination
+
+// FROM shipmentdelivery
+
 
 });            
 
