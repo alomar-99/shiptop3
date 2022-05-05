@@ -253,35 +253,46 @@ router.get("/viewDispatchers", (req, res) =>{
 
 //assignShipmentsToDispatcher
 router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
-    let shipmentSQL = "START TRANSACTION; \n";
-    shipmentSQL += "UPDATE shipmentdelivery\n SET currentEmployee = " + req.body.dispatcherID + ", assignedEmployee = ";
-    if (req.body.warehouseManagerID==null)
-    shipmentSQL += req.body.dispatcherID ;
-    else shipmentSQL += req.body.warehouseManagerID
-    shipmentSQL+= " WHERE shipmentID IN(";
-    for(let i =0;i<req.body.shipmentID.length;i++){
-        shipmentSQL += req.body.shipmentID[i];
-        if(i<req.body.shipmentID.length-1)
-        shipmentSQL += ", ";
-    }
-    shipmentSQL += "); \n UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN(";
-    for(let i =0;i<req.body.shipmentID.length;i++){
-        shipmentSQL += req.body.shipmentID[i];
-        if(i<req.body.shipmentID.length-1)
-        shipmentSQL += ", ";
-    }
-    shipmentSQL += "); \n"; 
-    for(let i =0;i<req.body.shipmentID.length;i++){
-        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
-    }
-    shipmentSQL += "COMMIT; ";
-    DB.query(shipmentSQL, (err)=>{
+    const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.dispatcherID;
+    DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
-        res.send({
-            "status": "SUCCESS", 
-            "err": false
-        });
-    }); 
+        if (result=="")    
+            res.send({ 
+                "status": "DISPATCHER DOESN't EXIST", 
+                "err": true
+            }); 
+        else{
+            let shipmentSQL = "START TRANSACTION; \n";
+            shipmentSQL += "UPDATE shipmentdelivery\n SET currentEmployee = " + req.body.dispatcherID + ", assignedEmployee = ";
+            if (req.body.warehouseManagerID==null)
+            shipmentSQL += req.body.dispatcherID ;
+            else shipmentSQL += req.body.warehouseManagerID
+            shipmentSQL+= " WHERE shipmentID IN(";
+            for(let i =0;i<req.body.shipmentID.length;i++){
+                shipmentSQL += req.body.shipmentID[i];
+                if(i<req.body.shipmentID.length-1)
+                shipmentSQL += ", ";
+            }
+            shipmentSQL += "); \n UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN(";
+            for(let i =0;i<req.body.shipmentID.length;i++){
+                shipmentSQL += req.body.shipmentID[i];
+                if(i<req.body.shipmentID.length-1)
+                shipmentSQL += ", ";
+            }
+            shipmentSQL += "); \n"; 
+            for(let i =0;i<req.body.shipmentID.length;i++){
+                shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
+            }
+            shipmentSQL += "COMMIT; ";
+            DB.query(shipmentSQL, (err)=>{
+                if (err) throw err;
+                res.send({
+                    "status": "SUCCESS", 
+                    "err": false
+                });
+            }); 
+        }
+    });
 });
 
 //viewWarehouses

@@ -1,0 +1,6 @@
+http://localhost:3000/api/consignor/cancelOrder
+
+{
+    "employeeID": 16,
+    "orderID": 79
+}

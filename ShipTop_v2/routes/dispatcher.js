@@ -118,8 +118,15 @@ router.post("/deleteDriver",urlEncodedParser, (req, res) => {
 });
 
 //view drivers 
-
-
+router.get("/viewDrivers", (req, res) =>{
+    let driverSQL = "SELECT DR.*, DRof.location, DRof.roomNumber, DRof.telephone, DRup.updatedBy, DRup.lastUpdate\n ";
+    driverSQL += "FROM employee DR\n INNER JOIN employeeupdate DRup\n INNER JOIN office DIof\n INNER JOIN office DRof\n ";
+    driverSQL += "ON DR.employeeID = DRup.employeeID\n AND DR.employeeID = DRof.employeeID\n AND DR.role='DR'\n AND DIof.employeeID = "+req.params.employeeID+"\n AND DIof.location = DRof.location\n";
+    DB.query(driverSQL, (err,result)=>{
+        if (err) throw err;
+        res.send(result);
+    });
+});
 
 //add vehicle 
 router.post("/addVehicle",urlEncodedParser, (req, res) => {
@@ -188,9 +195,17 @@ router.post("/deleteVehicle",urlEncodedParser, (req, res) => {
 });
 
 //view vehicles
+router.get("/viewVehicles", (req, res) => {
+    let vehicleSQL = "SELECT reg.*, ve.currentLocation, ve.capacity, DR.driverID, veup.lastupdate\n FROM vehicleregistration reg\n";
+    vehicleSQL += "INNER JOIN vehicle ve\n INNER JOIN vehicleupdate veup\n ON ve.vehicleID = veup.vehicleID\n AND veup.dispatcherID = "+req.params.employeeID+"\n";
+    vehicleSQL += "AND ve.vehicleID = reg.vehicleID\n LEFT JOIN vehicledriver DR\n ON ve.vehicleID = DR.vehicleID\n ";
+    DB.query(vehicleSQL, (err,result)=>{
+        if (err) throw err; 
+        res.send(result);
+    });
+});
 
-
-//assign driver to vehicle 
+//assign driver to vehicle  
 router.post("/assignVehicleToDriver",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
     DB.query(checkIDSQL, (err, result)=>{
@@ -231,40 +246,50 @@ router.post("/assignVehicleToDriver",urlEncodedParser, (req, res) => {
     });
 });
 
-//assign shipment to driver
-router.post("/assignShipmentToDriver",urlEncodedParser, (req, res) => {
+//assign shipments to driver
+router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
     DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
-        let assignmentSQL="";
         if (result=="")    
             res.send({ 
                 "status": "DRIVER DOESN't EXIST", 
                 "err": true
             }); 
         else{
-            const checkShipmentSQL = "SELECT shipmentID FROM shipment WHERE shipmentID ="+ req.body.shipmentID;
-            DB.query(checkShipmentSQL, (err,result)=>{
+            let checkAssignedSQL = "SELECT shipmentID,assignedEmployee FROM shipmentdelivery WHERE currentEmployee = " +req.body.employeeID+" AND shipmentID IN(";
+            for(let i =0;i<req.body.shipmentID.length;i++){
+                checkAssignedSQL += req.body.shipmentID[i];
+                if(i<req.body.shipmentID.length-1)
+                checkAssignedSQL += ", ";
+            } 
+            checkAssignedSQL+= ")";
+            DB.query(checkAssignedSQL, (err, result)=>{
                 if (err) throw err;
-                if (result=="")    
-                    res.send({ 
-                        "status": "SHIPMENT DOESN't EXIST", 
-                        "err": true
-                    }); 
-                else{ 
-                    assignmentSQL += "START TRANSACTION; \n" 
-                    assignmentSQL += "UPDATE shipmentdelivery SET currentCity = (SELECT location FROM office WHERE employeeID = "+ req.body.employeeID +"), deliveryDate = '"+req.body.deliveryDate+"',currentEmployee ="+req.body.driverID+", assignedEmployee = "+req.body.assignedEmployeeID+"  WHERE shipmentID = " + req.body.shipmentID+"; \n";
-                    assignmentSQL += "UPDATE shipmentupdate SET updatedBy = "+ req.body.employeeID +", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID + "; \n"; 
-                    assignmentSQL += "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.driverID + "; \n";
-                    assignmentSQL += "COMMIT; ";
-                    DB.query(assignmentSQL, (err)=>{
-                        if (err) throw err; 
-                        res.send({
-                            "status": "SUCCESS", 
-                            "err": false
-                        });
-                    });
+                let shipmentSQL = "START TRANSACTION; \n";
+                for (const i in result){
+                    shipmentSQL += "UPDATE shipmentdelivery\n SET currentEmployee = " + req.body.driverID;
+                    if(result[i].assignedEmployee==req.body.employeeID) shipmentSQL+= ", assignedEmployee = " + req.body.driverID + " ";
+                    shipmentSQL +="\n WHERE shipmentID = " + result[i].shipmentID + "; \n";
+                    shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+result[i].shipmentID+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
                 }
+                if(result.length>0){
+                    shipmentSQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN(";
+                    for(let i =0;i<result.length;i++){
+                        shipmentSQL += result[i].shipmentID;
+                        if(i<result.length-1)
+                            shipmentSQL += ", "; 
+                        }
+                    shipmentSQL += "); \n"; 
+                }
+                shipmentSQL += "COMMIT; ";
+                DB.query(shipmentSQL, (err)=>{
+                    if (err) throw err;
+                    res.send({
+                        "status": "SUCCESS", 
+                        "err": false
+                    });
+                }); 
             });
         }
     });
