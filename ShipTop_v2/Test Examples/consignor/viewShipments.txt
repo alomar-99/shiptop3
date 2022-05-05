@@ -1,32 +1,43 @@
 http://localhost:3000/api/logisticManager/viewShipments
 
 {
-    "employeeID": 12,
-    "filteredBy":{
-        "isBreakable":false,
-        "category":"office supplies",
-        "details":{
-            "weight": "0.05<x<0.1",
-            "length": "<0.5"
-        },
-        "delivery":{
-            "currentEmployee": "16"
-        },
-        "updates":{
+  method: 'get',
+  url: 'http://localhost:3000/api/consignor/viewShipments?orderID=79&employeeID=12',
+  headers: { 
+    'Authorization': 'Bearer token'
+  }
+};
 
-        },
-        "order":{
+req.params.orderID = 79
+req.params.employeeID = 12
 
+
+sample res:
+
+[
+    {
+        "shipmentID": "123",
+        "shipmentName": "pencil",
+        "category": "office supplies",
+        "isBreakable": "0",
+        "deliveryStatus": "delivered",
+        "deliveryDate": "YYYY/MM/DD",
+        "currentCity": "Dammam"
+    },{
+        "shipmentID": "125",
+        "shipmentName": "pencil",
+        "category": "office supplies",
+        "isBreakable": "0",
+        "deliveryStatus": "delivered",
+        "deliveryDate": "YYYY/MM/DD",
+        "currentCity": "Dammam"
+        },{
+        "shipmentID": "124",
+        "shipmentName": "pencil",
+        "category": "office supplies",
+        "isBreakable": "0",
+        "deliveryStatus": "delivered",
+        "deliveryDate": "YYYY/MM/DD",
+        "currentCity": "Dammam"
         }
-    },
-    "sortedBy":[
-        {
-        "type":"description", 
-        "order":"ASC"
-        },
-        {
-        "type":"currentCity",
-        "order": "DESC"
-        }
-    ]
-}
+]

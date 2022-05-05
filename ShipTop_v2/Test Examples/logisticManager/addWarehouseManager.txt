@@ -1,6 +1,19 @@
 URL = http://localhost:3000/api/logisticManager/addWarehouseManager
 
 {
+  method: 'post',
+  url: 'http://localhost:3000/api/logisticManager/addWarehouseManager',
+  headers: { 
+    'Authorization': 'Bearer token', 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+
+
+
+req.body = {
     "employeeID": 75,
     "firstName": "ahmed",
     "lastName": "ali",
@@ -13,3 +26,16 @@ URL = http://localhost:3000/api/logisticManager/addWarehouseManager
 	"roomNumber": 329
     }
 } 
+
+
+//Expected returned json
+{
+    "status": "SUCCESS",
+    "err": false
+}
+if already email or roomNumber exists
+
+{
+    "status": "EXISTING ACC",
+    "err": true
+}

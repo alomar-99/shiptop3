@@ -1,14 +1,18 @@
 http://localhost:3000/api/consignor/viewOrders
 
-{
-    "employeeID":16,
-}
 
+var config = {
+  method: 'get',
+  url: 'http://localhost:3000/api/consignor/viewOrders?employeeID=16',
+  headers: { 
+    'Authorization': 'Bearer token'
+  }
+};
 
-
-
+req.params.employeeID = 16
 
 sample res:
+
 [
     {
         "ID": 50,
@@ -17,6 +21,11 @@ sample res:
     },
     {
         "ID": 51,
+        "isPaid": 0,
+        "Total_shipment": 2
+    },
+    {
+        "ID": 79,
         "isPaid": 0,
         "Total_shipment": 2
     }

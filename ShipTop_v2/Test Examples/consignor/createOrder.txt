@@ -1,0 +1,26 @@
+http://localhost:3000/api/consignor/createOrder
+
+
+
+config = {
+  method: 'post',
+  url: 'http://localhost:3000/api/consignor/createOrder',
+  headers: { 
+    'Authorization': 'Bearer token', 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+req.body = {
+    "employeeID": 16,
+    "location": "Dammam",
+    "phoneNumber": "0561746352",
+    "address": "47.99988,45.342342"
+}
+
+//Expected returned json
+
+{
+    "ID": 72
+}

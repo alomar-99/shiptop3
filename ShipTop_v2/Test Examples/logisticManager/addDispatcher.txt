@@ -1,6 +1,20 @@
 http://localhost:3000/api/logisticManager/addDispatcher
 
+
+
+
 {
+  method: 'post',
+  url: 'http://localhost:3000/api/logisticManager/addDispatcher',
+  headers: { 
+    'Authorization': 'Bearer token', 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+
+req.body = {
     "employeeID": 75,
     "firstName": "mrwan",
     "lastName": "ali",
@@ -12,4 +26,18 @@ http://localhost:3000/api/logisticManager/addDispatcher
         "telephone": "0138763937",
 	"roomNumber": 167
     }
-} 
+}
+
+
+
+//Expected returned json
+{
+    "status": "SUCCESS",
+    "err": false
+}
+if already email or roomNumber exists
+
+{
+    "status": "EXISTING ACC",
+    "err": true
+}
