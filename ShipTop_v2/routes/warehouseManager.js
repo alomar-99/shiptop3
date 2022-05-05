@@ -168,33 +168,26 @@ router.post("/deleteWorker",urlEncodedParser, (req, res) => {
 router.post("/viewWorkers",urlEncodedParser, (req, res) => {
     let workerSQL = "SELECT  "
 
-
 //     SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
-//  WOup.updatedBy,WOup.lastUpdate
-//  FROM employee WO
-//  INNER JOIN employeeupdate WOup 
-//  ON WO.employeeID = WOup.employeeID AND WO.role='WO'
-//  INNER JOIN office WOof 
-//  ON WO.employeeID  = WOof.employeeID AND WO.role='WO'
-//  INNER JOIN office WMof 
-//  ON WMof.employeeID = 11;
-//
-// SELECT count(WOsh.shelfID) AS emptyShelfs 
-// FROM workerShelf WOsh 
-// INNER JOIN shelfreservation shelfRes
-// ON shelfRes.shelfID = WOsh.shelfID AND shelfRes.assignedShipment=null
+// WOup.updatedBy,WOup.lastUpdate
+// , count(WOsh.shelfID) AS emptyShelfs 
+// FROM employee WO
+// INNER JOIN employeeupdate WOup 
+// INNER JOIN office WOof 
+// INNER JOIN warehousemember WAwm
+// INNER JOIN warehousemember WAwo
+// INNER JOIN employee WM
+// INNER JOIN workerShelf WOsh
+// ON WO.employeeID = WOup.employeeID 
+// AND WO.role='WO'
+// AND WO.employeeID  = WOof.employeeID
+// AND WM.employeeID = 13
+// AND WAwm.memberID = WM.employeeID
+// AND WAwm.warehouseID = WAwo.warehouseID
+// AND WAwo.memberID = WO.employeeID
+// AND WM.role = 'WM'
+// AND WOsh.workerID = WO.employeeID
 
-// SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
-//  WOup.updatedBy,WOup.lastUpdate, count(WOsh.shelfID) AS emptyShelfs 
-//  FROM employee WO
-//  INNER JOIN employeeupdate WOup 
-//  ON WO.employeeID = WOup.employeeID AND WO.role='WO'
-//  INNER JOIN office WOof 
-//  ON WO.employeeID  = WOof.employeeID AND WO.role='WO'
-//  INNER JOIN office WMof 
-//  ON WMof.employeeID = 11
-// LEFT JOIN workerShelf WOsh 
-// ON WOsh.workerID = WO.employeeID
 
 
 });
@@ -204,46 +197,27 @@ router.post("/viewWorkers",urlEncodedParser, (req, res) => {
 
 router.post("/viewShipments",urlEncodedParser, (req, res) => {
 
-    
-// SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width, 
-// shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,
-// shipUp.updatedBy, shipUp.lastUpdate
-// From shipment ship
-// INNER JOIN shipmentdetails shipDet
-// ON ship.shipmentID = shipDet.shipmentID
-// INNER JOIN shipmentdelivery shipDel
-// ON ship.shipmentID = shipDel.shipmentID
-// INNER JOIN shipmentupdate shipUp
-// ON ship.shipmentID = shipUp.shipmentID
-// INNER JOIN ordershipment ord
-// ON ship.shipmentID = ord.shipmentID
-// INNER JOIN shelfreservation shelfres
-// ON ship.shipmentID = shelfres.assignedShipment
-// INNER JOIN shelfaddress shelfAdd
-// ON shelfres.shelfID = shelfAdd.shelfID
-// INNER JOIN warehouse wa 
-// ON wa.warehouseID = shelfAdd.warehouseID
-// INNER JOIN warehousemember WAwm
-// ON WAwm.warehouseID = wa.warehouseID
-// INNER JOIN employee WM
-// ON WM.employeeID = WAwm.memberID AND WM.employeeID = 13;
 
 });
 
 
-//assign shipment to dispatcher
+//assign shipments to dispatcher
+router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) => {
 
+
+});
 
 //assign shelfs to worker
-
-
-//assign shipment to worker 
-router.post("/addWorker",urlEncodedParser, (req, res) => {
-
+router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
 
 
 });
 
+//assign shipments to worker 
+router.post("/assignShipmentsToWorker",urlEncodedParser, (req, res) => {
+
+
+});
 
 
 module.exports = router; 

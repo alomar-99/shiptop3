@@ -1,0 +1,23 @@
+http://localhost:3000/api/consignor/viewOrders
+
+{
+    "employeeID":16,
+}
+
+
+
+
+
+sample res:
+[
+    {
+        "ID": 50,
+        "isPaid": 0,
+        "Total_shipment": 2
+    },
+    {
+        "ID": 51,
+        "isPaid": 0,
+        "Total_shipment": 2
+    }
+]
