@@ -22,11 +22,15 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "COMMIT; ";
             DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
-                res.send({
-                    "status": "SUCCESS", 
-                    "err": false
-                }); 
+                // res.send({
+                //     "status": "SUCCESS", 
+                //     "err": false
+                // }); 
             });
+            let shelfsSQL="START TRANSACTION; \n";
+            shelfsSQL += "INSERT INTO shelf(width,height)\n VALUES("+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
+            shelfsSQL += "INSERT INTO shelf"
+            shelfsSQL += "COMMIT; ";
         }
     });
 });
@@ -168,25 +172,25 @@ router.post("/deleteWorker",urlEncodedParser, (req, res) => {
 router.post("/viewWorkers",urlEncodedParser, (req, res) => {
     let workerSQL = "SELECT  "
 
-//     SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
-// WOup.updatedBy,WOup.lastUpdate
-// , count(WOsh.shelfID) AS emptyShelfs 
-// FROM employee WO
-// INNER JOIN employeeupdate WOup 
-// INNER JOIN office WOof 
-// INNER JOIN warehousemember WAwm
-// INNER JOIN warehousemember WAwo
-// INNER JOIN employee WM
-// INNER JOIN workerShelf WOsh
-// ON WO.employeeID = WOup.employeeID 
-// AND WO.role='WO'
-// AND WO.employeeID  = WOof.employeeID
-// AND WM.employeeID = 13
-// AND WAwm.memberID = WM.employeeID
-// AND WAwm.warehouseID = WAwo.warehouseID
-// AND WAwo.memberID = WO.employeeID
-// AND WM.role = 'WM'
-// AND WOsh.workerID = WO.employeeID
+    // SELECT WO.firstName,WO.lastName, WO.email,WO.phoneNumber, WO.password, WOof.location,WOof.roomNumber,WOof.telephone,
+    // WOup.updatedBy,WOup.lastUpdate
+    // -- , count(WOsh.shelfID) AS emptyShelfs 
+    // FROM employee WO
+    // INNER JOIN employeeupdate WOup 
+    // INNER JOIN office WOof 
+    // INNER JOIN warehousemember WAwm
+    // INNER JOIN warehousemember WAwo
+    // INNER JOIN employee WM
+    // -- INNER JOIN workerShelf WOsh
+    // ON WO.employeeID = WOup.employeeID 
+    // AND WO.employeeID  = WOof.employeeID
+    // AND WM.employeeID = 13
+    // AND WAwm.memberID = WM.employeeID
+    // AND WAwm.warehouseID = WAwo.warehouseID
+    // AND WAwo.memberID = WO.employeeID
+    // AND WO.role = 'WO'
+    // -- AND WOsh.workerID = WO.employeeID
+    
 
 
 
