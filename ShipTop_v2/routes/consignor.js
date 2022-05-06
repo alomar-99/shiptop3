@@ -42,12 +42,12 @@ router.post("/addShipment",urlEncodedParser,(req,res)=>{
 });  
 
 
-//cancel order //TODO: test this UC
+//cancel order
 router.post("/cancelOrder", urlEncodedParser, (req, res) => {
     console.log(req.body)
     let cancelSQL = "START TRANSACTION; \n";
-    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
-    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = "+time.getDateTime()+"WHERE shipmentID IN ((SELECT shipmentID FROM orderShipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
+    cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = '"+time.getDateTime()+"' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
     cancelSQL += "COMMIT; ";
     DB.query(cancelSQL, (err) => {
         if (err) throw err;
