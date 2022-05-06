@@ -5,7 +5,8 @@ const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
 //add order 
-router.post("/createOrder",urlEncodedParser,(req,res)=>{
+router.post("/createOrder",(req,res)=>{
+   
     let orderSQL ="START TRANSACTION; \n";
     orderSQL += "INSERT INTO consignororder()VALUES(); \n";
     orderSQL += "INSERT INTO consignee (orderID, location, address, phoneNumber) VALUES ((SELECT MAX(ID) FROM consignororder), '" + req.body.location + "', '"+req.body.address + "', '" + req.body.phoneNumber + "'); \n";
@@ -21,6 +22,7 @@ router.post("/createOrder",urlEncodedParser,(req,res)=>{
 
 //add shipment 
 router.post("/addShipment",urlEncodedParser,(req,res)=>{
+    
     let shipmentSQL ="START TRANSACTION; \n";
     shipmentSQL += "INSERT INTO shipment(shipmentName, category, isBreakable)VALUES('"+ req.body.shipmentName + "',  '"+req.body.category + "', "+req.body.isBreakable+"); \n";
     shipmentSQL += "INSERT INTO shipmentdetails(shipmentID, height, weight, width, length, description)VALUES((SELECT MAX(shipmentID) FROM shipment), ";
@@ -42,13 +44,13 @@ router.post("/addShipment",urlEncodedParser,(req,res)=>{
 
 //cancel order
 router.post("/cancelOrder", urlEncodedParser, (req, res) => {
+    console.log(req.body)
     let cancelSQL = "START TRANSACTION; \n";
     cancelSQL += "UPDATE shipmentdelivery SET deliveryStatus= 'CANCELED' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
     cancelSQL += "UPDATE shipmentupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = '"+time.getDateTime()+"' WHERE shipmentID IN ((SELECT shipmentID FROM ordershipment WHERE orderID = "+req.body.orderID+")); \n";
-    cancelSQL += "UPDATE orderupdate SET updatedBy = "+req.body.employeeID+", lastUpdate = '"+time.getDateTime()+"' WHERE orderID = "+req.body.orderID+"; \n";
     cancelSQL += "COMMIT; ";
     DB.query(cancelSQL, (err) => {
-        if (err) throw err; 
+        if (err) throw err;
         res.send({
             "status": "SUCCESS",
             "err": false
@@ -58,16 +60,31 @@ router.post("/cancelOrder", urlEncodedParser, (req, res) => {
 
 //view orders
 router.get("/viewOrders", (req, res) => {
-    let orderSQL = "SELECT ord.*, count(ship.shipmentID) AS Total_shipment\n FROM consignororder ord\n INNER JOIN ordershipment ship\n INNER JOIN orderupdate upd\n ON upd.updatedBy = "+req.params.employeeID+" AND upd.orderID = ord.ID AND ship.orderID = ord.ID GROUP BY ord.ID"
+    console.log(req.query)  
+    let orderSQL = "SELECT ord.*, count(ship.shipmentID) AS Total_shipment\n FROM consignororder ord\n INNER JOIN ordershipment ship\n INNER JOIN orderupdate upd\n ON upd.updatedBy = "+req.query.employeeID+" AND upd.orderID = ord.ID AND ship.orderID = ord.ID GROUP BY ord.ID"
     DB.query(orderSQL, (err, result) => {
         if (err) throw err;
         res.send(result);
     });
 });
 
+
+// view order details given an orderID
+router.get("/viewOrder", (req, res) => {
+    
+});
+
+// view Shipments provided an orderID
+router.get("/viewShipments", (req, res) => {
+    
+});
+
+
+
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {
-    let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE employeeID = " + req.body.employeeID;
+
+    let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE consignorID = " + req.body.consignorID;
     DB.query(rateSQL, (err) => {
         if (err) throw err;
         res.send({
@@ -75,6 +92,5 @@ router.post("/rateService", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-});
-
+    });
 module.exports = router;
