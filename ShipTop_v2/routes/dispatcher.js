@@ -121,7 +121,7 @@ router.post("/deleteDriver",urlEncodedParser, (req, res) => {
 router.get("/viewDrivers", (req, res) =>{
     let driverSQL = "SELECT DR.*, DRof.location, DRof.roomNumber, DRof.telephone, DRup.updatedBy, DRup.lastUpdate\n ";
     driverSQL += "FROM employee DR\n INNER JOIN employeeupdate DRup\n INNER JOIN office DIof\n INNER JOIN office DRof\n ";
-    driverSQL += "ON DR.employeeID = DRup.employeeID\n AND DR.employeeID = DRof.employeeID\n AND DR.role='DR'\n AND DIof.employeeID = "+req.params.employeeID+"\n AND DIof.location = DRof.location\n";
+    driverSQL += "ON DR.employeeID = DRup.employeeID\n AND DR.employeeID = DRof.employeeID\n AND DR.role='DR'\n AND DIof.employeeID = "+req.query.employeeID+"\n AND DIof.location = DRof.location\n";
     DB.query(driverSQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -197,7 +197,7 @@ router.post("/deleteVehicle",urlEncodedParser, (req, res) => {
 //view vehicles
 router.get("/viewVehicles", (req, res) => {
     let vehicleSQL = "SELECT reg.*, ve.currentLocation, ve.capacity, DR.driverID, veup.lastupdate\n FROM vehicleregistration reg\n";
-    vehicleSQL += "INNER JOIN vehicle ve\n INNER JOIN vehicleupdate veup\n ON ve.vehicleID = veup.vehicleID\n AND veup.dispatcherID = "+req.params.employeeID+"\n";
+    vehicleSQL += "INNER JOIN vehicle ve\n INNER JOIN vehicleupdate veup\n ON ve.vehicleID = veup.vehicleID\n AND veup.dispatcherID = "+req.query.employeeID+"\n";
     vehicleSQL += "AND ve.vehicleID = reg.vehicleID\n LEFT JOIN vehicledriver DR\n ON ve.vehicleID = DR.vehicleID\n ";
     DB.query(vehicleSQL, (err,result)=>{
         if (err) throw err; 
@@ -246,6 +246,7 @@ router.post("/assignVehicleToDriver",urlEncodedParser, (req, res) => {
     });
 });
 
+//FIXME: add condition (same place) 
 //assign shipments to driver
 router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;

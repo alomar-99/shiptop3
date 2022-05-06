@@ -22,15 +22,45 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "COMMIT; ";
             DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
-                // res.send({
-                //     "status": "SUCCESS", 
-                //     "err": false
-                // }); 
             });
-            let shelfsSQL="START TRANSACTION; \n";
-            shelfsSQL += "INSERT INTO shelf(width,height)\n VALUES("+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
-            shelfsSQL += "INSERT INTO shelf"
-            shelfsSQL += "COMMIT; ";
+            let floor,lane,section,row,number = 0;
+            let total =0;
+            const limit =6000; //max = 7500
+            let queryIncrement = 0;
+            let maxShelfs = req.body.shelf.floors*req.body.shelf.lanes*req.body.shelf.sections*req.body.shelf.rows*req.body.shelf.number
+            let shelfSQL="START TRANSACTION; \n";
+            for(floor=1;floor<=req.body.shelf.floors; floor++){
+                for(lane=1;lane<=req.body.shelf.lanes; lane++){
+                    for(section=1;section<=req.body.shelf.sections; section++){
+                        for(row=1;row<=req.body.shelf.rows; row++){
+                            for(number=1;number<=req.body.shelf.number; number++){
+                                if(queryIncrement==limit){
+                                    queryIncrement=0;
+                                } 
+                                shelfSQL += "INSERT INTO shelf(width,height)\n VALUES("+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
+                                shelfSQL += "INSERT INTO shelfaddress\n (shelfID, shelfNumber, row, section, lane, floor, warehouseID)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+number+", "+row+", " +section+", "+lane+", "+floor+", (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
+                                shelfSQL += "INSERT INTO shelfupdate\n (shelfID, updatedBy, lastUpdate)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+req.body.employeeID +", '"+time.getDateTime()+"'); \n";
+                                shelfSQL += "INSERT INTO workerShelf\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
+                                shelfSQL += "INSERT INTO shelfreservation\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
+                                if(queryIncrement==0||total==maxShelfs-1){
+                                    shelfSQL += "COMMIT; ";
+                                    console.log("floor ="+ floor +" lane =" + lane + " section = "+section + " row = "+row +" number = "+number+" total = "+total);
+                                    DB.query(shelfSQL, (err)=>{
+                                        if (err) throw err;
+                                    }); 
+                                    shelfSQL="START TRANSACTION; \n";
+                                }
+                                total++;
+                                queryIncrement++;
+                            }
+                        }
+                    }
+                } 
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });          
         }
     });
 });

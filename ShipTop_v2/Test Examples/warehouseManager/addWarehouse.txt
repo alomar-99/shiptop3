@@ -1,7 +1,17 @@
 URL = http://localhost:3000/api/warehouseManager/addWarehouse
 
 {
-    "employeeID": 22,
-    "city": "Dhahran",
-    "telephone": "0135846925"
+    "employeeID": 52,
+    "city": "Dammam",
+    "address":"3254655.4456976",
+    "telephone": "0135843489",
+    "shelf":{
+        "width":1.5,
+        "height":0.7,
+        "floors":10,
+        "lanes":48,
+        "sections":14,
+        "rows":7,
+        "number":10
+    }
 }

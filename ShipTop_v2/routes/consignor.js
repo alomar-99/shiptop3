@@ -72,6 +72,29 @@ router.get("/viewOrders", (req, res) => {
 // view order details given an orderID
 router.get("/viewOrder", (req, res) => {
     
+    // SELECT ord.ID, CE.location, CE.address, CE.phoneNumber, inv.date, inv.paymentMethod,
+    // inv.amount, count(ship.shipmentID) AS Total_shipment, count(del.shipmentID) AS deliveredShipments
+    //  FROM consignororder ord
+    //  INNER JOIN ordershipment ship
+    //  INNER JOIN shipmentdelivery del 
+    //  INNER JOIN consignee CE
+    //  INNER JOIN invoice inv
+    //  INNER JOIN orderupdate upd
+    //  INNER JOIN orderpayment pay
+    //  ON upd.updatedBy = 16
+    //  AND ord.ID = 79
+    //  AND upd.orderID = ord.ID
+    //  AND ship.orderID = ord.ID 
+    //  AND CE.orderID = ord.ID
+    //  AND pay.orderID = ord.ID
+    //  AND pay.invoiceID = inv.invoiceID
+    //  AND del.shipmentID = ship.shipmentID
+    //  AND del.deliverStatus = 'DELIVERED'
+    //  AND del.currentEmployee = 43
+    //  GROUP BY ord.ID
+
+
+
 });
 
 // view Shipments provided an orderID

@@ -35,10 +35,10 @@ router.post("/deliverShipments",urlEncodedParser, (req, res) => {
 
 //viewShipments
 router.get("/viewShipments", (req, res) => {
-    let shipmentSQL = "SELECT shipmentID, deliveryDate, deliveryStatus,\n IF(assignedEmployee="+req.params.employeeID+" ,\n (SELECT DISTINCT address\n From consignee co\n";
-    shipmentSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.params.employeeID+"),\n";
+    let shipmentSQL = "SELECT shipmentID, deliveryDate, deliveryStatus,\n IF(assignedEmployee="+req.query.employeeID+" ,\n (SELECT DISTINCT address\n From consignee co\n";
+    shipmentSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.query.employeeID+"),\n";
     shipmentSQL += "(SELECT DISTINCT address \n FROM warehouse wa\n INNER JOIN warehousemember wam\n INNER JOIN shipmentdelivery ship \n ON ship.assignedEmployee = wam.memberID\n ";
-    shipmentSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.params.employeeID+"\n )) AS destination\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.params.employeeID
+    shipmentSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.query.employeeID+"\n )) AS destination\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.query.employeeID
     DB.query(shipmentSQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
