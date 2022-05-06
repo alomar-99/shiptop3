@@ -1,0 +1,44 @@
+
+1- NEW -> consignor
+2- ONDELIVERY -> logistic manager
+3- WAREHOUSE -> driver
+4- TOBESTORED -> warehouseManager
+5- STORED -> worker
+
+1- TOSTORE -> logistic manager
+2- ONROAD-> driver
+3- PICKUP-> warehouseManager
+4- PICKEDUP-> worker
+5- TOBESTORED -> warehouseManager
+6- WAREHOUSE -> driver
+7- TOBESTORED -> warehouseManager
+8- STORED -> worker
+
+1- TOPICKUP -> logistic manager
+2- ONROAD-> driver
+3- PICKUP-> warehouseManager
+4- PICKEDUP-> worker
+5- TOBEDELIVERED -> warehouseManager
+6- DELIVERED -> driver
+
+
+total status:
+
+consignor:
+-NEW
+-CANCELED
+logistic manager:
+-ONDELIVERY 
+-TOSTORE 
+-TOPICKUP 
+driver:
+-WAREHOUSE 
+-ONROAD
+-DELIVERED 
+warehouseManager:
+-TOBESTORED 
+-PICKUP
+-TOBEDELIVERED
+worker:
+-STORED 
+-PICKEDUP

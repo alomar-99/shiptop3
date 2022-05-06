@@ -1,17 +1,17 @@
-URL = http://localhost:3000/api/warehouseManager/addWarehouse
+http://localhost:3000/api/warehouseManager/addWarehouse
 
 {
-    "employeeID": 52,
+    "employeeID": 54,
     "city": "Dammam",
     "address":"3254655.4456976",
     "telephone": "0135843489",
     "shelf":{
         "width":1.5,
         "height":0.7,
-        "floors":10,
-        "lanes":48,
+        "floors":5,
+        "lanes":24,
         "sections":14,
         "rows":7,
-        "number":10
+        "number":3
     }
 }

@@ -29,6 +29,7 @@ router.post("/addWarehouseManager",urlEncodedParser, (req, res) => {
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'WM', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
                     employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
+                    employeeSQL += "INSERT INTO warehousemember(memberID)\n VALUES((SELECT MAX(employeeID) FROM employee WHERE role = 'WM')); \n";
                     employeeSQL += "COMMIT; "
                     DB.query(employeeSQL, (err)=>{
                         if (err) throw err;
@@ -263,7 +264,7 @@ router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
             }); 
         else{
             let shipmentSQL = "START TRANSACTION; \n";
-            shipmentSQL += "UPDATE shipmentdelivery\n SET currentEmployee = " + req.body.dispatcherID + ", assignedEmployee = ";
+            shipmentSQL += "UPDATE shipmentdelivery\n SET deliveryStatus = '"+req.body.deliveryStatus+"', currentEmployee = " + req.body.dispatcherID + ", assignedEmployee = ";
             if (req.body.warehouseManagerID==null)
             shipmentSQL += req.body.dispatcherID ;
             else shipmentSQL += req.body.warehouseManagerID
@@ -284,6 +285,7 @@ router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
                 shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
             }
             shipmentSQL += "COMMIT; ";
+            console.log(shipmentSQL);
             DB.query(shipmentSQL, (err)=>{
                 if (err) throw err;
                 res.send({

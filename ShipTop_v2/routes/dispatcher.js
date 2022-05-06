@@ -246,7 +246,7 @@ router.post("/assignVehicleToDriver",urlEncodedParser, (req, res) => {
     });
 });
 
-//FIXME: add condition (same place) 
+
 //assign shipments to driver
 router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.driverID;
@@ -259,9 +259,9 @@ router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
             }); 
         else{
             let checkAssignedSQL = "SELECT shipmentID,assignedEmployee FROM shipmentdelivery WHERE currentEmployee = " +req.body.employeeID+" AND shipmentID IN(";
-            for(let i =0;i<req.body.shipmentID.length;i++){
-                checkAssignedSQL += req.body.shipmentID[i];
-                if(i<req.body.shipmentID.length-1)
+            for(let i =0;i<req.body.shipments.length;i++){
+                checkAssignedSQL += req.body.shipments[i];
+                if(i<req.body.shipments.length-1)
                 checkAssignedSQL += ", ";
             } 
             checkAssignedSQL+= ")";
