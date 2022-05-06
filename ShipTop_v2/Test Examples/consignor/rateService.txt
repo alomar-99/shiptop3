@@ -1,0 +1,27 @@
+http://localhost:3000/api/consignor/rateService
+
+
+var config = {
+  method: 'post',
+  url: 'http://localhost:3000/api/consignor/rateService',
+  headers: { 
+    'Authorization': 'Bearer token', 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+req.body = {
+    "consignorID": 14,
+    "rate": 5,
+    "comment": "Great Service!!"
+}
+
+
+
+// json response:
+
+{
+    "status": "SUCCESS",
+    "err": false
+}

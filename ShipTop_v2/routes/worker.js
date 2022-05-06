@@ -10,10 +10,10 @@ const urlEncodedParser = require('./tools/config').middleware;
 //view shelfs
 
 
-//locate shipment
+//locate shipments
 
 
-//pick up shipment
+//pick up shipments
 
 
 

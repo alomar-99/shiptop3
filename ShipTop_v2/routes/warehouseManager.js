@@ -22,11 +22,45 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "COMMIT; ";
             DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
-                res.send({
-                    "status": "SUCCESS", 
-                    "err": false
-                }); 
             });
+            let floor,lane,section,row,number = 0;
+            let total =0;
+            const limit =6000; //max = 7500
+            let queryIncrement = 0;
+            let maxShelfs = req.body.shelf.floors*req.body.shelf.lanes*req.body.shelf.sections*req.body.shelf.rows*req.body.shelf.number
+            let shelfSQL="START TRANSACTION; \n";
+            for(floor=1;floor<=req.body.shelf.floors; floor++){
+                for(lane=1;lane<=req.body.shelf.lanes; lane++){
+                    for(section=1;section<=req.body.shelf.sections; section++){
+                        for(row=1;row<=req.body.shelf.rows; row++){
+                            for(number=1;number<=req.body.shelf.number; number++){
+                                if(queryIncrement==limit){
+                                    queryIncrement=0;
+                                } 
+                                shelfSQL += "INSERT INTO shelf(width,height)\n VALUES("+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
+                                shelfSQL += "INSERT INTO shelfaddress\n (shelfID, shelfNumber, row, section, lane, floor, warehouseID)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+number+", "+row+", " +section+", "+lane+", "+floor+", (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
+                                shelfSQL += "INSERT INTO shelfupdate\n (shelfID, updatedBy, lastUpdate)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+req.body.employeeID +", '"+time.getDateTime()+"'); \n";
+                                shelfSQL += "INSERT INTO workerShelf\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
+                                shelfSQL += "INSERT INTO shelfreservation\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
+                                if(queryIncrement==0||total==maxShelfs-1){
+                                    shelfSQL += "COMMIT; ";
+                                    console.log("floor ="+ floor +" lane =" + lane + " section = "+section + " row = "+row +" number = "+number+" total = "+total);
+                                    DB.query(shelfSQL, (err)=>{
+                                        if (err) throw err;
+                                    }); 
+                                    shelfSQL="START TRANSACTION; \n";
+                                }
+                                total++;
+                                queryIncrement++;
+                            }
+                        }
+                    }
+                } 
+            }
+            res.send({
+                "status": "SUCCESS", 
+                "err": false
+            });          
         }
     });
 });
@@ -168,82 +202,54 @@ router.post("/deleteWorker",urlEncodedParser, (req, res) => {
 router.post("/viewWorkers",urlEncodedParser, (req, res) => {
     let workerSQL = "SELECT  "
 
+    // SELECT WO.firstName,WO.lastName, WO.email,WO.phoneNumber, WO.password, WOof.location,WOof.roomNumber,WOof.telephone,
+    // WOup.updatedBy,WOup.lastUpdate
+    // -- , count(WOsh.shelfID) AS emptyShelfs 
+    // FROM employee WO
+    // INNER JOIN employeeupdate WOup 
+    // INNER JOIN office WOof 
+    // INNER JOIN warehousemember WAwm
+    // INNER JOIN warehousemember WAwo
+    // INNER JOIN employee WM
+    // -- INNER JOIN workerShelf WOsh
+    // ON WO.employeeID = WOup.employeeID 
+    // AND WO.employeeID  = WOof.employeeID
+    // AND WM.employeeID = 13
+    // AND WAwm.memberID = WM.employeeID
+    // AND WAwm.warehouseID = WAwo.warehouseID
+    // AND WAwo.memberID = WO.employeeID
+    // AND WO.role = 'WO'
+    // -- AND WOsh.workerID = WO.employeeID
+    
 
-//     SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
-//  WOup.updatedBy,WOup.lastUpdate
-//  FROM employee WO
-//  INNER JOIN employeeupdate WOup 
-//  ON WO.employeeID = WOup.employeeID AND WO.role='WO'
-//  INNER JOIN office WOof 
-//  ON WO.employeeID  = WOof.employeeID AND WO.role='WO'
-//  INNER JOIN office WMof 
-//  ON WMof.employeeID = 11;
-//
-// SELECT count(WOsh.shelfID) AS emptyShelfs 
-// FROM workerShelf WOsh 
-// INNER JOIN shelfreservation shelfRes
-// ON shelfRes.shelfID = WOsh.shelfID AND shelfRes.assignedShipment=null
-
-// SELECT WO.*, WOof.location,WOof.roomNumber,WOof.telephone,
-//  WOup.updatedBy,WOup.lastUpdate, count(WOsh.shelfID) AS emptyShelfs 
-//  FROM employee WO
-//  INNER JOIN employeeupdate WOup 
-//  ON WO.employeeID = WOup.employeeID AND WO.role='WO'
-//  INNER JOIN office WOof 
-//  ON WO.employeeID  = WOof.employeeID AND WO.role='WO'
-//  INNER JOIN office WMof 
-//  ON WMof.employeeID = 11
-// LEFT JOIN workerShelf WOsh 
-// ON WOsh.workerID = WO.employeeID
 
 
 });
 
 //view shipments in a warehouse
-
-
 router.post("/viewShipments",urlEncodedParser, (req, res) => {
 
-    
-// SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width, 
-// shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,
-// shipUp.updatedBy, shipUp.lastUpdate
-// From shipment ship
-// INNER JOIN shipmentdetails shipDet
-// ON ship.shipmentID = shipDet.shipmentID
-// INNER JOIN shipmentdelivery shipDel
-// ON ship.shipmentID = shipDel.shipmentID
-// INNER JOIN shipmentupdate shipUp
-// ON ship.shipmentID = shipUp.shipmentID
-// INNER JOIN ordershipment ord
-// ON ship.shipmentID = ord.shipmentID
-// INNER JOIN shelfreservation shelfres
-// ON ship.shipmentID = shelfres.assignedShipment
-// INNER JOIN shelfaddress shelfAdd
-// ON shelfres.shelfID = shelfAdd.shelfID
-// INNER JOIN warehouse wa 
-// ON wa.warehouseID = shelfAdd.warehouseID
-// INNER JOIN warehousemember WAwm
-// ON WAwm.warehouseID = wa.warehouseID
-// INNER JOIN employee WM
-// ON WM.employeeID = WAwm.memberID AND WM.employeeID = 13;
 
 });
 
 
-//assign shipment to dispatcher
+//assign shipments to dispatcher
+router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) => {
 
+
+});
 
 //assign shelfs to worker
-
-
-//assign shipment to worker 
-router.post("/addWorker",urlEncodedParser, (req, res) => {
-
+router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
 
 
 });
 
+//assign shipments to worker 
+router.post("/assignShipmentsToWorker",urlEncodedParser, (req, res) => {
+
+
+});
 
 
 module.exports = router; 

@@ -3,46 +3,6 @@ http://localhost:3000/api/consignor/addorder
 
 {
     "employeeID":15,
-    "consignee":{
-        "location": "Dammam",
-        "phoneNumber": "0561746352"
-    },
-    "shipments":[
-        {
-            "shipmentName":"pencil",
-            "category":"office supplies",
-            "isBreakable": false,
-            "details":{
-                "height":0.02,
-                "weight":0.052,
-                "width":0.02,
-                "length":0.15,
-                "description": "object that is used to write books"
-            }
-        },
-        {
-            "shipmentName":"ink",
-            "category":"office supplies",
-            "isBreakable": true,
-            "details":{
-                "height":0.22,
-                "weight":0.1,
-                "width":0.12,
-                "length":0.15,
-                "description": "object that is used to write books"
-            }
-        },
-        {
-            "shipmentName":"sharpener",
-            "category":"office supplies",
-            "isBreakable": false,
-            "details":{
-                "height":0.22,
-                "weight":0.122,
-                "width":0.32,
-                "length":0.17,
-                "description": "object that is used to sharpen pens"
-            }
-        }
-    ]
+    "location": "Dammam",
+    "phoneNumber": "0561746352"
 }

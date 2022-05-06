@@ -41,7 +41,7 @@ router.post("/deleteReport",urlEncodedParser, (req, res) => {
     });
 });
 
-//view reportprint  
+//view reportprints  
 
 
 

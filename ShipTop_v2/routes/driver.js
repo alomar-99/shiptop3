@@ -5,35 +5,44 @@ const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
 
-//deliver shipment
-router.post("/deliverShipment",urlEncodedParser, (req, res) => {
-    let location = "";
-    if (req.body.next == "CE") location = "(SELECT location FROM consignee WHERE orderID = (SELECT orderID FROM ordershipment WHERE shipmentID = "+req.body.shipmentID+"))"
-    else location = "(SELECT location FROM office WHERE employeeID = "+req.body.next+")";
-
-    let deliverySQL = "START TRANSACTION; \n"; 
-    deliverySQL += "UPDATE shipmentdelivery SET currentCity = " + location + ", currentEmployee = "
-    deliverySQL += "COMMIT; ";
-
+//deliver shipments
+router.post("/deliverShipments",urlEncodedParser, (req, res) => {
+    for(const i in req.body.shipmentID){
+        let checkDestinationSQL = "SELECT IF(assignedEmployee="+req.body.employeeID+" ,\n (SELECT DISTINCT location\n From consignee co\n";
+        checkDestinationSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.body.employeeID+"),\n";
+        checkDestinationSQL += "(SELECT DISTINCT location \n FROM warehouse wa\n INNER JOIN warehousemember wam\n INNER JOIN shipmentdelivery ship \n ON ship.assignedEmployee = wam.memberID\n ";
+        checkDestinationSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.body.employeeID+"\n )) AS destination\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.body.employeeID + "\n AND shipmentID =" + req.body.shipmentID[i] + "\n";
+        DB.query(checkDestinationSQL, (err,result)=>{
+            if (err) throw err;
+            if(result!=""){
+                let deliverySQL = "START TRANSACTION; \n"; 
+                deliverySQL += "UPDATE shipmentdelivery\n SET currentEmployee = assignedEmployee, deliveryStatus = 'DELIVERED', currentCity = '" + result[0].destination + "', deliveryDate = '"+ time.getDateTime() + "'\n WHERE shipmentID =" + req.body.shipmentID[i] +"; \n";
+                deliverySQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID[i]+"; \n";
+                deliverySQL += "UPDATE vehicle\n SET currentLocation = "+result[0].destination+"\n WHERE vehicleID = (SELECT vehicleID FROM vehicledriver WHERE driverID = "+req.body.employeeID+"); \n";
+                deliverySQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT currentCity FROM shipmentdelivery WHERE shipmentID = "+req.body.shipmentID[i]+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
+                deliverySQL += "COMMIT; ";
+                DB.query(deliverySQL, (err)=>{
+                    if (err) throw err; 
+                });
+            }
+        });
+    }
+    res.send({
+        "status": "SUCCESS", 
+        "err": false
+    });
 });
 
-
-//view assigned shipments
-    //shipmentDelivery => shipmentID, date, city, status
-    //employee => *
-    //assigned employee => 
-        // if WM =>
-            //warehouse => location
-            //office => phoneNumber
-        // if LM => 
-            //office => location, phoneNumber
-        // if CE => 
-            //consignee => *
-        
+//viewShipments
 router.get("/viewShipments", (req, res) => {
-    let shipmentSQL = "";
-
+    let shipmentSQL = "SELECT shipmentID, deliveryDate, deliveryStatus,\n IF(assignedEmployee="+req.query.employeeID+" ,\n (SELECT DISTINCT address\n From consignee co\n";
+    shipmentSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.query.employeeID+"),\n";
+    shipmentSQL += "(SELECT DISTINCT address \n FROM warehouse wa\n INNER JOIN warehousemember wam\n INNER JOIN shipmentdelivery ship \n ON ship.assignedEmployee = wam.memberID\n ";
+    shipmentSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.query.employeeID+"\n )) AS destination\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.query.employeeID
+    DB.query(shipmentSQL, (err,result)=>{
+        if (err) throw err;
+        res.send(result);
+    });
 });            
-
 
 module.exports = router;

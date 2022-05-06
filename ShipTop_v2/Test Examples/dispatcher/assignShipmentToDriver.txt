@@ -1,7 +1,7 @@
-http://localhost:3000/api/dispatcher/assignShipmentToDriver
+http://localhost:3000/api/dispatcher/assignShipmentsToDriver
 
 {
     "employeeID": 41,
-    "shipmentID":5,
-    "driverID": 42
+    "driverID":43,
+    "shipmentID":[46,35,33]
 } 

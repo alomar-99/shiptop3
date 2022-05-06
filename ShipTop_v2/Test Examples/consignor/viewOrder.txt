@@ -1,0 +1,31 @@
+http://localhost:3000/api/consignor/viewOrder
+
+
+var config = {
+  method: 'get',
+  url: 'http://localhost:3000/api/consignor/viewOrder?employeeID=16&orderID=79',
+  headers: { 
+    'Authorization': 'Bearer token'
+  }
+};
+
+req.params.employeeID = 16
+req.params.orderID = 79
+
+sample res:
+
+{
+  "orderID": 15,
+  "consignee": {
+    "location": "Dammam",
+    "address": "47.989087,48.14234123",
+    "phoneNumber": "0544111991",
+  },
+  "invoice": {
+    "date": "YYYY/MM/DD",
+    "paymentMethod": "Please Send the amount specified to this account 4134123415",
+    "amount": "43241.423"
+  },
+  "deliveredShipments": "41",
+  "Total_shipment": "100"
+}

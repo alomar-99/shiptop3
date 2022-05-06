@@ -1,0 +1,27 @@
+http://localhost:3000/api/consignor/cancelOrder
+
+
+
+var config = {
+  method: 'post',
+  url: 'http://localhost:3000/api/consignor/cancelOrder',
+  headers: { 
+    'Authorization': 'Bearer token', 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+req.body = {
+    "employeeID":12,
+    "orderID":79
+    
+}
+
+// IT DID NOT WORK I DONT KNOW WHY
+//Expected returned json
+
+{
+    "status": "SUCCESS",
+    "err": false
+}

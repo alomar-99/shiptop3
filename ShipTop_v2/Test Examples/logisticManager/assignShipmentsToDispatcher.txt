@@ -1,12 +1,8 @@
 http://localhost:3000/api/logisticManager/assignShipmentsToDispatcher
 
 {
-    "employeeID":12,
-    "next":14,
-    "dispatcherID": 41,
-    "shipmentID":[
-        1,
-        2,
-        3
-    ]
-}
+    "employeeID": 12,
+    "dispatcherID":41,
+    "warehouseManagerID":null,
+    "shipmentID":[42,43,45]
+} 
