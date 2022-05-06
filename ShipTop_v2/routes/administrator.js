@@ -118,11 +118,13 @@ router.post("/modifylogisticManager",urlEncodedParser, (req, res) => {
     });
 });
 
-//view list of logisticManager 
-router.post("/viewlogisticManager",urlEncodedParser, (req, res) =>{
+//view list of logisticManager asccoyated with admin
+router.get("/viewlogisticManager", (req, res) =>{
     let SQL = "SELECT LM.*,\n LMof.location,LMof.roomNumber,LMof.telephone,\n LMup.updatedBy,LMup.lastUpdate\n FROM employee LM\n";
     SQL += "INNER JOIN employeeupdate LMup\n ON LM.employeeID = LMup.employeeID AND LM.role='LM'";
     SQL += "INNER JOIN office LMof\n ON LM.employeeID  = LMof.employeeID AND LM.role='LM'";
+    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.params.employeeID+" AND ADof.location = ADof.location";
+
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -247,10 +249,12 @@ router.post("/modifyfreightBroker",urlEncodedParser, (req, res) => {
 });
 
 //view list of freightBroker 
-router.post("/viewfreightBroker",urlEncodedParser, (req, res) =>{
+router.get("/viewfreightBroker", (req, res) =>{
     let SQL = "SELECT FB.*,\n FBof.location,FBof.roomNumber,FBof.telephone,\n FBup.updatedBy,FBup.lastUpdate\n FROM employee FB\n";
     SQL += "INNER JOIN employeeupdate FBup\n ON FB.employeeID = FBup.employeeID AND FB.role='FB'";
     SQL += "INNER JOIN office FBof\n ON FB.employeeID  = FBof.employeeID AND FB.role='FB'";
+    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.params.employeeID+" AND ADof.location = ADof.location";
+
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -373,10 +377,12 @@ router.post("/modifyAccountant",urlEncodedParser, (req, res) => {
 });
 
 //view list of Accountant 
-router.post("/viewAccountant",urlEncodedParser, (req, res) =>{
+router.get("/viewAccountant", (req, res) =>{
     let SQL = "SELECT AC.*,\n ACof.location,ACof.roomNumber,ACof.telephone,\n ACup.updatedBy,ACup.lastUpdate\n FROM employee AC\n";
     SQL += "INNER JOIN employeeupdate ACup\n ON AC.employeeID = ACup.employeeID AND AC.role='AC'";
     SQL += "INNER JOIN office ACof\n ON AC.employeeID  = ACof.employeeID AND AC.role='AC'";
+    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.params.employeeID+" AND ADof.location = ADof.location";
+
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -499,10 +505,13 @@ router.post("/modifycustomerService",urlEncodedParser, (req, res) => {
 });
 
 //view list of customerService 
-router.post("/viewcustomerService",urlEncodedParser, (req, res) =>{
+router.get("/viewcustomerService", (req, res) =>{
     let SQL = "SELECT CS.*,\n CSof.location,CSof.roomNumber,CSof.telephone,\n CSup.updatedBy,CSup.lastUpdate\n FROM employee CS\n";
     SQL += "INNER JOIN employeeupdate CSup\n ON CS.employeeID = CSup.employeeID AND CS.role='CS'";
     SQL += "INNER JOIN office CSof\n ON CS.employeeID  = CSof.employeeID AND CS.role='CS'";
+    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.params.employeeID+" AND ADof.location = ADof.location";
+
+    
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
