@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
+const equality = require('./tools/utility').equality;
 const urlEncodedParser = require('./tools/config').middleware;
 
 //add warehouse 
@@ -251,17 +252,87 @@ router.post("/viewWorkers",urlEncodedParser, (req, res) => {
 
 });
 
-//view shipments in a warehouse
-router.post("/viewShipments",urlEncodedParser, (req, res) => {
-
-
+//view shipments in a warehouse 
+router.get("/viewShipments", (req, res) => {
+    let shipmentTable ="";
+    let value = "";
+    let shipmentsSQL = "SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width,\n shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,\n shipUp.updatedBy, shipUp.lastUpdate FROM shipment ship\n";
+    shipmentsSQL += "INNER JOIN shipmentdetails shipDet\n INNER JOIN shipmentdelivery shipDel\n INNER JOIN shipmentupdate shipUp\n INNER JOIN ordershipment ord\n INNER JOIN warehousemember wawm \n";
+    shipmentsSQL += "ON ship.shipmentID = shipDet.shipmentID\n AND ship.shipmentID = shipDel.shipmentID\n AND ship.shipmentID = shipUp.shipmentID\n AND ship.shipmentID = ord.shipmentID\n";
+    shipmentsSQL += "AND (shipDel.deliveryStatus ='WAREHOUSE' OR shipDel.deliveryStatus ='ONROAD')\n  AND assignedEmployee = wawm.memberID\n AND wawm.memberID = "+req.query.employeeID + "\n ";
+    for (const i in req.body.filteredBy){
+        if((!(Object.keys(req.body.filteredBy[i]).length===0 && Object.getPrototypeOf(req.body.filteredBy[i]) === Object.prototype) && req.body.filteredBy[i]==""))
+            if(typeof req.body.filteredBy[i] === "string")
+                shipmentsSQL += " AND ship."+i+" = '"+req.body.filteredBy[i] + "' \n ";
+            else shipmentsSQL += " AND ship."+i+" = "+req.body.filteredBy[i] + "\n ";
+        if(i=="details") 
+        shipmentTable = "shipDet";
+        else if(i == "updates")
+        shipmentTable = "shipUp";
+        else if(i == "delivery") 
+        shipmentTable = "shipDel";
+        else if(i=="order")
+        shipmentTable = "ord";
+        if(typeof req.body.filteredBy[i] === "object" && (!(Object.keys(req.body.filteredBy[i]).length===0 && Object.getPrototypeOf(req.body.filteredBy[i]) === Object.prototype)))
+        for(const j in req.body.filteredBy[i]){
+            value = equality(req.body.filteredBy[i],j)
+            shipmentsSQL += " AND "+shipmentTable+"."+j+" "+ value + "\n ";
+        }
+    }
+    DB.query(shipmentsSQL, (err,result)=>{
+        if (err) throw err;        
+        res.send(result); 
+    });
 });
 
-
-//assign shipments to dispatcher
-router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) => {
-
-
+//TODO: fix checkDestinationSQL and stat
+//assign shipments to driver
+router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
+    let stat = "";
+    let checkDestinationSQL = "";
+    let deliverySQL = "";
+    for(const i in req.body.shipmentID){
+        checkDestinationSQL = "SELECT deliveryStatus, IF(deliveryStatus='TOBEDELIVERED',\n (SELECT DISTINCT location\n From consignee co\n";
+        checkDestinationSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.body.employeeID+"),\n";
+        checkDestinationSQL += "(SELECT DISTINCT location \n FROM warehouse wa\n INNER JOIN warehousemember wam\n INNER JOIN shipmentdelivery ship \n ON ship.assignedEmployee = wam.memberID\n ";
+        checkDestinationSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.body.employeeID+"\n )) AS city\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.body.employeeID + "\n AND shipmentID =" + req.body.shipmentID[i] + "\n";
+        DB.query(checkDestinationSQL, (err,result)=>{
+            if (err) throw err;
+            if(result!=""){
+                stat = result[0].deliveryStatus
+                if (stat=='ONROAD'){
+                    stat = 'PICKUP';
+                }
+                if(stat=='PICKEDUP'){
+                    stat = 'TOBESTORED';
+                    stat = 'TOBEDELIVERED';
+                }
+                else if (stat=='WAREHOUSE'){
+                    stat = 'TOBESTORED';
+                }
+                else if (stat=='TOBEDELIVERED'){
+                    stat = 'DELIVERED';
+                }
+                else{
+                    stat = 'UNKNOWN'; 
+                    city = "'UNKNOWN'";
+                }
+                deliverySQL = "START TRANSACTION; \n"; 
+                deliverySQL += "UPDATE shipmentdelivery\n SET currentEmployee = "+req.body.driverID+", deliveryStatus = '"+stat+"', currentCity = '" + result[0].city + "', deliveryDate = '"+ time.getDateTime() + "'\n WHERE shipmentID =" + req.body.shipmentID[i] +"; \n";
+                deliverySQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID[i]+"; \n";
+                deliverySQL += "UPDATE vehicle\n SET currentLocation = '"+result[0].city+"'\n WHERE vehicleID = (SELECT vehicleID FROM vehicledriver WHERE driverID = "+req.body.employeeID+"); \n";
+                deliverySQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT currentCity FROM shipmentdelivery WHERE shipmentID = "+req.body.shipmentID[i]+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
+                deliverySQL += "COMMIT; ";
+                DB.query(deliverySQL, (err)=>{
+                    if (err) throw err;   
+                });
+            }
+        });
+    }
+    res.send({
+        "status": "SUCCESS", 
+        "err": false
+    });
 });
 
 //assign shelfs to worker
@@ -293,7 +364,6 @@ router.post("/assignShipmentsToWorker",urlEncodedParser, (req, res) => {
         if(i<req.body.shipments.length-1)
         shipments += ", ";
     }
-
     let shipmentSQL =  "START TRANSACTION; \n";
     shipmentSQL += "UPDATE shipmentdelivery SET currentEmployee = "+ req.body.workerID +", deliveryStatus = '" + req.body.deliveryStatus + "', assignedEmployee = null WHERE shipmentID IN("+shipments+"); \n";
     shipmentSQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN("+shipments+"); \n";

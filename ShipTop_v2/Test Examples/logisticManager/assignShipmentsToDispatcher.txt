@@ -3,6 +3,6 @@ http://localhost:3000/api/logisticManager/assignShipmentsToDispatcher
 {
     "employeeID": 12,
     "dispatcherID":41,
-    "warehouseManagerID":null,
+    "warehouseManagerID":54,
     "shipmentID":[42,43,45]
 } 
