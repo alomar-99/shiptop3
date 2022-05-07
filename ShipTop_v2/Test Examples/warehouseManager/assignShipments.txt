@@ -1,0 +1,7 @@
+http://localhost:3000/api/warehouseManager/assignShipments
+
+{
+    "employeeID": 54,
+    "assignedEmployeeID":43,
+    "shipmentID":[42,44]
+} 

@@ -1,7 +1,0 @@
-URL = http://localhost:3000/api/warehouseManager/assignShipmentToDispatcher
-
-{
-    "employeeID": 23,
-    "shipmentID":2,
-    "dispatcherID":15
-}

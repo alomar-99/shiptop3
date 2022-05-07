@@ -4,7 +4,6 @@ const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
-
 // add reportprint 
 router.post("/addReportprint", urlEncodedParser, (req, res) => {
     let rateSQL = "INSERT INTO  reportprint (reportID, customerServerID, dateOfPrint)\n VALUES('" + req.body.reportID + "', '" + req.body.customerServerID + "','" + time.getDateTime();
@@ -15,7 +14,6 @@ router.post("/addReportprint", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-
 });
 
 //delete reportprint 
@@ -42,8 +40,6 @@ router.post("/deleteReport",urlEncodedParser, (req, res) => {
 });
 
 //view reportprints  
-
-
 
 //add report
 router.post("/addReport", urlEncodedParser, (req, res) => {
@@ -96,9 +92,6 @@ router.post("/deleteReport",urlEncodedParser, (req, res) => {
 });
 
 //view reports
-
-
-//view Rating
 
 
 module.exports = router;

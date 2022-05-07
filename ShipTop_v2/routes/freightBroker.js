@@ -71,8 +71,7 @@ router.post("/deleteconsignor",urlEncodedParser, (req, res) => {
     });
 });
 
-//view Consignors
-
+//view Consignors   //with rates
 
 
 

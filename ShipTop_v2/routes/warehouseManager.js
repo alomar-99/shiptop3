@@ -222,34 +222,16 @@ router.post("/deleteWorker",urlEncodedParser, (req, res) => {
 });
 
 //view workers
-router.post("/viewWorkers",urlEncodedParser, (req, res) => {
-    let workerSQL = "SELECT  "
-
-    // SELECT WO.firstName,WO.lastName, WO.email,WO.phoneNumber, WO.password, WOof.location,WOof.roomNumber,WOof.telephone,
-    // WOup.updatedBy,WOup.lastUpdate
-    // , count(res.shelfID) AS emptyShelfs 
-    // FROM employee WO
-    // INNER JOIN employeeupdate WOup 
-    // INNER JOIN office WOof 
-    // INNER JOIN warehousemember WAwm
-    // INNER JOIN warehousemember WAwo
-    // INNER JOIN employee WM
-    // INNER JOIN workerShelf WOsh
-    // INNER JOIN shelfreservation res
-    // ON WO.employeeID = WOup.employeeID 
-    // AND WO.employeeID  = WOof.employeeID
-    // AND WM.employeeID = 54
-    // AND WAwm.memberID = WM.employeeID
-    // AND WAwm.warehouseID = WAwo.warehouseID
-    // AND WAwo.memberID = WO.employeeID
-    // AND WO.role = 'WO'
-    // AND WOsh.workerID = WO.employeeID
-    // AND res.shelfID = WOsh.shelfID AND res.assignedShipment = null
-    // GROUP BY WO.employeeID
-    
-
-
-
+router.get("/viewWorkers", (req, res) => {
+    let workerSQL = "SELECT WO.employeeID, WO.firstName,WO.lastName, WO.email,WO.phoneNumber, WO.password, WOof.location,WOof.roomNumber,WOof.telephone,\n";
+    workerSQL += "WOup.updatedBy,WOup.lastUpdate, count(res.shelfID) AS assignedShelfs\n FROM employee WO\n INNER JOIN employeeupdate WOup\n INNER JOIN office WOof\n";
+    workerSQL += "INNER JOIN warehousemember WAwm\n INNER JOIN warehousemember WAwo\n INNER JOIN employee WM\n ON WO.employeeID = WOup.employeeID\n";
+    workerSQL += "AND WO.employeeID  = WOof.employeeID\n AND WM.employeeID = "+req.query.employeeID+"\n AND WAwm.memberID = WM.employeeID\n AND WAwm.warehouseID = WAwo.warehouseID\n";
+    workerSQL += "AND WAwo.memberID = WO.employeeID\n INNER JOIN workerShelf WOsh\n LEFT JOIN shelfreservation res\n ON WOsh.shelfID = res.shelfID\n AND WOsh.workerID = WO.employeeID\n GROUP BY WO.employeeID;";
+    DB.query(workerSQL, (err,result)=>{
+        if (err) throw err;        
+        res.send(result); 
+    });
 });
 
 //view shipments in a warehouse 
@@ -285,42 +267,37 @@ router.get("/viewShipments", (req, res) => {
     });
 });
 
-//TODO: fix checkDestinationSQL and stat
-//assign shipments to driver
-router.post("/assignShipmentsToDriver",urlEncodedParser, (req, res) => {
+//assign shipments (to worker or driver)
+router.post("/assignShipments",urlEncodedParser, (req, res) => {
     let stat = "";
     let checkDestinationSQL = "";
     let deliverySQL = "";
     for(const i in req.body.shipmentID){
-        checkDestinationSQL = "SELECT deliveryStatus, IF(deliveryStatus='TOBEDELIVERED',\n (SELECT DISTINCT location\n From consignee co\n";
+        checkDestinationSQL = "SELECT deliveryStatus,\n IF(currentCity = (SELECT DISTINCT location\n From consignee co\n";
         checkDestinationSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.body.employeeID+"),\n";
-        checkDestinationSQL += "(SELECT DISTINCT location \n FROM warehouse wa\n INNER JOIN warehousemember wam\n INNER JOIN shipmentdelivery ship \n ON ship.assignedEmployee = wam.memberID\n ";
-        checkDestinationSQL += "AND wam.warehouseID = wa.warehouseID\n AND currentEmployee = "+req.body.employeeID+"\n )) AS city\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.body.employeeID + "\n AND shipmentID =" + req.body.shipmentID[i] + "\n";
+        checkDestinationSQL += "'SAME','DIFF') AS isSame\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.body.employeeID + "\n AND shipmentID =" + req.body.shipmentID[i] + "\n";
         DB.query(checkDestinationSQL, (err,result)=>{
             if (err) throw err;
             if(result!=""){
                 stat = result[0].deliveryStatus
-                if (stat=='ONROAD'){
+                if (stat=='ONROAD'){ 
                     stat = 'PICKUP';
                 }
-                if(stat=='PICKEDUP'){
-                    stat = 'TOBESTORED';
-                    stat = 'TOBEDELIVERED';
+                else if(stat=='PICKEDUP'){
+                    if (result[0].isSame="SAME") stat = 'TOBEDELIVERED';
+                    else stat = 'TOBESTORED';
                 }
                 else if (stat=='WAREHOUSE'){
                     stat = 'TOBESTORED';
-                }
-                else if (stat=='TOBEDELIVERED'){
-                    stat = 'DELIVERED';
                 }
                 else{
                     stat = 'UNKNOWN'; 
                     city = "'UNKNOWN'";
                 }
                 deliverySQL = "START TRANSACTION; \n"; 
-                deliverySQL += "UPDATE shipmentdelivery\n SET currentEmployee = "+req.body.driverID+", deliveryStatus = '"+stat+"', currentCity = '" + result[0].city + "', deliveryDate = '"+ time.getDateTime() + "'\n WHERE shipmentID =" + req.body.shipmentID[i] +"; \n";
+                deliverySQL += "UPDATE shipmentdelivery\n SET currentEmployee = "+req.body.assignedEmployeeID+", deliveryStatus = '"+stat+"', currentCity = (SELECT location FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")), deliveryDate = '"+ time.getDateTime() + "'\n WHERE shipmentID =" + req.body.shipmentID[i] +"; \n";
                 deliverySQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID[i]+"; \n";
-                deliverySQL += "UPDATE vehicle\n SET currentLocation = '"+result[0].city+"'\n WHERE vehicleID = (SELECT vehicleID FROM vehicledriver WHERE driverID = "+req.body.employeeID+"); \n";
+                deliverySQL += "UPDATE vehicle\n SET currentLocation = (SELECT location FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"))\n WHERE vehicleID = (SELECT vehicleID FROM vehicledriver WHERE driverID = "+req.body.employeeID+"); \n";
                 deliverySQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT currentCity FROM shipmentdelivery WHERE shipmentID = "+req.body.shipmentID[i]+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
                 deliverySQL += "COMMIT; ";
                 DB.query(deliverySQL, (err)=>{
@@ -355,30 +332,5 @@ router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
         }); 
     });
 });
-
-//assign shipments to worker 
-router.post("/assignShipmentsToWorker",urlEncodedParser, (req, res) => {
-    let shipments = "";
-    for(const i in req.body.shipments){ 
-        shipments += req.body.shipments[i];
-        if(i<req.body.shipments.length-1)
-        shipments += ", ";
-    }
-    let shipmentSQL =  "START TRANSACTION; \n";
-    shipmentSQL += "UPDATE shipmentdelivery SET currentEmployee = "+ req.body.workerID +", deliveryStatus = '" + req.body.deliveryStatus + "', assignedEmployee = null WHERE shipmentID IN("+shipments+"); \n";
-    shipmentSQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID IN("+shipments+"); \n";
-    for(let i =0;i<req.body.shipments.length;i++){
-        shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipments[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"', 'UPDATE', " + req.body.employeeID + "); \n";
-    }
-    shipmentSQL += "COMMIT; ";    
-    DB.query(shipmentSQL, (err)=>{
-        if (err) throw err;
-        res.send({
-            "status": "SUCCESS", 
-            "err": false
-        }); 
-    });
-});
-
 
 module.exports = router; 

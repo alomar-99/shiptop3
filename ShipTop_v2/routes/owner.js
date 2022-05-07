@@ -118,7 +118,7 @@ router.post("/modifyAdministrator",urlEncodedParser, (req, res) => {
 });
 
 //view list of Administrators 
-router.post("/viewadministrator",urlEncodedParser, (req, res) =>{
+router.get("/viewadministrator", (req, res) =>{
     let SQL = "SELECT AD.*,\n ADof.location,ADof.roomNumber,ADof.telephone,\n ADup.updatedBy,ADup.lastUpdate\n FROM employee AD\n";
     SQL += "INNER JOIN employeeupdate ADup\n ON ADM.employeeID = ADup.employeeID AND AD.role='AD'";
     SQL += "INNER JOIN office ADof\n ON AD.employeeID  = ADof.employeeID AND AD.role='AD'";

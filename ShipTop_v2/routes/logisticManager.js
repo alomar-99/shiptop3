@@ -285,7 +285,6 @@ router.post("/assignShipmentsToDispatcher",urlEncodedParser, (req, res) =>{
                 shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
             }
             shipmentSQL += "COMMIT; ";
-            console.log(shipmentSQL);
             DB.query(shipmentSQL, (err)=>{
                 if (err) throw err;
                 res.send({

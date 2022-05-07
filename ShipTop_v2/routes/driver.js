@@ -22,7 +22,7 @@ router.post("/deliverShipments",urlEncodedParser, (req, res) => {
                     stat = 'WAREHOUSE';
                 }
                 else if (stat=='TOSTORE'||stat=='TOPICKUP'){
-                    stat = 'ONROAD';
+                    stat = 'ONROAD'; 
                 }
                 else if (stat=='TOBEDELIVERED'){
                     stat = 'DELIVERED';
