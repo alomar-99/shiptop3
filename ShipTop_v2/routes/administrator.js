@@ -132,9 +132,6 @@ router.get("/viewlogisticManager", (req, res) =>{
 });
 
 
-
-
-
 //add freightBroker
 router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
@@ -382,14 +379,11 @@ router.get("/viewAccountant", (req, res) =>{
     SQL += "INNER JOIN employeeupdate ACup\n ON AC.employeeID = ACup.employeeID AND AC.role='AC'";
     SQL += "INNER JOIN office ACof\n ON AC.employeeID  = ACof.employeeID AND AC.role='AC'";
     SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
-
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
     });
 });
-
-
 
 //add customerService
 router.post("/addfcustomerService",urlEncodedParser, (req, res) => {

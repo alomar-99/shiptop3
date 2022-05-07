@@ -6,16 +6,17 @@ const urlEncodedParser = require('./tools/config').middleware;
 
 //add order 
 router.post("/createOrder",(req,res)=>{
-    let orderSQL ="START TRANSACTION; \n";
-    orderSQL += "INSERT INTO consignororder()VALUES(); \n";
+    let orderSQL ="START TRANSACTION; \n"; 
+    orderSQL += "INSERT INTO consignororder(consignorID)VALUES("+req.body.employeeID+"); \n";
     orderSQL += "INSERT INTO consignee (orderID, location, address, phoneNumber) VALUES ((SELECT MAX(ID) FROM consignororder), '" + req.body.location + "', '"+req.body.address + "', '" + req.body.phoneNumber + "'); \n";
     orderSQL += "INSERT INTO orderupdate(orderID, updatedBy, lastUpdate)VALUES((SELECT MAX(ID) FROM consignororder), "+req.body.employeeID +", '"+ time.getDateTime() +"'); \n";
+    orderSQL += "INSERT INTO orderpayment(orderID)\n VALUES ((SELECT MAX(ID) FROM consignororder)); \n";
     orderSQL += "SELECT MAX(co.ID) AS ID\n FROM consignororder co\n INNER JOIN orderupdate ord\n";
     orderSQL += "ON co.ID = ord.orderID AND ord.updatedBy = "+req.body.employeeID+"; \n";
     orderSQL += "COMMIT; "
     DB.query(orderSQL,(err,result)=>{
         if (err) throw err;
-        res.send(result[4][0]);
+        res.send(result[5][0]);
     });
 }); 
 
@@ -39,7 +40,6 @@ router.post("/addShipment",urlEncodedParser,(req,res)=>{
     });
 });  
 
-
 //cancel order
 router.post("/cancelOrder", urlEncodedParser, (req, res) => {
     console.log(req.body)
@@ -58,49 +58,37 @@ router.post("/cancelOrder", urlEncodedParser, (req, res) => {
 
 //view orders
 router.get("/viewOrders", (req, res) => {
-    console.log(req.query)  
-    let orderSQL = "SELECT ord.*, count(ship.shipmentID) AS Total_shipment\n FROM consignororder ord\n INNER JOIN ordershipment ship\n INNER JOIN orderupdate upd\n ON upd.updatedBy = "+req.query.employeeID+" AND upd.orderID = ord.ID AND ship.orderID = ord.ID GROUP BY ord.ID"
+    let orderSQL = "SELECT ord.ID,isPaid, count(ship.shipmentID) AS Total_shipment\n FROM consignororder ord\n INNER JOIN ordershipment ship\n ON ord.consignorID = "+req.query.employeeID+"\n AND ship.orderID = ord.ID\n GROUP BY ord.ID"
     DB.query(orderSQL, (err, result) => {
         if (err) throw err;
         res.send(result);
     });
 });
 
-
 // view order details given an orderID
 router.get("/viewOrder", (req, res) => {
-    
-    // SELECT ord.ID, CE.location, CE.address, CE.phoneNumber, inv.date, inv.paymentMethod,
-    // inv.amount, count(ship.shipmentID) AS Total_shipment, count(del.shipmentID) AS deliveredShipments
-    //  FROM consignororder ord
-    //  INNER JOIN ordershipment ship
-    //  INNER JOIN shipmentdelivery del 
-    //  INNER JOIN consignee CE
-    //  INNER JOIN invoice inv
-    //  INNER JOIN orderupdate upd
-    //  INNER JOIN orderpayment pay
-    //  ON upd.updatedBy = 16
-    //  AND ord.ID = 79
-    //  AND upd.orderID = ord.ID
-    //  AND ship.orderID = ord.ID 
-    //  AND CE.orderID = ord.ID
-    //  AND pay.orderID = ord.ID
-    //  AND pay.invoiceID = inv.invoiceID
-    //  AND del.shipmentID = ship.shipmentID
-    //  AND del.deliverStatus = 'DELIVERED'
-    //  AND del.currentEmployee = 43
-    //  GROUP BY ord.ID
-
-
-
+    let orderSQL = "SELECT ord.ID, CE.location, CE.address, CE.phoneNumber, inv.date, inv.paymentMethod, inv.amount\n";
+    orderSQL += ", count(ship.shipmentID) AS Total_shipment, count(del.shipmentID) AS deliveredShipments\n FROM consignororder ord";
+    orderSQL += "INNER JOIN consignee CE\n INNER JOIN orderupdate upd\n INNER JOIN orderpayment pay\n ON upd.updatedBy = "+ req.query.employeeID + "\n";
+    orderSQL += "AND ord.ID = "+req.query.orderID+"\n AND upd.orderID = ord.ID\n AND CE.orderID = ord.ID\n AND pay.orderID = ord.ID\n LEFT JOIN invoice inv\n";
+    orderSQL += "ON pay.invoiceID = inv.invoiceID\n LEFT JOIN ordershipment ship\n ON ship.orderID = ord.ID\n LEFT JOIN shipmentdelivery del\n";
+    orderSQL += "ON del.shipmentID = ship.shipmentID\n AND del.deliveryStatus = 'DELIVERED'\n GROUP BY ord.ID";
+    DB.query(orderSQL, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
 });
 
 // view Shipments provided an orderID
 router.get("/viewShipments", (req, res) => {
-    
+    let shipmentSQL = "SELECT ship.*, det.weight, det.length, det.width, det.height, det.description  ,del.deliveryStatus, del.deliveryDate, del.currentCity\n";
+    shipmentSQL += "FROM shipment ship\n INNER JOIN shipmentdelivery del\n INNER JOIN shipmentdetails det\n INNER JOIN ordershipment ord\n ON ship.shipmentID = del.shipmentID\n";
+    shipmentSQL += "AND ship.shipmentID = det.shipmentID\n AND ship.shipmentID = ord.shipmentID\n AND ord.orderID = "+req.query.orderID
+    DB.query(shipmentSQL, (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
 });
-
-
 
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {
@@ -112,5 +100,6 @@ router.post("/rateService", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-    });
+});
+
 module.exports = router;

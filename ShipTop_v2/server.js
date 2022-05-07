@@ -4,8 +4,6 @@ const express = require("express");
 //initializing express
 const app = express();
 const port = process.env.PORT || 5001;
-
-
 const http = require("http").Server(app);
 var cors = require('cors');
 const io = require('socket.io')(http, {
@@ -18,7 +16,7 @@ app.use(cors())
 
 //users imports
 const LM = require("./routes/logisticManager");
-const WM = require("./routes/warehouseManager")
+const WM = require("./routes/warehouseManager") 
 const US = require("./routes/user");
 const AD = require("./routes/administrator");
 const CO = require("./routes/consignor");

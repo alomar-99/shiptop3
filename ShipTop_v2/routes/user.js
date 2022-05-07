@@ -5,7 +5,7 @@ const urlEncodedParser = require('./tools/config').middleware;
 
 //sign in for a specific employee
 router.post("/signIn",urlEncodedParser, (req, res) => {
-    const sql = "SELECT * FROM employee WHERE email = '" + req.body.email + "' AND password = '"+ req.body.password +"'";
+    const sql = "SELECT employeeID, role FROM employee WHERE email = '" + req.body.email + "' AND password = '"+ req.body.password +"'";
     DB.query(sql, (err, result)=>{
         if (err) throw err;
             if (result=="")
