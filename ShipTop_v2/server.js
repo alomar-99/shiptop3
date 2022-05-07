@@ -3,7 +3,18 @@ const express = require("express");
 
 //initializing express
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5001;
+
+
+const http = require("http").Server(app);
+var cors = require('cors');
+const io = require('socket.io')(http, {
+    cors: {
+    origin: "*", 
+    methods: ["GET", "POST"]
+    } 
+})
+app.use(cors())
 
 //users imports
 const LM = require("./routes/logisticManager");
@@ -35,6 +46,15 @@ app.use("/api/owner",OW);
 app.use("/api/accountant",AC);
 app.use("/api/customerService",CS);
 app.use("/api/worker",WO);
+
+
+app.get("/", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Max-Age", "1800");
+    res.setHeader("Access-Control-Allow-Headers", "content-type");
+    res.setHeader( "Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS" ); 
+});
 
 //listening
 app.listen(port, () => console.log("server started on port " + port + " !"));

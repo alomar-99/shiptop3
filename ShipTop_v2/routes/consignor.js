@@ -6,7 +6,6 @@ const urlEncodedParser = require('./tools/config').middleware;
 
 //add order 
 router.post("/createOrder",(req,res)=>{
-   
     let orderSQL ="START TRANSACTION; \n";
     orderSQL += "INSERT INTO consignororder()VALUES(); \n";
     orderSQL += "INSERT INTO consignee (orderID, location, address, phoneNumber) VALUES ((SELECT MAX(ID) FROM consignororder), '" + req.body.location + "', '"+req.body.address + "', '" + req.body.phoneNumber + "'); \n";
@@ -22,7 +21,6 @@ router.post("/createOrder",(req,res)=>{
 
 //add shipment 
 router.post("/addShipment",urlEncodedParser,(req,res)=>{
-    
     let shipmentSQL ="START TRANSACTION; \n";
     shipmentSQL += "INSERT INTO shipment(shipmentName, category, isBreakable)VALUES('"+ req.body.shipmentName + "',  '"+req.body.category + "', "+req.body.isBreakable+"); \n";
     shipmentSQL += "INSERT INTO shipmentdetails(shipmentID, height, weight, width, length, description)VALUES((SELECT MAX(shipmentID) FROM shipment), ";
@@ -106,7 +104,6 @@ router.get("/viewShipments", (req, res) => {
 
 //rate service
 router.post("/rateService", urlEncodedParser, (req, res) => {
-
     let rateSQL = "update consignorrate set rate=" + req.body.rate + ", comment = '" + req.body.comment + "' WHERE consignorID = " + req.body.consignorID;
     DB.query(rateSQL, (err) => {
         if (err) throw err;

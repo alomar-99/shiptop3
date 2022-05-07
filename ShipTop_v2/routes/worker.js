@@ -4,26 +4,6 @@ const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
 
-
-// SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width,
-// shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.assignedEmployee,
-// shipUp.updatedBy, shipUp.lastUpdate 
-// , IF(res.assignedShipment = ship.shipmentID,"SHELF: "+(SELECT shelfID FROM shelfreservation WHERE assignedShipment = ship.shipmentID),"NEW") AS place
-// FROM shipment ship
-// INNER JOIN shipmentdetails shipDet
-// INNER JOIN shipmentdelivery shipDel
-// INNER JOIN shipmentupdate shipUp
-// INNER JOIN ordershipment ord
-// ON ship.shipmentID = shipDet.shipmentID
-// AND ship.shipmentID = shipDel.shipmentID
-// AND ship.shipmentID = shipUp.shipmentID
-// AND ship.shipmentID = ord.shipmentID
-// AND (shipDel.deliveryStatus ='PICKUP' OR shipDel.deliveryStatus ='TOBESTORED')
-// AND shipDel.currentEmployee = 57
-
-// LEFT JOIN shelfreservation res
-// ON res.assignedShipment =  ship.shipmentID 
-
 //view shipments
 router.get("/viewShipments", (req, res) => {
     let shipmentTable ="";
@@ -61,10 +41,13 @@ router.get("/viewShipments", (req, res) => {
 });
 
 //view shelfs
+router.get("/viewShelfs", (req, res) => {
 
+
+});
 
 //move shipments
-router.post("/moveShipments", (req, res) => {
+router.post("/moveShipments",urlEncodedParser, (req, res) => {
     let stat = "";
     let checkDestinationSQL = "";
     let deliverySQL = "";
