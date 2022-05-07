@@ -34,7 +34,7 @@ app.use("/api/driver",DR);
 app.use("/api/owner",OW);
 app.use("/api/accountant",AC);
 app.use("/api/customerService",CS);
-app.use("/api/warehouseWorker",WO);
+app.use("/api/worker",WO);
 
 //listening
 app.listen(port, () => console.log("server started on port " + port + " !"));

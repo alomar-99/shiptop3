@@ -297,7 +297,6 @@ router.post("/assignShipments",urlEncodedParser, (req, res) => {
                 deliverySQL = "START TRANSACTION; \n"; 
                 deliverySQL += "UPDATE shipmentdelivery\n SET currentEmployee = "+req.body.assignedEmployeeID+", deliveryStatus = '"+stat+"', currentCity = (SELECT location FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")), deliveryDate = '"+ time.getDateTime() + "'\n WHERE shipmentID =" + req.body.shipmentID[i] +"; \n";
                 deliverySQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID[i]+"; \n";
-                deliverySQL += "UPDATE vehicle\n SET currentLocation = (SELECT location FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"))\n WHERE vehicleID = (SELECT vehicleID FROM vehicledriver WHERE driverID = "+req.body.employeeID+"); \n";
                 deliverySQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT currentCity FROM shipmentdelivery WHERE shipmentID = "+req.body.shipmentID[i]+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
                 deliverySQL += "COMMIT; ";
                 DB.query(deliverySQL, (err)=>{
