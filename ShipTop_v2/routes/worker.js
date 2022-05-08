@@ -43,8 +43,14 @@ router.get("/viewShipments", (req, res) => {
 
 //view shelfs
 router.get("/viewShelfs", (req, res) => {
-
-
+    let shelfsSQL = "SELECT sh.*, wo.workerID AS assignedTo, addr.floor,addr.lane,addr.section,addr.row, addr.shelfNumber,\n";
+    shelfsSQL += "upd.updatedBy, upd.lastUpdate , res.assignedShipment\n FROM shelf sh\n INNER JOIN shelfreservation res\n INNER JOIN workerShelf wo";
+    shelfsSQL += "\n INNER JOIN shelfaddress addr\n INNER JOIN shelfupdate upd\n INNER JOIN warehousemember WM\n ON sh.shelfID = res.shelfID\n AND WM.warehouseID = addr.warehouseID\n";
+    shelfsSQL += "AND sh.shelfID = upd.shelfID\n AND sh.shelfID = wo.shelfID\n AND sh.shelfID = addr.shelfID\n AND WM.memberID = "+req.query.employeeID+";\n";
+    DB.query(shelfsSQL, (err,result)=>{
+        if (err) throw err;        
+        res.send(result); 
+    });
 });
 
 //move shipments

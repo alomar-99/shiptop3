@@ -152,7 +152,7 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
                 "err": true 
             }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC)";
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 if (result!="")
@@ -192,7 +192,7 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.workerID;
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC) AND employeeID !=" +req.body.workerID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 console.log(result);
@@ -345,9 +345,17 @@ router.post("/assignShipments",urlEncodedParser, (req, res) => {
     });
 });
 
-//view shelfs //TODO:
-
-
+//view shelfs
+router.get("/viewShelfs", (req, res) => {
+    let shelfsSQL = "SELECT sh.*, wo.workerID AS assignedTo, addr.floor,addr.lane,addr.section,addr.row, addr.shelfNumber,\n";
+    shelfsSQL += "upd.updatedBy, upd.lastUpdate , res.assignedShipment\n FROM shelf sh\n INNER JOIN shelfreservation res\n INNER JOIN workerShelf wo";
+    shelfsSQL += "\n INNER JOIN shelfaddress addr\n INNER JOIN shelfupdate upd\n INNER JOIN warehousemember WM\n ON sh.shelfID = res.shelfID\n AND WM.warehouseID = addr.warehouseID\n";
+    shelfsSQL += "AND sh.shelfID = upd.shelfID\n AND sh.shelfID = wo.shelfID\n AND sh.shelfID = addr.shelfID\n AND WM.memberID = "+req.query.employeeID+";\n";
+    DB.query(shelfsSQL, (err,result)=>{
+        if (err) throw err;        
+        res.send(result); 
+    });
+});
 
 //assign shelfs to worker
 router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
@@ -357,9 +365,9 @@ router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
         if(i<req.body.shelfs.length-1)
             shelfs += ", ";
     }
-    let workerSQL = "START TRANSACTION; \n";
-    workerSQL += "UPDATE workerShelf\n SET workerID = "+ req.body.workerID +"\n WHERE shelfID IN( "+shelfs+ "); \n ";
-    workerSQL += "UPDATE shelfupdate\n SET updatedBy = "+ req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shelfID IN("+shelfs+ "); \n ";
+    let workerSQL = "START TRANSACTION;\n";
+    workerSQL += "UPDATE workerShelf\n SET workerID = "+ req.body.workerID +"\n WHERE shelfID IN( "+shelfs+ "); \n";
+    workerSQL += "UPDATE shelfupdate\n SET updatedBy = "+ req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shelfID IN("+shelfs+ "); \n";
     workerSQL += "COMMIT;";
     DB.query(workerSQL, (err)=>{
         if (err) throw err;

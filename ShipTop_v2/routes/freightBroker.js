@@ -15,7 +15,7 @@ router.post("/addConsignor",urlEncodedParser, (req, res) => {
                 "err": true 
             }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC)";
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 if (result!="")
@@ -55,7 +55,7 @@ router.post("/modifyConsignor",urlEncodedParser, (req, res) => {
                 "err": true
             }); 
         else{
-            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.consignorID;
+            const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC) AND employeeID !=" +req.body.consignorID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 console.log(result);
