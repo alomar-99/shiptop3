@@ -16,7 +16,7 @@ app.use(cors())
 
 //users imports
 const LM = require("./routes/logisticManager");
-const WM = require("./routes/warehouseManager") 
+const WM = require("./routes/warehouseManager"); 
 const US = require("./routes/user");
 const AD = require("./routes/administrator");
 const CO = require("./routes/consignor");
@@ -26,7 +26,7 @@ const DR = require("./routes/driver");
 const OW = require("./routes/owner");
 const AC = require("./routes/accountant");
 const CS = require("./routes/customerService");
-const WO = require("./routes/worker")
+const WO = require("./routes/worker");
 
 //accepting json files
 app.use(express.json());

@@ -3,6 +3,7 @@ const router = express.Router();
 const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
+const equality = require('./tools/utility').equality;
 
 //add driver
 router.post("/addDriver",urlEncodedParser, (req, res) => {

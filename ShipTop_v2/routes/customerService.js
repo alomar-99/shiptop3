@@ -79,7 +79,7 @@ router.post("/deleteReport",urlEncodedParser, (req, res) => {
                 "err": true
             });
         else{
-            const employeeSQL = "DELETE FROM report WHERE reportID = "+req.body.reportID ;
+            const employeeSQL = "DELETE FROM report WHERE reportID = "+req.body.reportID;
             DB.query(employeeSQL, (err)=>{
                 if (err) throw err;
                 res.send({
