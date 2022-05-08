@@ -14,7 +14,6 @@ router.post("/addInvoice", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-
 });
 
 //modify invoice

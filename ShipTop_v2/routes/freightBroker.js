@@ -131,6 +131,4 @@ router.get("/viewConsignors", (req, res) =>{
 });
 
 
-
-
 module.exports = router;
