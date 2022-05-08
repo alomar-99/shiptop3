@@ -27,7 +27,7 @@ router.post("/addDriver",urlEncodedParser, (req, res) => {
                 else{
                     let employeeSQL = "START TRANSACTION; \n";
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'DR', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
-                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
+                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') , (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
                     employeeSQL += "INSERT INTO vehicledriver\n (driverID)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"')); \n";
                     employeeSQL += "COMMIT; ";
@@ -78,7 +78,7 @@ router.post("/modifyDriver",urlEncodedParser, (req, res) => {
                         employeeSQL+= "START TRANSACTION; \n" 
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.driverID  + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.driverID  + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.driverID + ";\n";  
+                        employeeSQL+= "UPDATE office \n SET location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.driverID + ";\n";  
                         employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 

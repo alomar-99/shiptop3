@@ -30,26 +30,6 @@ router.post("/createOrder",(req,res)=>{
         });
     });
 }); 
- 
-//add shipment 
-router.post("/addShipment",urlEncodedParser,(req,res)=>{
-    let shipmentSQL ="START TRANSACTION; \n";
-    shipmentSQL += "INSERT INTO shipment(shipmentName, category, isBreakable)VALUES('"+ req.body.shipmentName + "',  '"+req.body.category + "', "+req.body.isBreakable+"); \n";
-    shipmentSQL += "INSERT INTO shipmentdetails(shipmentID, height, weight, width, length, description)VALUES((SELECT MAX(shipmentID) FROM shipment), ";
-    shipmentSQL += req.body.height + ", " + req.body.weight + ", " + req.body.width + ", "+ req.body.length + ", '" + req.body.description + "'); \n";
-    shipmentSQL += "INSERT INTO shipmentupdate(shipmentID, updatedBy, lastUpdate)VALUES((SELECT MAX(shipmentID) FROM shipment), "+req.body.employeeID +", '"+ time.getDateTime() +"'); \n";
-    shipmentSQL += "INSERT INTO shipmentdelivery(shipmentID, currentCity, currentEmployee, deliveryStatus) VALUES((SELECT MAX(shipmentID) FROM shipment), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"), " + req.body.employeeID +", 'NEW'); \n"; 
-    shipmentSQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor) VALUES((SELECT MAX(shipmentID) FROM shipment), (SELECT location FROM office WHERE employeeID = "+req.body.employeeID+"),(SELECT lastUpdate FROM shipmentupdate WHERE shipmentID = (SELECT MAX(shipmentID) FROM shipmentdelivery)),'ADD', " + req.body.employeeID + "); \n";
-    shipmentSQL += "INSERT INTO ordershipment(orderID, shipmentID) VALUES("+req.body.orderID+",(SELECT MAX(shipmentID) FROM shipment)); \n";
-    shipmentSQL += "COMMIT; "
-    DB.query(shipmentSQL,(err)=>{
-        if (err) throw err;
-        res.send({
-            "status": "SUCCESS",
-            "err": false
-        });
-    });
-});  
 
 //cancel order
 router.post("/cancelOrder", urlEncodedParser, (req, res) => {

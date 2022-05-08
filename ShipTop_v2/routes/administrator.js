@@ -18,7 +18,7 @@ router.post("/addlogisticManager",urlEncodedParser, (req, res) => {
             const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
-                if (result!="")
+                if (result!="") 
                     res.send({
                         "status": "DUPLICATE LOC", 
                         "err": true 
@@ -41,7 +41,6 @@ router.post("/addlogisticManager",urlEncodedParser, (req, res) => {
         }
     });
 });
-
 
 //delete logisticManager
 router.post("/deletelogisticManager",urlEncodedParser, (req, res) => {
@@ -124,13 +123,11 @@ router.get("/viewlogisticManager", (req, res) =>{
     SQL += "INNER JOIN employeeupdate LMup\n ON LM.employeeID = LMup.employeeID AND LM.role='LM'";
     SQL += "INNER JOIN office LMof\n ON LM.employeeID  = LMof.employeeID AND LM.role='LM'";
     SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
-
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
     });
 });
-
 
 //add freightBroker
 router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
@@ -251,7 +248,6 @@ router.get("/viewfreightBroker", (req, res) =>{
     SQL += "INNER JOIN employeeupdate FBup\n ON FB.employeeID = FBup.employeeID AND FB.role='FB'";
     SQL += "INNER JOIN office FBof\n ON FB.employeeID  = FBof.employeeID AND FB.role='FB'";
     SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
-
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);

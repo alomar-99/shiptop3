@@ -27,7 +27,7 @@ router.post("/addWarehouseManager",urlEncodedParser, (req, res) => {
                 else{
                     let employeeSQL = "START TRANSACTION; \n";
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'WM', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
-                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
+                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,(SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
                     employeeSQL += "INSERT INTO warehousemember(memberID)\n VALUES((SELECT MAX(employeeID) FROM employee WHERE role = 'WM')); \n";
                     employeeSQL += "COMMIT; "
@@ -77,7 +77,7 @@ router.post("/modifyWarehouseManager",urlEncodedParser, (req, res) => {
                         employeeSQL += "START TRANSACTION; \n" 
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
+                        employeeSQL+= "UPDATE office \n SET location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.warehouseManagerID + ";\n";
                         employeeSQL+= "COMMIT; "
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
@@ -151,7 +151,7 @@ router.post("/addDispatcher",urlEncodedParser, (req, res) => {
                 else{
                     let employeeSQL = "START TRANSACTION; \n";
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'DI', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
-                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
+                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') , (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
                     employeeSQL += "COMMIT; "
                     DB.query(employeeSQL, (err)=>{
@@ -200,7 +200,7 @@ router.post("/modifyDispatcher",urlEncodedParser, (req, res) => {
                         employeeSQL += "START TRANSACTION; \n" 
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.dispatcherID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.dispatcherID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.dispatcher + ";\n"
+                        employeeSQL+= "UPDATE office \n SET location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.dispatcher + ";\n"
                         employeeSQL+= "COMMIT; "
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 

@@ -27,7 +27,6 @@ router.post("/modifyInvoice", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-
 });
 
 

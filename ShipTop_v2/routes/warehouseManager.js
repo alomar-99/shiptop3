@@ -8,7 +8,7 @@ const urlEncodedParser = require('./tools/config').middleware;
 //add warehouse 
 router.post("/addWarehouse",urlEncodedParser, (req, res) => {
     const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID;
-    DB.body(checkWarehouseSQL, (err, result) => {
+    DB.query(checkWarehouseSQL, (err, result) => {
         if (err) throw err;
         if(result[0].warehouseID!=null)
         res.send({
@@ -22,7 +22,7 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "INSERT INTO warehouseupdate(warehouseID, managerID, lastUpdate)\n VALUES((SELECT MAX(warehouseID) FROM warehouse), "+req.body.employeeID+", '"+time.getDateTime()+"'); \n";
             warehouseSQL += "COMMIT; ";
             console.log(warehouseSQL);
-            DB.body(warehouseSQL, (err)=>{
+            DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
             });
             let floor,lane,section,row,number = 0;
@@ -47,7 +47,7 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
                                 if(bodyIncrement==0||total==maxShelfs-1){
                                     shelfSQL += "COMMIT; ";
                                     console.log("floor ="+ floor +" lane =" + lane + " section = "+section + " row = "+row +" number = "+number+" total = "+total);
-                                    DB.body(shelfSQL, (err)=>{
+                                    DB.query(shelfSQL, (err)=>{
                                         if (err) throw err;
                                     }); 
                                     shelfSQL="START TRANSACTION; \n";
@@ -70,7 +70,7 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
 //delete warehouse 
 router.post("/deleteWarehouse",urlEncodedParser, (req, res) => {
     const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID
-    DB.body(checkWarehouseSQL, (err,result)=>{
+    DB.query(checkWarehouseSQL, (err,result)=>{
         if (err) throw err;
         if(result=="")
         res.send({
@@ -84,7 +84,7 @@ router.post("/deleteWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "DELETE FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"); \n";
             warehouseSQL += "DELETE FROM employee WHERE employeeID = (SELECT memberID FROM warehousemember WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
             warehouseSQL+= "COMMIT; ";
-            DB.body(warehouseSQL, (err)=>{
+            DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
                 res.send({
                     "status": "SUCCESS", 
@@ -98,22 +98,53 @@ router.post("/deleteWarehouse",urlEncodedParser, (req, res) => {
 //view unused warehouses
 router.get("/viewWarehouses", (res) => {
     const warehouseSQL = "SELECT wa.*\n FROM warehouse wa\n INNER JOIN warehousemember WAwm\n ON wa.warehouseID != WAwm.warehouseID\n INNER JOIN employee WM\n ON WM.role='WM' AND WM.employeeID = WAwm.memberID;";
-    DB.body(warehouseSQL, (err,result)=>{
+    DB.query(warehouseSQL, (err,result)=>{
         if (err) throw err;
         res.send(result); 
     });
 });
 
-//assign to existing warehouse //TODO: later
-router.post("/assignTo",urlEncodedParser, (req, res) => {
-
-
-});
+//assign to existing warehouse 
+router.post("/assignToWarehouse",urlEncodedParser, (req, res) => {
+    const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID
+    DB.query(checkWarehouseSQL, (err,result)=>{
+        if (err) throw err;
+        if(result!="")
+            res.send({ 
+                "status": "EXISTING ACC", 
+                "err": true 
+            }); 
+        else{
+            const checkManagerSQL = "SELECT * FROM employee WHERE employeeID = "+req.body.employeeID
+            DB.query(checkManagerSQL, (err,result)=>{
+                if (err) throw err;
+                if(result=="")
+                res.send({ 
+                    "status": "ACC DOESN't EXIST'", 
+                    "err": true 
+                });
+                else{
+                    let warehouseSQL = "START TRANSACTION; \n";
+                    warehouseSQL += "INSERT INTO warehousemember(memberID,warehouseID)\n VALUES("+req.body.employeeID+","+req.body.warehouseID+");\n";
+                    warehouseSQL += "UPDATE warehouseupdate\n SET managerID = "+ req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"' WHERE warehouseID = "+ req.body.warehouseID+";\n";
+                    warehouseSQL += "COMMIT; ";
+                    DB.query(warehouseSQL, (err)=>{
+                        if (err) throw err;
+                        res.send({
+                            "status": "SUCCESS", 
+                            "err": false
+                        });
+                    }); 
+                }
+            });
+        }
+    })
+}); 
 
 //add warehouse worker
 router.post("/addWorker",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"'";
-    DB.body(checkEmailSQL, (err, result)=>{
+    DB.query(checkEmailSQL, (err, result)=>{
         if (err) throw err;
         if (result!="")     
             res.send({
@@ -122,7 +153,7 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
             }); 
         else{
             const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
-            DB.body(checkLocationSQL, (err,result)=>{
+            DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 if (result!="")
                     res.send({
@@ -132,11 +163,11 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
                 else{
                     let employeeSQL = "START TRANSACTION; \n";
                     employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'WO', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
-                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
+                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') , (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
                     employeeSQL += "INSERT INTO warehousemember\n (memberID, warehouseID)\n VALUES ((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"'),(SELECT DISTINCT wm.warehouseID FROM warehousemember wm INNER JOIN warehousemember wo ON wm.memberID= "+req.body.employeeID+")); \n";
                     employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ," + req.body.employeeID + ", '" + time.getDateTime() + "'); \n";
                     employeeSQL += "COMMIT; ";
-                    DB.body(employeeSQL, (err)=>{
+                    DB.query(employeeSQL, (err)=>{
                         if (err) throw err;
                         res.send({
                             "status": "SUCCESS", 
@@ -149,10 +180,10 @@ router.post("/addWorker",urlEncodedParser, (req, res) => {
     });
 });
 
-// modify worker
+//modify worker
 router.post("/modifyWorker",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.workerID;
-    DB.body(checkIDSQL, (err, result)=>{
+    DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
         let employeeSQL="";
         if (result=="")    
@@ -162,7 +193,7 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
             }); 
         else{
             const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.workerID;
-            DB.body(checkLocationSQL, (err,result)=>{
+            DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
                 console.log(result);
                 if (result!="")
@@ -172,7 +203,7 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
                     });
                 else{ 
                     const checkEmailSQL = "SELECT employeeID FROM employee WHERE email ='" +req.body.email +"' AND employeeID !="+req.body.workerID;
-                    DB.body(checkEmailSQL, (err, result)=>{ 
+                    DB.query(checkEmailSQL, (err, result)=>{ 
                     if (err) throw err;  
                     if(result[0]!=undefined)
                         res.send({
@@ -183,10 +214,10 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
                         employeeSQL+= "START TRANSACTION; \n"; 
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.workerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.workerID + ";\n";
-                        employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.workerID + ";\n";  
+                        employeeSQL+= "UPDATE office \n SET location = (SELECT location FROM (SELECT location FROM office WHERE employeeID ="+req.body.employeeID+") AS LOC), telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.workerID + ";\n";  
                         employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.workerID + ";\n";
                         employeeSQL+= "COMMIT; ";
-                        DB.body(employeeSQL, (err)=>{
+                        DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
                             res.send({
                                 "status": "SUCCESS", 
@@ -204,7 +235,7 @@ router.post("/modifyWorker",urlEncodedParser, (req, res) => {
 //delete worker
 router.post("/deleteWorker",urlEncodedParser, (req, res) => {
     const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.workerID;
-    DB.body(errSQL, (err, result)=>{
+    DB.query(errSQL, (err, result)=>{
         if (err) throw err;
         if (result=="")    
             res.send({
@@ -213,7 +244,7 @@ router.post("/deleteWorker",urlEncodedParser, (req, res) => {
             });
         else{
             const employeeSQL = "DELETE FROM employee WHERE employeeID = "+req.body.workerID ;
-            DB.body(employeeSQL, (err)=>{
+            DB.query(employeeSQL, (err)=>{
                 if (err) throw err;
                 res.send({
                     "status": "SUCCESS", 
@@ -231,7 +262,7 @@ router.get("/viewWorkers", (req, res) => {
     workerSQL += "INNER JOIN warehousemember WAwm\n INNER JOIN warehousemember WAwo\n INNER JOIN employee WM\n ON WO.employeeID = WOup.employeeID\n";
     workerSQL += "AND WO.employeeID  = WOof.employeeID\n AND WM.employeeID = "+req.query.employeeID+"\n AND WAwm.memberID = WM.employeeID\n AND WAwm.warehouseID = WAwo.warehouseID\n";
     workerSQL += "AND WAwo.memberID = WO.employeeID\n INNER JOIN workerShelf WOsh\n LEFT JOIN shelfreservation res\n ON WOsh.shelfID = res.shelfID\n AND WOsh.workerID = WO.employeeID\n GROUP BY WO.employeeID;";
-    DB.body(workerSQL, (err,result)=>{
+    DB.query(workerSQL, (err,result)=>{
         if (err) throw err;        
         res.send(result); 
     });
@@ -264,7 +295,7 @@ router.get("/viewShipments", (req, res) => {
             shipmentsSQL += " AND "+shipmentTable+"."+j+" "+ value + "\n ";
         }
     }
-    DB.body(shipmentsSQL, (err,result)=>{
+    DB.query(shipmentsSQL, (err,result)=>{
         if (err) throw err;        
         res.send(result); 
     });
@@ -279,7 +310,7 @@ router.post("/assignShipments",urlEncodedParser, (req, res) => {
         checkDestinationSQL = "SELECT deliveryStatus,\n IF(currentCity = (SELECT DISTINCT location\n From consignee co\n";
         checkDestinationSQL += "INNER JOIN ordershipment ord\n INNER JOIN shipmentdelivery ship\n ON ord.orderID = co.orderID\n AND ord.shipmentID = ship.shipmentID\n AND ship.currentEmployee = "+req.body.employeeID+"),\n";
         checkDestinationSQL += "'SAME','DIFF') AS isSame\n FROM shipmentdelivery\n WHERE currentEmployee = "+req.body.employeeID + "\n AND shipmentID =" + req.body.shipmentID[i] + "\n";
-        DB.body(checkDestinationSQL, (err,result)=>{
+        DB.query(checkDestinationSQL, (err,result)=>{
             if (err) throw err;
             if(result!=""){
                 stat = result[0].deliveryStatus
@@ -302,7 +333,7 @@ router.post("/assignShipments",urlEncodedParser, (req, res) => {
                 deliverySQL += "UPDATE shipmentupdate\n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shipmentID = " + req.body.shipmentID[i]+"; \n";
                 deliverySQL += "INSERT INTO shipmentrecord(shipmentID, recordedPlace, recordedTime, userAction, actor)\n VALUES("+req.body.shipmentID[i]+", (SELECT currentCity FROM shipmentdelivery WHERE shipmentID = "+req.body.shipmentID[i]+"), '"+time.getDateTime()+"' ,'UPDATE', " + req.body.employeeID + "); \n";
                 deliverySQL += "COMMIT; ";
-                DB.body(deliverySQL, (err)=>{
+                DB.query(deliverySQL, (err)=>{
                     if (err) throw err;   
                 });
             }
@@ -314,7 +345,7 @@ router.post("/assignShipments",urlEncodedParser, (req, res) => {
     });
 });
 
-//view shelfs
+//view shelfs //TODO:
 
 
 
@@ -329,8 +360,8 @@ router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
     let workerSQL = "START TRANSACTION; \n";
     workerSQL += "UPDATE workerShelf\n SET workerID = "+ req.body.workerID +"\n WHERE shelfID IN( "+shelfs+ "); \n ";
     workerSQL += "UPDATE shelfupdate\n SET updatedBy = "+ req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE shelfID IN("+shelfs+ "); \n ";
-    workerSQL += "COMMIT; ";
-    DB.body(workerSQL, (err)=>{
+    workerSQL += "COMMIT;";
+    DB.query(workerSQL, (err)=>{
         if (err) throw err;
         res.send({
             "status": "SUCCESS", 

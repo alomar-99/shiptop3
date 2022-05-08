@@ -20,7 +20,7 @@ router.post("/signIn",urlEncodedParser, (req, res) => {
 
 //track shipment for any user
 router.get("/trackShipment", (req, res) => {
-    let sql = "SELECT * FROM shipmentrecord WHERE shipmentID = " + req.body.shipmentID;
+    let sql = "SELECT recordedPlace, recordedTime FROM shipmentrecord WHERE shipmentID = " + req.body.shipmentID;
     DB.query(sql, (err, result)=>{
         if (err) throw err;
         res.send(result);
