@@ -12,7 +12,7 @@ router.post("/addAdministrator",urlEncodedParser, (req, res) => {
         if (err) throw err;
         if (!result[0].IsOwner)
         res.send({
-            "status": "NOT OWNER", 
+            "status": "NOT OWNER",  
             "err": true 
         }); 
         else{
@@ -65,7 +65,7 @@ router.post("/deleteAdministrator",urlEncodedParser, (req, res) => {
             "err": true 
         });
         else{
-            const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.adminID;
+            const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.adminID +" AND role = 'AD'";
             DB.query(errSQL, (err, result)=>{
                 if (err) throw err;
                 if (result=="")    
@@ -74,19 +74,30 @@ router.post("/deleteAdministrator",urlEncodedParser, (req, res) => {
                         "err": true
                     });
                 else{
-                    const employeeSQL = "DELETE FROM employee WHERE employeeID = "+req.body.adminID ;
-                    DB.query(employeeSQL, (err)=>{
+                    const checkAdminsSQL = "SELECT IF(COUNT(employeeID)=1,true,false) AS restricted FROM employee WHERE role = 'AD'";
+                    DB.query(checkAdminsSQL, (err,result)=>{
                         if (err) throw err;
-                        res.send({
-                            "status": "SUCCESS", 
-                            "err": false
-                        }); 
+                        if(result[0].restricted==1){
+                            res.send({
+                                "status": "RESTRICTED", 
+                                "err": true 
+                            }); 
+                        }
+                        else{
+                            const employeeSQL = "DELETE FROM employee WHERE employeeID = "+req.body.adminID ;
+                            DB.query(employeeSQL, (err)=>{
+                                if (err) throw err;
+                                res.send({
+                                    "status": "SUCCESS", 
+                                    "err": false
+                                }); 
+                            });
+                        }
                     });
                 }         
             });
         }
     });
-    
 });
 
 //modify Administrator
@@ -164,7 +175,7 @@ router.get("/viewAdministrators", (req,res) =>{
         else{
             let SQL = "SELECT AD.*,\n ADof.location,ADof.roomNumber,ADof.telephone,\n ADup.updatedBy,ADup.lastUpdate\n FROM employee AD\n";
             SQL += "INNER JOIN employeeupdate ADup\n ON AD.employeeID = ADup.employeeID AND AD.role='AD'";
-            SQL += "INNER JOIN office ADof\n ON AD.employeeID  = ADof.employeeID AND AD.role='AD'";
+            SQL += "INNER JOIN office ADof\n ON AD.employeeID = ADof.employeeID AND AD.role='AD'";
             DB.query(SQL, (err,result)=>{
                 if (err) throw err;
                 res.send(result);
@@ -172,7 +183,6 @@ router.get("/viewAdministrators", (req,res) =>{
         }
     });
 });
-
 
 module.exports = router;
 
