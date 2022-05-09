@@ -80,7 +80,6 @@ router.post("/modifylogisticManager",urlEncodedParser, (req, res) => {
             const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.logisticManagerID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
-                console.log(result);
                 if (result!="")
                     res.send({
                         "status": "DUPLICATE LOC", 
@@ -203,7 +202,6 @@ router.post("/modifyFreightBroker",urlEncodedParser, (req, res) => {
             const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.freightBrokerID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
-                console.log(result);
                 if (result!="")
                     res.send({
                         "status": "DUPLICATE LOC", 
@@ -326,7 +324,6 @@ router.post("/modifyAccountant",urlEncodedParser, (req, res) => {
             const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.accountantID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
-                console.log(result);
                 if (result!="")
                     res.send({
                         "status": "DUPLICATE LOC", 
@@ -449,7 +446,6 @@ router.post("/modifyCustomerService",urlEncodedParser, (req, res) => {
             const checkLocationSQL = "SELECT * FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"' AND employeeID !=" +req.body.customerServiceID;
             DB.query(checkLocationSQL, (err,result)=>{
                 if (err) throw err;
-                console.log(result);
                 if (result!="")
                     res.send({
                         "status": "DUPLICATE LOC", 
