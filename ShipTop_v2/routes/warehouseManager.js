@@ -260,7 +260,7 @@ router.get("/viewWorkers", (req, res) => {
     let workerSQL = "SELECT WO.employeeID, WO.firstName,WO.lastName, WO.email,WO.phoneNumber, WO.password, WOof.location,WOof.roomNumber,WOof.telephone,\n";
     workerSQL += "WOup.updatedBy,WOup.lastUpdate, count(res.shelfID) AS assignedShelfs\n FROM employee WO\n INNER JOIN employeeupdate WOup\n INNER JOIN office WOof\n";
     workerSQL += "INNER JOIN warehousemember WAwm\n INNER JOIN warehousemember WAwo\n INNER JOIN employee WM\n ON WO.employeeID = WOup.employeeID\n AND WO.role = 'WO'\n";
-    workerSQL += "AND WO.employeeID  = WOof.employeeID\n AND WM.employeeID = "+req.body.employeeID+"\n AND WAwm.memberID = WM.employeeID\n AND WAwm.warehouseID = WAwo.warehouseID\n";
+    workerSQL += "AND WO.employeeID = WOof.employeeID\n AND WM.employeeID = "+req.query.employeeID+"\n AND WAwm.memberID = WM.employeeID\n AND WAwm.warehouseID = WAwo.warehouseID\n";
     workerSQL += "AND WAwo.memberID = WO.employeeID\n INNER JOIN workerShelf WOsh\n LEFT JOIN shelfreservation res\n ON WOsh.shelfID = res.shelfID\n AND WOsh.workerID = WO.employeeID\n GROUP BY WO.employeeID;";
     DB.query(workerSQL, (err,result)=>{
         if (err) throw err;        

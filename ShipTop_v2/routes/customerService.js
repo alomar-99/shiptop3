@@ -51,7 +51,6 @@ router.post("/addReport", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-
 });
 
 //modify report
@@ -64,9 +63,7 @@ router.post("/modifyReport", urlEncodedParser, (req, res) => {
             "err": false
         });
     });
-
 });
-
 
 //delete report
 router.post("/deleteReport",urlEncodedParser, (req, res) => {
@@ -92,6 +89,5 @@ router.post("/deleteReport",urlEncodedParser, (req, res) => {
 });
 
 //view reports
-
 
 module.exports = router;

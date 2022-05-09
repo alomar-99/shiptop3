@@ -28,7 +28,6 @@ router.post("/modifyInvoice", urlEncodedParser, (req, res) => {
     });
 });
 
-
 //delete invoice
 router.post("/deleteInvoice",urlEncodedParser, (req, res) => {
     const errSQL = "SELECT * FROM employee WHERE invoiceID = " +req.body.invoiceID;
@@ -53,10 +52,6 @@ router.post("/deleteInvoice",urlEncodedParser, (req, res) => {
 });
 
 //view invoices
-
 //view orders
-
-
-
 
 module.exports = router;
