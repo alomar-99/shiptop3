@@ -360,7 +360,7 @@ router.post("/modifyAccountant",urlEncodedParser, (req, res) => {
 });
 
 //view list of Accountant 
-router.get("/viewAccountants", (res) =>{
+router.get("/viewAccountants", (req,res) =>{
     let SQL = "SELECT AC.*,\n ACof.location,ACof.roomNumber,ACof.telephone,\n ACup.updatedBy,ACup.lastUpdate\n FROM employee AC\n";
     SQL += "INNER JOIN employeeupdate ACup\n ON AC.employeeID = ACup.employeeID AND AC.role='AC'";
     SQL += "INNER JOIN office ACof\n ON AC.employeeID  = ACof.employeeID";
