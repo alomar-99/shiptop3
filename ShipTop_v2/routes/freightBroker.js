@@ -122,7 +122,7 @@ router.get("/viewConsignors", (req, res) =>{
     let SQL = "SELECT rate.rate, rate.comment, CO.*,\n COof.location,COof.roomNumber,COof.telephone,\n COup.updatedBy,COup.lastUpdate\n FROM employee CO\n";
     SQL += "INNER JOIN employeeupdate COup\n ON CO.employeeID = COup.employeeID\n";
     SQL += "INNER JOIN office COof\n ON CO.employeeID = COof.employeeID\n";
-    SQL += "INNER JOIN office FBof\n ON FBof.employeeID = "+req.body.employeeID+" AND FBof.location = FBof.location\n";
+    SQL += "INNER JOIN office FBof\n ON FBof.employeeID = "+req.query.employeeID+" AND FBof.location = FBof.location\n";
     SQL += "INNER JOIN consignorrate rate\n ON rate.consignorID = CO.employeeID\n AND FBof.location = COof.location \n";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
