@@ -3,42 +3,53 @@ const router = express.Router();
 const DB = require('./tools/config').connection;
 const time = require('./tools/utility');
 const urlEncodedParser = require('./tools/config').middleware;
+const ownerCheck = require('./tools/utility').isOwner;
 
 //add Administrator
 router.post("/addadministrator",urlEncodedParser, (req, res) => {
-    const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
-    DB.query(checkEmailSQL, (err, result)=>{
+    DB.query(ownerCheck(req.body.employeeID), (err, result)=>{
         if (err) throw err;
-        if (result!="")     
-            res.send({
-                "status": "EXISTING ACC", 
-                "err": true 
-            }); 
+        if (!result[0].isOwner)
+        res.send({
+            "status": "NOT OWNER", 
+            "err": true 
+        }); 
         else{
-            const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
-            DB.query(checkLocationSQL, (err,result)=>{
+            const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
+            DB.query(checkEmailSQL, (err, result)=>{
                 if (err) throw err;
-                if (result!="")
+                if (result!="")     
                     res.send({
-                        "status": "DUPLICATE LOC", 
+                        "status": "EXISTING ACC", 
                         "err": true 
-                    });
+                    }); 
                 else{
-                    let employeeSQL = "START TRANSACTION; \n";
-                    employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'AD', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
-                    employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
-                    employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') , (SELECT MIN(employeeID) FROM employee WHERE role = 'AD'), '" + time.getDateTime() + "'); \n";
-                    employeeSQL += "COMMIT; "
-                    DB.query(employeeSQL, (err)=>{
+                    const checkLocationSQL = "SELECT employeeID FROM office WHERE roomNumber = " +req.body.office.roomNumber+" AND location = '" + req.body.office.location +"'";
+                    DB.query(checkLocationSQL, (err,result)=>{
                         if (err) throw err;
-                        res.send({
-                            "status": "SUCCESS",
-                            "err": false
-                        });
+                        if (result!="")
+                            res.send({
+                                "status": "DUPLICATE LOC", 
+                                "err": true 
+                            });
+                        else{
+                            let employeeSQL = "START TRANSACTION; \n";
+                            employeeSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ req.body.firstName +"', '" + req.body.lastName + "', 'AD', '" + req.body.email + "', '" + req.body.phoneNumber + "', '" + req.body.password +"'); \n";
+                            employeeSQL += "INSERT INTO office\n (employeeID, location, telephone, roomNumber)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') ,'" + req.body.office.location + "', '" + req.body.office.telephone + "', "+req.body.office.roomNumber+"); \n";
+                            employeeSQL += "INSERT INTO employeeupdate\n (employeeID, updatedBy, lastUpdate)\n VALUES((SELECT employeeID FROM employee WHERE email = '"+req.body.email+"') , (SELECT MIN(employeeID) FROM employee WHERE role = 'AD'), '" + time.getDateTime() + "'); \n";
+                            employeeSQL += "COMMIT; "
+                            DB.query(employeeSQL, (err)=>{
+                                if (err) throw err;
+                                res.send({
+                                    "status": "SUCCESS",
+                                    "err": false
+                                });
+                            });
+                        }
                     });
                 }
             });
-        }
+        } 
     });
 });
 
@@ -118,7 +129,7 @@ router.post("/modifyAdministrator",urlEncodedParser, (req, res) => {
 });
 
 //view list of Administrators 
-router.get("/viewadministrator", (req, res) =>{
+router.get("/viewadministrator", (res) =>{
     let SQL = "SELECT AD.*,\n ADof.location,ADof.roomNumber,ADof.telephone,\n ADup.updatedBy,ADup.lastUpdate\n FROM employee AD\n";
     SQL += "INNER JOIN employeeupdate ADup\n ON ADM.employeeID = ADup.employeeID AND AD.role='AD'";
     SQL += "INNER JOIN office ADof\n ON AD.employeeID  = ADof.employeeID AND AD.role='AD'";
@@ -130,3 +141,4 @@ router.get("/viewadministrator", (req, res) =>{
 
 
 module.exports = router;
+

@@ -117,6 +117,7 @@ router.post("/deleteWarehouseManager",urlEncodedParser, (req, res) => {
     });
 });
 
+
 //view list of warehouseManagers that are related to current logistic manager
 router.get("/viewWarehouseManagers", (req, res) =>{
     let SQL = "SELECT WM.*,\n WMof.location,WMof.roomNumber,WMof.telephone,\n WMup.updatedBy,WMup.lastUpdate\n FROM employee WM\n";

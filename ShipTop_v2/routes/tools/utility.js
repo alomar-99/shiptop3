@@ -19,7 +19,20 @@ function equality(filterList,i){
     return SQL;
 }
 
+function isOwner(adminID){
+    return "SELECT IF(MIN(employeeID)="+adminID+",true,false) AS IsOwner FROM employee WHERE role = 'AD'";
+}
+
+const defaultOW = {
+    "firstName": "Owner",
+    "lastName": "Owner",
+    "role":"AD",
+    "email": "owner@ow.com",
+    "phoneNumber":"123456789",
+    "password":"1234"
+};
+
 module.exports = {
-    getDateTime,capitalize,equality
+    getDateTime,capitalize,equality,isOwner,defaultOW
 }
 
