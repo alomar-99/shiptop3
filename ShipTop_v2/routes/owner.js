@@ -152,7 +152,7 @@ router.post("/modifyAdministrator",urlEncodedParser, (req, res) => {
 });
 
 //view list of Administrators 
-router.get("/viewAdministrators", (res) =>{
+router.get("/viewAdministrators", (req,res) =>{
     //check if this admin is an owner
     DB.query(ownerCheck(req.query.employeeID), (err, result)=>{
         if (err) throw err;
