@@ -309,7 +309,7 @@ router.get("/viewWarehouses", (req, res) =>{
 }); 
 
 //view all shipments for any logistic manager
-router.get("/viewShipments", (req, res) =>{
+router.post("/viewShipments", (req, res) =>{
     let shipmentTable ="";
     let value = "";
     let shipmentsSQL = "SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width,\n shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,\n shipUp.updatedBy, shipUp.lastUpdate, CE.location AS shipmentLocation FROM shipment ship\n";
