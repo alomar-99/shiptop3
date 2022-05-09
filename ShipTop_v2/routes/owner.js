@@ -6,7 +6,7 @@ const urlEncodedParser = require('./tools/config').middleware;
 const ownerCheck = require('./tools/utility').isOwner;
 
 //add Administrator
-router.post("/addAdministrator",urlEncodedParser, (req, res) => {\
+router.post("/addAdministrator",urlEncodedParser, (req, res) => {
     //check if this admin is an owner
     DB.query(ownerCheck(req.body.employeeID), (err, result)=>{
         if (err) throw err;
