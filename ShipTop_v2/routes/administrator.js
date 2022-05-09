@@ -100,7 +100,6 @@ router.post("/modifylogisticManager",urlEncodedParser, (req, res) => {
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.logisticManagerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.logisticManagerID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.freightBrokerID + ";\n";  
-                        employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.logisticManagerID + ";\n";
                         employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
@@ -118,11 +117,10 @@ router.post("/modifylogisticManager",urlEncodedParser, (req, res) => {
 });
 
 //view list of logisticManager asccoyated with admin
-router.get("/viewlogisticManager", (req, res) =>{
+router.get("/viewLogisticManagers", (req, res) =>{
     let SQL = "SELECT LM.*,\n LMof.location,LMof.roomNumber,LMof.telephone,\n LMup.updatedBy,LMup.lastUpdate\n FROM employee LM\n";
     SQL += "INNER JOIN employeeupdate LMup\n ON LM.employeeID = LMup.employeeID AND LM.role='LM'";
-    SQL += "INNER JOIN office LMof\n ON LM.employeeID  = LMof.employeeID AND LM.role='LM'";
-    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
+    SQL += "INNER JOIN office LMof\n ON LM.employeeID  = LMof.employeeID";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -130,7 +128,7 @@ router.get("/viewlogisticManager", (req, res) =>{
 });
 
 //add freightBroker
-router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
+router.post("/addFreightBroker",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
     DB.query(checkEmailSQL, (err, result)=>{
         if (err) throw err;
@@ -168,7 +166,7 @@ router.post("/addfreightBroker",urlEncodedParser, (req, res) => {
 });
 
 //delete freightBroker
-router.post("/deletefreightBroker",urlEncodedParser, (req, res) => {
+router.post("/deleteFreightBroker",urlEncodedParser, (req, res) => {
     const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.freightBrokerID;
     DB.query(errSQL, (err, result)=>{
         if (err) throw err;
@@ -191,7 +189,7 @@ router.post("/deletefreightBroker",urlEncodedParser, (req, res) => {
 });
 
 //modify freightBroker
-router.post("/modifyfreightBroker",urlEncodedParser, (req, res) => {
+router.post("/modifyFreightBroker",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.freightBrokerID;
     DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
@@ -225,7 +223,6 @@ router.post("/modifyfreightBroker",urlEncodedParser, (req, res) => {
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.freightBrokerID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.freightBrokerID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.freightBrokerID + ";\n";  
-                        employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.freightBrokerID + ";\n";
                         employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
@@ -243,18 +240,15 @@ router.post("/modifyfreightBroker",urlEncodedParser, (req, res) => {
 });
 
 //view list of freightBroker 
-router.get("/viewfreightBroker", (req, res) =>{
+router.get("/viewFreightBrokers", (req, res) =>{
     let SQL = "SELECT FB.*,\n FBof.location,FBof.roomNumber,FBof.telephone,\n FBup.updatedBy,FBup.lastUpdate\n FROM employee FB\n";
     SQL += "INNER JOIN employeeupdate FBup\n ON FB.employeeID = FBup.employeeID AND FB.role='FB'";
-    SQL += "INNER JOIN office FBof\n ON FB.employeeID  = FBof.employeeID AND FB.role='FB'";
-    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
+    SQL += "INNER JOIN office FBof\n ON FB.employeeID  = FBof.employeeID";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
     });
 });
-
-
 
 //add Accountant
 router.post("/addaccountant",urlEncodedParser, (req, res) => {
@@ -352,7 +346,6 @@ router.post("/modifyAccountant",urlEncodedParser, (req, res) => {
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.accountantID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.accountantID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.accountantID + ";\n";  
-                        employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.accountantID + ";\n";
                         employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
@@ -370,11 +363,10 @@ router.post("/modifyAccountant",urlEncodedParser, (req, res) => {
 });
 
 //view list of Accountant 
-router.get("/viewAccountant", (req, res) =>{
+router.get("/viewAccountants", (res) =>{
     let SQL = "SELECT AC.*,\n ACof.location,ACof.roomNumber,ACof.telephone,\n ACup.updatedBy,ACup.lastUpdate\n FROM employee AC\n";
     SQL += "INNER JOIN employeeupdate ACup\n ON AC.employeeID = ACup.employeeID AND AC.role='AC'";
-    SQL += "INNER JOIN office ACof\n ON AC.employeeID  = ACof.employeeID AND AC.role='AC'";
-    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
+    SQL += "INNER JOIN office ACof\n ON AC.employeeID  = ACof.employeeID";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
@@ -382,7 +374,7 @@ router.get("/viewAccountant", (req, res) =>{
 });
 
 //add customerService
-router.post("/addfcustomerService",urlEncodedParser, (req, res) => {
+router.post("/addCustomerService",urlEncodedParser, (req, res) => {
     const checkEmailSQL = "SELECT * FROM employee WHERE email ='" +req.body.email +"'";
     DB.query(checkEmailSQL, (err, result)=>{
         if (err) throw err;
@@ -420,7 +412,7 @@ router.post("/addfcustomerService",urlEncodedParser, (req, res) => {
 });
 
 //delete customerService
-router.post("/deletecustomerService",urlEncodedParser, (req, res) => {
+router.post("/deleteCustomerService",urlEncodedParser, (req, res) => {
     const errSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.customerServiceID;
     DB.query(errSQL, (err, result)=>{
         if (err) throw err;
@@ -443,7 +435,7 @@ router.post("/deletecustomerService",urlEncodedParser, (req, res) => {
 });
 
 //modify customerService
-router.post("/modifycustomerService",urlEncodedParser, (req, res) => {
+router.post("/modifyCustomerService",urlEncodedParser, (req, res) => {
     const checkIDSQL = "SELECT * FROM employee WHERE employeeID = " +req.body.customerServiceID;
     DB.query(checkIDSQL, (err, result)=>{
         if (err) throw err;
@@ -477,7 +469,6 @@ router.post("/modifycustomerService",urlEncodedParser, (req, res) => {
                         employeeSQL+= "UPDATE employee \n SET phoneNumber = '" + req.body.phoneNumber + "', password = '"+ req.body.password +"'\n WHERE employeeID = "+req.body.customerServiceID + ";\n";
                         employeeSQL+= "UPDATE employeeupdate \n SET updatedBy = " + req.body.employeeID + ", lastUpdate = '"+ time.getDateTime() +"'\n WHERE employeeID = "+req.body.customerServiceID + ";\n";
                         employeeSQL+= "UPDATE office \n SET location = '" + req.body.office.location +"', telephone = '" + req.body.office.telephone +"', roomNumber = "+ req.body.office.roomNumber +"\n WHERE employeeID = "+req.body.customerServiceID + ";\n";  
-                        employeeSQL+= "UPDATE warehousemember \n SET warehouseID = " + req.body.warehouseID + "\n WHERE memberID = " + req.body.customerServiceID + ";\n";
                         employeeSQL+= "COMMIT; ";
                         DB.query(employeeSQL, (err)=>{
                             if (err) throw err; 
@@ -495,13 +486,10 @@ router.post("/modifycustomerService",urlEncodedParser, (req, res) => {
 });
 
 //view list of customerService 
-router.get("/viewcustomerService", (req, res) =>{
+router.get("/viewCustomerService", (req, res) =>{
     let SQL = "SELECT CS.*,\n CSof.location,CSof.roomNumber,CSof.telephone,\n CSup.updatedBy,CSup.lastUpdate\n FROM employee CS\n";
     SQL += "INNER JOIN employeeupdate CSup\n ON CS.employeeID = CSup.employeeID AND CS.role='CS'";
-    SQL += "INNER JOIN office CSof\n ON CS.employeeID  = CSof.employeeID AND CS.role='CS'";
-    SQL += "INNER JOIN office ADof\n ON ADof.employeeID = "+req.query.employeeID+" AND ADof.location = ADof.location";
-
-    
+    SQL += "INNER JOIN office CSof\n ON CS.employeeID  = CSof.employeeID";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
