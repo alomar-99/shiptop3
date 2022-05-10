@@ -22,7 +22,7 @@ router.post("/signIn",urlEncodedParser, (req, res) => {
                     if (result2[0].ADNumber==0){
                         let newOwnerSQL = "START TRANSACTION; \n";
                         newOwnerSQL += "INSERT INTO employee\n (firstName, lastName, role, email, phoneNumber, password)\n VALUES('"+ow.firstName+"', '"+ow.lastName+"', '"+ow.role+"', '"+ow.email+"', '"+ow.phoneNumber+"', '"+ow.password+"'); \n";
-                        newOwnerSQL += "SELECT MIN(employeeID) FROM employee WHERE email = '"+ow.email+"' AND password = '"+ow.password+"'; \n";
+                        newOwnerSQL += "SELECT employeeID, MIN(employeeID) FROM employee WHERE email = '"+ow.email+"' AND password = '"+ow.password+"'; \n";
                         newOwnerSQL += "COMMIT; \n"
                         DB.query(newOwnerSQL, (err,result3)=>{
                             if (err) throw err;
@@ -34,7 +34,7 @@ router.post("/signIn",urlEncodedParser, (req, res) => {
                     }
                     else{
                         res.send({
-                            "status": "UNAUTHORIZED", 
+                            "status": "NOT OWNER", 
                             "err": true
                         });
                     }

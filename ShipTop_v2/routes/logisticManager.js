@@ -120,13 +120,12 @@ router.post("/deleteWarehouseManager",urlEncodedParser, (req, res) => {
 
 //view list of warehouseManagers that are related to current logistic manager
 router.get("/viewWarehouseManagers", (req, res) =>{
-    let SQL = "SELECT WM.*,\n WMof.location,WMof.roomNumber,WMof.telephone,\n WMup.updatedBy,WMup.lastUpdate\n FROM employee WM\n";
-    SQL += "INNER JOIN employeeupdate WMup\n ON WM.employeeID = WMup.employeeID AND WM.role='WM'";
-    SQL += "INNER JOIN office WMof\n ON WM.employeeID  = WMof.employeeID AND WM.role='WM'";
-    SQL += "INNER JOIN office LMof\n ON LMof.employeeID = "+req.query.employeeID+" AND LMof.location = WMof.location";
+    let SQL = "SELECT DI.*,\n DIof.location,DIof.roomNumber,DIof.telephone,\n DIup.updatedBy,DIup.lastUpdate,\n count(del.shipmentID) AS assignedShipments\n FROM employee DI\n";
+    SQL += "INNER JOIN employeeupdate DIup\n INNER JOIN office LMof\n INNER JOIN office DIof\n ON DI.employeeID = DIup.employeeID\n AND DI.role='DI'\n AND DI.employeeID = DIof.employeeID\n";
+    SQL += "AND LMof.employeeID = "+req.body.employeeID+" \n AND LMof.location = DIof.location\n LEFT JOIN shipmentdelivery del\n ON del.currentEmployee = DI.employeeID\n GROUP BY employeeID\n";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
-        res.send(result);
+        res.send(SQL);
     });
 });
 
@@ -243,10 +242,9 @@ router.post("/deleteDispatcher",urlEncodedParser, (req, res) => {
 
 //view list of dispatchers that are related to current logistic manager
 router.get("/viewDispatchers", (req, res) =>{
-    let SQL = "SELECT DI.*,\n DIof.location,DIof.roomNumber,DIof.telephone,\n DIup.updatedBy,DIup.lastUpdate\n FROM employee DI\n";
-    SQL += "INNER JOIN employeeupdate DIup\n ON DI.employeeID = DIup.employeeID AND DI.role='DI'";
-    SQL += "INNER JOIN office DIof\n ON DI.employeeID  = DIof.employeeID AND DI.role='DI'";
-    SQL += "INNER JOIN office LMof\n ON LMof.employeeID = "+req.query.employeeID+" AND LMof.location = DIof.location";
+    let SQL = "SELECT DI.*,\n DIof.location,DIof.roomNumber,DIof.telephone,\n DIup.updatedBy,DIup.lastUpdate,\n count(del.shipmentID) AS assignedShipments\n FROM employee DI\n";
+    SQL += "INNER JOIN employeeupdate DIup\n INNER JOIN office LMof\n INNER JOIN office DIof\n ON DI.employeeID = DIup.employeeID\n AND DI.role='DI'\n AND DI.employeeID = DIof.employeeID\n";
+    SQL += "AND LMof.employeeID = "+req.query.employeeID+" \n AND LMof.location = DIof.location\n LEFT JOIN shipmentdelivery del\n ON del.currentEmployee = DI.employeeID\n GROUP BY employeeID\n";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
         res.send(result);
