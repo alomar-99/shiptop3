@@ -117,15 +117,15 @@ router.post("/deleteWarehouseManager",urlEncodedParser, (req, res) => {
     });
 });
 
-
 //view list of warehouseManagers that are related to current logistic manager
 router.get("/viewWarehouseManagers", (req, res) =>{
-    let SQL = "SELECT DI.*,\n DIof.location,DIof.roomNumber,DIof.telephone,\n DIup.updatedBy,DIup.lastUpdate,\n count(del.shipmentID) AS assignedShipments\n FROM employee DI\n";
-    SQL += "INNER JOIN employeeupdate DIup\n INNER JOIN office LMof\n INNER JOIN office DIof\n ON DI.employeeID = DIup.employeeID\n AND DI.role='DI'\n AND DI.employeeID = DIof.employeeID\n";
-    SQL += "AND LMof.employeeID = "+req.body.employeeID+" \n AND LMof.location = DIof.location\n LEFT JOIN shipmentdelivery del\n ON del.currentEmployee = DI.employeeID\n GROUP BY employeeID\n";
+    let SQL = "SELECT WM.*,\n WMof.location,WMof.roomNumber,WMof.telephone,\n WMup.updatedBy,WMup.lastUpdate,\n count(del.shipmentID) AS assignedShipments, mem.warehouseID\n FROM employee WM\n";
+    SQL += "INNER JOIN employeeupdate WMup\n INNER JOIN office LMof\n INNER JOIN office WMof\n ON WM.employeeID = WMup.employeeID\n AND WM.role='WM'\n AND WM.employeeID = WMof.employeeID\n";
+    SQL += "AND LMof.employeeID = "+req.query.employeeID+" \n AND LMof.location = WMof.location\n LEFT JOIN shipmentdelivery del\n ";
+    SQL += "ON del.currentEmployee = WM.employeeID\n LEFT JOIN warehousemember mem\n ON mem.memberID = WM.employeeID\n GROUP BY employeeID\n";
     DB.query(SQL, (err,result)=>{
         if (err) throw err;
-        res.send(SQL);
+        res.send(result);
     });
 });
 
