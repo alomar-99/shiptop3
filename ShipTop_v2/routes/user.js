@@ -27,7 +27,7 @@ router.post("/signIn",urlEncodedParser, (req, res) => {
                         DB.query(newOwnerSQL, (err,result3)=>{
                             if (err) throw err;
                             res.send({
-                                "employeeID": result3[1].employeeID, 
+                                "employeeID": result3[2][0].employeeID, 
                                 "role": "OW"
                             });  
                         });

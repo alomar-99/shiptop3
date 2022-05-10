@@ -31,10 +31,13 @@ const AC = require("./routes/accountant");
 const CS = require("./routes/customerService");
 const WO = require("./routes/worker");
 
-app.use("/api/user",US);
-
 //accepting json files
 app.use(express.json());
+
+
+app.use("/api/user",US);
+
+
 
 // //authenticate user
 // app.use((req,res,next)=>{
