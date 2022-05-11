@@ -312,13 +312,13 @@ router.post("/viewShipments", (req, res) =>{
     let value = "";
     let shipmentsSQL = "SELECT ship.*,ord.orderID, shipDet.description, shipDet.height, shipDet.length, shipDet.weight, shipDet.width,\n shipDel.currentCity, shipDel.deliveryDate, shipDel.deliveryStatus, shipDel.currentEmployee, shipDel.assignedEmployee,\n shipUp.updatedBy, shipUp.lastUpdate, CE.location AS shipmentLocation FROM shipment ship\n";
     shipmentsSQL += "INNER JOIN shipmentdetails shipDet\n INNER JOIN shipmentdelivery shipDel\n INNER JOIN shipmentupdate shipUp\n INNER JOIN ordershipment ord\n INNER JOIN office off \n INNER JOIN consignee CE\n INNER JOIN consignororder CO\n ON ship.shipmentID = shipDet.shipmentID\n";
-    shipmentsSQL += "AND CO.ID = ord.orderID\n AND CO.ID = CE.orderID\n AND ship.shipmentID = shipDel.shipmentID\n AND ship.shipmentID = shipUp.shipmentID\n AND ship.shipmentID = ord.shipmentID\n AND off.location = shipDel.currentCity\n AND off.employeeID = "+req.query.employeeID + "\n ";
+    shipmentsSQL += "AND CO.ID = ord.orderID\n AND CO.ID = CE.orderID\n AND ship.shipmentID = shipDel.shipmentID\n AND ship.shipmentID = shipUp.shipmentID\n AND ship.shipmentID = ord.shipmentID\n AND off.location = shipDel.currentCity\n AND off.employeeID = "+req.body.employeeID + "\n ";
     //filter option
-    for (const i in req.query.filteredBy){
-        if((!(Object.keys(req.query.filteredBy[i]).length===0 && Object.getPrototypeOf(req.query.filteredBy[i]) === Object.prototype) && req.query.filteredBy[i]==""))
-            if(typeof req.query.filteredBy[i] === "string")
-                shipmentsSQL += " AND ship."+i+" = '"+req.query.filteredBy[i] + "' \n ";
-            else shipmentsSQL += " AND ship."+i+" = "+req.query.filteredBy[i] + "\n ";
+    for (const i in req.body.filteredBy){
+        if((!(Object.keys(req.body.filteredBy[i]).length===0 && Object.getPrototypeOf(req.body.filteredBy[i]) === Object.prototype) && req.body.filteredBy[i]==""))
+            if(typeof req.body.filteredBy[i] === "string")
+                shipmentsSQL += " AND ship."+i+" = '"+req.body.filteredBy[i] + "' \n ";
+            else shipmentsSQL += " AND ship."+i+" = "+req.body.filteredBy[i] + "\n ";
         if(i=="details")
         shipmentTable = "shipDet";
         else if(i == "updates")
@@ -327,9 +327,9 @@ router.post("/viewShipments", (req, res) =>{
         shipmentTable = "shipDel";
         else if(i=="order")
         shipmentTable = "ord";
-        if(typeof req.query.filteredBy[i] === "object" && (!(Object.keys(req.query.filteredBy[i]).length===0 && Object.getPrototypeOf(req.query.filteredBy[i]) === Object.prototype)))
-        for(const j in req.query.filteredBy[i]){
-            value = equality(req.query.filteredBy[i],j)
+        if(typeof req.body.filteredBy[i] === "object" && (!(Object.keys(req.body.filteredBy[i]).length===0 && Object.getPrototypeOf(req.body.filteredBy[i]) === Object.prototype)))
+        for(const j in req.body.filteredBy[i]){
+            value = equality(req.body.filteredBy[i],j)
             shipmentsSQL += " AND "+shipmentTable+"."+j+" "+ value + "\n ";
         }
     }
