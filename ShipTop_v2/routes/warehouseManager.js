@@ -21,7 +21,6 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
             warehouseSQL += "UPDATE warehousemember\n SET warehouseID = (SELECT MAX(warehouseID) FROM warehouse)\n WHERE memberID = " +req.body.employeeID+ "; \n"
             warehouseSQL += "INSERT INTO warehouseupdate(warehouseID, managerID, lastUpdate)\n VALUES((SELECT MAX(warehouseID) FROM warehouse), "+req.body.employeeID+", '"+time.getDateTime()+"'); \n";
             warehouseSQL += "COMMIT; ";
-            console.log(warehouseSQL);
             DB.query(warehouseSQL, (err)=>{
                 if (err) throw err;
             });
@@ -378,4 +377,22 @@ router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
     });
 });
 
+router.get("/checkWarehouse", (req, res) => {
+    const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.query.employeeID;
+
+    DB.query(checkWarehouseSQL, (err, result) => {
+        if (err) throw err;
+        if(result[0].warehouseID==null)
+        res.send({
+            "status": "NOWAREHOUSE", 
+            "err": false
+        }); 
+        else {
+            res.send({
+                "status":"WAREHOUSE",
+                "err": false
+            })
+        }
+    })
+})
 module.exports = router; 
