@@ -3,7 +3,7 @@ const router = express.Router();
 const DB = require('./tools/config').connection;
 const urlEncodedParser = require('./tools/config').middleware;
 const ow = require('./tools/utility').defaultOW;
-
+ 
 //sign in for a specific employee
 router.post("/signIn",urlEncodedParser, (req, res) => {
     const sql = "SELECT employeeID, IF((SELECT MIN(employeeID)\n FROM employee\n WHERE role='AD')=(SELECT employeeID\n FROM employee\n WHERE email = \""+req.body.email+"\"\n AND password = \""+req.body.password+"\")\n AND role='AD','OW',role) AS role\n FROM employee WHERE email = \""+req.body.email+"\" AND password = \""+req.body.password+"\";";
