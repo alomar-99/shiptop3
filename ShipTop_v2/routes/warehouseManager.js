@@ -379,18 +379,17 @@ router.post("/assignShelfsToWorker",urlEncodedParser, (req, res) => {
 
 router.get("/checkWarehouse", (req, res) => {
     const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.query.employeeID;
-
     DB.query(checkWarehouseSQL, (err, result) => {
         if (err) throw err;
         if(result[0].warehouseID==null)
         res.send({
             "status": "NOWAREHOUSE", 
-            "err": false
+            "err": true
         }); 
         else {
             res.send({
                 "status":"WAREHOUSE",
-                "err": false
+                "err": true
             })
         }
     })
