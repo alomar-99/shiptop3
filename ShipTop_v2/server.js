@@ -34,34 +34,10 @@ const WO = require("./routes/worker");
 //accepting json files
 app.use(express.json());
 
-
-app.use("/api/user",US);
-
-
-
-// //authenticate user
-// app.use((req,res,next)=>{
-
-//     const token = req.headers.authorization.split(" ")[1];
-//     if(req.headers.authorization == ""){
-//         res.send({
-//             "AUTHORIZATION":"NO TOKEN",
-//             "err": true
-//         });
-//     } 
-//     else if(req.headers.authorization != token){
-//         res.send({
-//             "AUTHORIZATION":"UNAUTHORIZED",
-//             "err": true
-//         });
-//     }
-//     else next();
-// });
-
 //routing all users to their files
+app.use("/api/user",US);
 app.use("/api/logisticManager",LM);
 app.use("/api/warehouseManager",WM);
-
 app.use("/api/administrator",AD);
 app.use("/api/consignor",CO);
 app.use("/api/freightBroker",FB);
