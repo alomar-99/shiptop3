@@ -597,11 +597,11 @@ export default function EnhancedTable() {
           {props} => handleFilters : Search component will emit two values (searchQuery, filterValue) 
                                      based on that we're fetching data from the API.
       **/}
-      <Search
+      {/* <Search
         handleFilters={(searchQuery, filterValue) =>
           fetchData(searchQuery, filterValue)
         }
-      />
+      /> */}
       <Button
         variant="contained"
         color="secondary"

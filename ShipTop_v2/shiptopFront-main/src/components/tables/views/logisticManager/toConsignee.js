@@ -5,13 +5,13 @@ import ViewShipments from "./ViewShipments";
 import config from "../../../../config/index";
 function Shipments() {
   const [filter, setFilter] = useState("View Shipments");
-  const [shipments, setShipments] = useState([])
+  const [shipments, setShipments] = useState({filter: null, shipment:[]})
   const [DIID, setDIID] = useState(null)
  
   const assignEmployees = async () => {
     console.log("in post request")
     const body = JSON.stringify({
-      shipmentID: shipments,
+      shipmentID: shipments.shipment,
       warehouseManagerID: null,
       dispatcherID: DIID,
       employeeID: sessionStorage.getItem("userId"),
@@ -39,15 +39,15 @@ function Shipments() {
   useEffect(() => {
 
     if (
-      shipments.length > 0 &&
+      shipments.shipment.length > 0 &&
       DIID === null
     ) {
       setFilter("View Dispatchers");
-    }  else if (shipments.length === 0) {
+    }  else if (shipments.shipment.length === 0) {
       setFilter("View Shipments");
     } else if (
       DIID !== null  &&
-      shipments.length > 0
+      shipments.shipment.length > 0
     ) {
       assignEmployees();
     }

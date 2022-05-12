@@ -60,7 +60,6 @@ export default function CreateOrder({ open, children, onClose }) {
       firstName: dispatcherDetails.firstName,
       lastName: dispatcherDetails.lastName,
       email: dispatcherDetails.email,
-      password: dispatcherDetails.password,
       phoneNumber: dispatcherDetails.phoneNumber,
       office: {
         telephone: dispatcherDetails.telephone,
@@ -260,6 +259,7 @@ export default function CreateOrder({ open, children, onClose }) {
               </Grid>
             </Grid>
           </Grid>
+
           <Grid container spacing={2} direction="row" id="Buttons">
             <Grid item>
               <Button

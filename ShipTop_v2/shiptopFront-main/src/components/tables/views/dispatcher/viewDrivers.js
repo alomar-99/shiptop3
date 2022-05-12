@@ -497,6 +497,9 @@ export default function EnhancedTable({ Display, setDispatcher }) {
         }
         console.log(finalizeData);
 
+        if(Display === "Assign"){
+          finalizeData = finalizeData.filter((item) => item.vehicleID !== null)
+        }
         setDataTable([...finalizeData]);
       });
     console.log(data);

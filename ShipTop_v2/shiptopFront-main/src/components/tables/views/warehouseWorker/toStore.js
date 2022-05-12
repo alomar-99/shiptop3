@@ -11,9 +11,9 @@ function Shipments() {
  
   const assignEmployees = async () => {
     console.log("in post request")
+    console.log(`shipments: ${shipments}`)
     const body = JSON.stringify({
-      shipmentID: shipments,
-      assignedEmployeeID: DIID,
+      shelfs: [{shelfID:DIID, shipmentID:shipments[0]}],
       employeeID: sessionStorage.getItem("userId"),
     });
     axios
@@ -28,6 +28,7 @@ function Shipments() {
         }
       )
       .then((res) => {
+
         if (res.data.status === "SUCCESS") {
           console.log("assigned successfully!!");
           setDIID(null)
@@ -48,7 +49,7 @@ function Shipments() {
       DIID !== null &&
       shipments.length > 0
     ) {
-      console.log(WMID)
+      console.log(shipments)
       assignEmployees();
     }
   }, [DIID, shipments]);
@@ -62,8 +63,7 @@ function Shipments() {
  
   return (
     <>
-      <ViewShipments setShipments={setShipments} filters={["PICKUP"]}/>
-
+      <ViewShipments setShipments={setShipments} filters={["TOBESTORED"]}/>
     </>
   );
 }

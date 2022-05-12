@@ -497,7 +497,7 @@ export default function EnhancedTable({ Display, setDispatcher   }) {
           }));
         }
         if (Display === "View") {
-          finalizeData = finalizeData.filter((item) => item.driverID !== null);
+          finalizeData = finalizeData.filter((item) => item);
         } else {
 
           finalizeData = finalizeData.filter((item) => item.driverID === null);

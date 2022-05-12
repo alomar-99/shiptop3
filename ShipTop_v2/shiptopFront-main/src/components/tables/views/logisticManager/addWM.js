@@ -44,7 +44,7 @@ const useStyles = makeStyles({
 export default function CreateOrder({ open, children, onClose }) {
   const [isvalid, setIsValid] = useState(true);
 
-  const [warehouseManagerDetails, setWarehouseManagerDetails] = useState({
+  const [dispatcherDetails, setDispatcherDetails] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -57,14 +57,13 @@ export default function CreateOrder({ open, children, onClose }) {
   const sendOrder = async () => {
     const orderDetails = JSON.stringify({
       employeeID: sessionStorage.getItem("userId"),
-      firstName: warehouseManagerDetails.firstName,
-      lastName: warehouseManagerDetails.lastName,
-      email: warehouseManagerDetails.email,
-      password: warehouseManagerDetails.password,
-      phoneNumber: warehouseManagerDetails.phoneNumber,
+      firstName: dispatcherDetails.firstName,
+      lastName: dispatcherDetails.lastName,
+      email: dispatcherDetails.email,
+      phoneNumber: dispatcherDetails.phoneNumber,
       office: {
-        telephone: warehouseManagerDetails.telephone,
-        roomNumber: warehouseManagerDetails.roomNumber,
+        telephone: dispatcherDetails.telephone,
+        roomNumber: dispatcherDetails.roomNumber,
       },
     });
     console.log(orderDetails);
@@ -106,7 +105,7 @@ export default function CreateOrder({ open, children, onClose }) {
             container
             direction="row"
             style={{ minHeight: "70vh", minWidth: "62vw" }}
-            id="warehouseManagerDetails"
+            id="DispatcherDetails"
           >
             <Grid
               container
@@ -139,12 +138,12 @@ export default function CreateOrder({ open, children, onClose }) {
                         id="firstName"
                         label="First Name"
                         onChange={(event) =>
-                          setWarehouseManagerDetails((prev) => ({
+                          setDispatcherDetails((prev) => ({
                             ...prev,
                             firstName: event.target.value,
                           }))
                         }
-                        value={warehouseManagerDetails.firstName}
+                        value={dispatcherDetails.firstName}
                       />
                     </Grid>
                     <Grid item>
@@ -155,12 +154,12 @@ export default function CreateOrder({ open, children, onClose }) {
                         id="lastName"
                         label="Last Name"
                         onChange={(event) =>
-                          setWarehouseManagerDetails((prev) => ({
+                          setDispatcherDetails((prev) => ({
                             ...prev,
                             lastName: event.target.value,
                           }))
                         }
-                        value={warehouseManagerDetails.lastName}
+                        value={dispatcherDetails.lastName}
                       />
                     </Grid>
                     <Grid item>
@@ -171,12 +170,12 @@ export default function CreateOrder({ open, children, onClose }) {
                         id="phoneNumber"
                         label="Phone Number"
                         onChange={(event) => {
-                          setWarehouseManagerDetails((prev) => ({
+                          setDispatcherDetails((prev) => ({
                             ...prev,
                             phoneNumber: event.target.value,
                           }));
                         }}
-                        value={warehouseManagerDetails.phoneNumber}
+                        value={dispatcherDetails.phoneNumber}
                       />
                     </Grid>
                   </Grid>
@@ -189,12 +188,12 @@ export default function CreateOrder({ open, children, onClose }) {
                         id="email"
                         label="Email"
                         onChange={(event) =>
-                          setWarehouseManagerDetails((prev) => ({
+                          setDispatcherDetails((prev) => ({
                             ...prev,
                             email: event.target.value,
                           }))
                         }
-                        value={warehouseManagerDetails.email}
+                        value={dispatcherDetails.email}
                       />
                     </Grid>
                     <Grid item>
@@ -205,12 +204,12 @@ export default function CreateOrder({ open, children, onClose }) {
                         id="password"
                         label="Password"
                         onChange={(event) =>
-                          setWarehouseManagerDetails((prev) => ({
+                          setDispatcherDetails((prev) => ({
                             ...prev,
                             password: event.target.value,
                           }))
                         }
-                        value={warehouseManagerDetails.password}
+                        value={dispatcherDetails.password}
                       />
                     </Grid>
                   </Grid>
@@ -229,12 +228,12 @@ export default function CreateOrder({ open, children, onClose }) {
                   id="firstName"
                   label="landline"
                   onChange={(event) =>
-                    setWarehouseManagerDetails((prev) => ({
+                    setDispatcherDetails((prev) => ({
                       ...prev,
                       telephone: event.target.value,
                     }))
                   }
-                  value={warehouseManagerDetails.telephone}
+                  value={dispatcherDetails.telephone}
                 />
               </Grid>
               <Grid item>
@@ -245,12 +244,12 @@ export default function CreateOrder({ open, children, onClose }) {
                   id="roomNumber"
                   label="Room Number"
                   onChange={(event) =>
-                    setWarehouseManagerDetails((prev) => ({
+                    setDispatcherDetails((prev) => ({
                       ...prev,
                       roomNumber: event.target.value,
                     }))
                   }
-                  value={warehouseManagerDetails.roomNumber}
+                  value={dispatcherDetails.roomNumber}
                 />
               </Grid>
             </Grid>

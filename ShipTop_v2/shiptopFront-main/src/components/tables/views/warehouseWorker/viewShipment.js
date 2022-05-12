@@ -85,22 +85,22 @@ const headCells = [
     label: "Name",
   },
   {
-    id: "currentCity",
+    id: "height",
     numeric: false,
     disablePadding: false,
-    label: "Current City",
+    label: "Height",
   },
   {
-    id: "location",
+    id: "length",
     numeric: true,
     disablePadding: false,
-    label: "Deliver To",
+    label: "Length",
   },
   {
-    id: "status",
+    id: "width",
     numeric: true,
     disablePadding: false,
-    label: "Status",
+    label: "width",
   },
   {
     id: "assignedEmployee",
@@ -108,6 +108,7 @@ const headCells = [
     disablePadding: false,
     label: "assigned Emp",
   },
+  
 ];
 // *************
 // **    Table Header Component
@@ -122,6 +123,7 @@ function EnhancedTableHead(props) {
     numSelected,
     rowCount,
     onRequestSort,
+    filterz
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -130,6 +132,8 @@ function EnhancedTableHead(props) {
     <TableHead>
       <TableRow>
         {/* Column Header for Action buttons STARTS */}
+        {filterz === "TOPICKUP" ? (
+          <>
         <TableCell align="center" className={classes.tableCell} key="view">
           Details
         </TableCell>
@@ -141,6 +145,10 @@ function EnhancedTableHead(props) {
             inputProps={{ "aria-label": "select all desserts" }}
           />
         </TableCell>
+        </>
+        ) :(<TableCell align="center" className={classes.tableCell} key="view">
+          Action
+        </TableCell>)}
         {/* Column Header for Action buttons ENDS */}
         {headCells.map((headCell) => (
           <TableCell
@@ -360,7 +368,7 @@ export default function EnhancedTable(props) {
   const [rowsPerPage, setRowsPerPage] = React.useState(200);
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState(props.filters[0]);
-  const { shipments, setShipments } = props;
+  const   setShipments  = props.setShipments;
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -455,7 +463,7 @@ export default function EnhancedTable(props) {
     // console.log(data);
   };
   useEffect(() => {
-    fetchData();
+    fetchData(props.filters[0]);
     // console.log(dataTable);
   }, []);
 
@@ -574,6 +582,7 @@ export default function EnhancedTable(props) {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={dataTable.length}
+              filterz={props.filters[0]}
             />
             <TableBody>
               {stableSort(dataTable, getComparator(order, orderBy))
@@ -591,7 +600,8 @@ export default function EnhancedTable(props) {
                       selected={isItemSelected}
                     >
                       {/* Column for Action buttons STARTS */}
-                      <TableCell align="center" key="view">
+                      {props.filters[0] === "PICKUP" ? (
+                        <><TableCell align="center" key="view">
                         <Button
                           variant="contained"
                           color="secondary"
@@ -609,7 +619,16 @@ export default function EnhancedTable(props) {
                           checked={isItemSelected}
                           inputProps={{ "aria-labelledby": labelId }}
                         />
-                      </TableCell>
+                      </TableCell> </>) :(<TableCell align="center" key="view">
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          className={classes.spacing}
+                          onClick={() => (setShipments([row.shipmentID]))}
+                        >
+                          Assign
+                        </Button>
+                      </TableCell>)}
                       {/* Column for Action buttons ENDS */}
                       <TableCell
                         component="th"
@@ -624,13 +643,13 @@ export default function EnhancedTable(props) {
                         {row.shipmentName || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
-                        {row.currentCity || "-"}
+                        {row.height || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
-                        {row.shipmentLocation || "-"}
+                        {row.length || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
-                        {row.deliveryStatus || "-"}
+                        {row.width || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
                         {row.assignedEmployee || "-"}

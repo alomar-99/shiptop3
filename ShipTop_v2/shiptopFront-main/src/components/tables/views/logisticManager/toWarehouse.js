@@ -52,7 +52,7 @@ function Shipments() {
       setFilter("View Shipments");
     } else if (
       DIID !== null &&
-      WMID !== null &&
+     WMID !== null &&
       shipments.shipment.length > 0
     ) {
       console.log(WMID)

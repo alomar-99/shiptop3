@@ -13,6 +13,7 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -25,39 +26,11 @@ import XLSX from "xlsx";
 import FileSaver from "file-saver";
 import config from "../../../../config/index";
 import Snackbar from "@material-ui/core/Snackbar";
-import DeleteIcon from "@material-ui/icons/Delete";
 import Alert from "../../../ops/Alert";
 import queryString from "query-string";
-import { io } from "socket.io-client";
-
-function createData(
-  reference_number,
-  service_type,
-  destinationPhone,
-  destinationName,
-  destinationCity,
-  hub_code,
-  origin_name,
-  status,
-  updatedAt
-) {
-  return {
-    reference_number,
-    service_type,
-    destinationPhone,
-    destinationName,
-    destinationCity,
-    hub_code,
-    origin_name,
-    status,
-    updatedAt,
-  };
-}
-
 // ************
 // ** All Utility functions STARTS
 // ************
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -67,13 +40,11 @@ function descendingComparator(a, b, orderBy) {
   }
   return 0;
 }
-
 function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
-
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -83,7 +54,6 @@ function stableSort(array, comparator) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-
 // exportDocument - It Export JSON type data into .xlsx and .csv formats
 // (*) params - (ext -> '.xlsx' or '.csv'  , jsonData -> Data )
 function exportDocument(ext, jsonData) {
@@ -98,50 +68,60 @@ function exportDocument(ext, jsonData) {
   const data = new Blob([excelBuffer], { type: fileType });
   FileSaver.saveAs(data, fileName + fileExtension);
 }
-
 // ************
 // ** All Utility functions ENDS
 // ************
-
 const headCells = [
   {
-    id: "employeeID",
+    id: "shelfNumber",
     numeric: true,
     disablePadding: false,
-    label: "ID",
+    label: "Number",
   },
   {
-    id: "firstName",
+    id: "row",
     numeric: false,
     disablePadding: false,
-    label: "First Name",
+    label: "Row",
   },
   {
-    id: "lastName",
+    id: "section",
     numeric: false,
     disablePadding: false,
-    label: "Last Name",
+    label: "Section",
   },
   {
-    id: "phoneNumber",
+    id: "lane",
     numeric: true,
     disablePadding: false,
-    label: "phone Number",
+    label: "Lane",
   },
   {
-    id: "telephone",
+    id: "floor",
     numeric: true,
     disablePadding: false,
-    label: "telephone",
+    label: "Floor",
   },
   {
-    id: "shipmentID",
+    id: "width",
     numeric: true,
     disablePadding: false,
-    label: "vehicleID",
+    label: "Width",
   },
+  {
+    id: "height",
+    numeric: true,
+    disablePadding: false,
+    label: "Height",
+  },
+  {
+    id: "assignedShipment",
+    numeric: true,
+    disablePadding: false,
+    label: "AssignedShipment",
+  },
+  
 ];
-
 // *************
 // **    Table Header Component
 // *************
@@ -155,7 +135,7 @@ function EnhancedTableHead(props) {
     numSelected,
     rowCount,
     onRequestSort,
-    Display,
+    filter,
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -163,26 +143,17 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        {Display === "View" ? (
-          <>
-            <TableCell align="center" className={classes.tableCell} key="view">
+        {/* Column Header for Action buttons STARTS */}
+        {filter === "Assign" ? (
+          <TableCell align="center" className={classes.tableCell} key="view">
+             Action 
+            </TableCell>
+        ) : (
+          <TableCell align="center" className={classes.tableCell} key="view">
               Details
             </TableCell>
-            <TableCell
-              align="center"
-              className={classes.tableCell}
-              key="action"
-            >
-              Delete
-            </TableCell>
-          </>
-        ) : (
-          <TableCell align="center" className={classes.tableCell} key="action">
-            Action{" "}
-          </TableCell>
         )}
         {/* Column Header for Action buttons ENDS */}
-
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -208,7 +179,6 @@ function EnhancedTableHead(props) {
     </TableHead>
   );
 }
-
 EnhancedTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
   numSelected: PropTypes.number.isRequired,
@@ -217,7 +187,6 @@ EnhancedTableHead.propTypes = {
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
-  Display: PropTypes.string.isRequired,
 };
 
 // ** Toolbar Styles
@@ -243,7 +212,6 @@ const useToolbarStyles = makeStyles((theme) => ({
     flex: "1 1 100%",
   },
 }));
-
 // finalizeToExportRFD - It finalize the raw data to export
 // (*) params (data -> rowData)
 const finalizeToExportRFD = (data) => {
@@ -278,39 +246,33 @@ const finalizeToExportRFD = (data) => {
         item.destination_phone +
         "?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20" +
         item.destination_name.split(" ").slice(0, 2).join("%20") +
-        "%20%D9%85%D8%B9%D8%A7%D9%83%20%D9%85%D9%86%D8%AF%D9%88%D8%A8%20%D8%B4%D8%B1%D9%83%D8%A9%20%D9%85%D8%AD%D9%85%D9%88%D9%84%D8%8C%20%D8%A7%D8%B1%D8%AC%D9%88%20%D8%A5%D8%B1%D8%B3%D8%A7%D9%84%20%D8%A7%D9%84%D9%84%D9%88%D9%83%D9%8A%D8%B4%D9%86%20%D9%84%D9%8A%D8%AA%D9%85%20%D8%AA%D9%88%D8%B5%D9%8A%D9%84%20%D8%B4%D8%AD%D9%86%D8%AA%D9%83%20%D8%A8%D8%B1%D9%82%D9%85%20" +
-        item.reference_number,
-      whatsapp_no_answer:
-        "http://wa.me/" +
-        item.destination_phone +
-        "?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20" +
-        item.destination_name.split(" ").slice(0, 2).join("%20") +
-        "%20%D9%85%D8%B9%D8%A7%D9%83%20%D9%85%D9%86%D8%AF%D9%88%D8%A8%20%D8%B4%D8%B1%D9%83%D8%A9%20%D9%85%D8%AD%D9%85%D9%88%D9%84%D8%8C%20%D8%A7%D9%86%D8%A7%20%D9%82%D8%B1%D9%8A%D8%A8%20%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D9%88%D9%82%D8%B9%20%D9%88%D8%AA%D9%85%D8%AA%20%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%D8%8C%20%D9%86%D8%B1%D8%AC%D9%88%20%D8%A7%D9%84%D8%B1%D8%AF%20%D8%B3%D8%B1%D9%8A%D8%B9%D8%A7%20%D9%84%D9%8A%D8%AA%D9%85%20%D8%AA%D9%88%D8%B5%D9%8A%D9%84%20%D8%B4%D8%AD%D9%86%D8%AA%D9%83%20" +
-        item.reference_number +
-        "%20%D9%81%D9%8A%20%D8%AD%D8%A7%D9%84%20%D9%84%D9%85%20%D9%8A%D8%AA%D9%85%20%D8%A7%D9%84%D8%B1%D8%AF%20%D8%B3%D8%B1%D9%8A%D8%B9%D8%A7%D8%8C%20%D8%B3%D8%AA%D8%AA%D9%85%20%D8%A5%D8%B9%D8%A7%D8%AF%D8%A9%20%D8%A7%D9%84%D8%AC%D8%AF%D9%88%D9%84%D8%A9%20%D9%84%D9%8A%D9%88%D9%85%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D8%A7%D9%84%D9%82%D8%A7%D8%AF%D9%85%D8%8C%20%D9%88%D8%B4%D9%83%D8%B1%D8%A7%D8%8C%0A",
+        "%20%D9%85%D8%B9%D8%A7%D9%83%20%D9%85%D9%86%D8%AF%D9%88%D8%A8%20",
     }));
   }
-
   return finalizeData;
 };
 
 // *****************
 // **    Table Toolbar Component
 // *****************
-
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected, selectedRows, data } = props;
+  const { numSelected, selectedRows, data, setShipments } = props;
   const [isOpen, setIsOpen] = useState(false);
-
   async function getSelectedData(fileType) {
-    const { data } = await axios.post(`${config.API_ROOT}/rfdexport`, {
-      reference_number: [...selectedRows],
-    });
+    const { data } = await axios.post(
+      `${config.API_ROOT}/Accountant/exportOrders`,
+      {
+        reference_number: [...selectedRows],
+      }
+    );
     let finalData = finalizeToExportRFD(data);
     exportDocument(fileType, finalData);
   }
-
+  const assignShipments = () => {
+    console.log(`selected rows: ${selectedRows}`);
+    setShipments([...selectedRows]);
+  };
   return (
     <Toolbar
       className={clsx(classes.root, {
@@ -333,31 +295,33 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-         My Shelves 
+          Shelves
         </Typography>
       )}
-
       {numSelected > 0 ? (
         <Tooltip title="">
           <>
-            <Grid container>
-              <Button
-                onClick={async () => await getSelectedData("csv")}
-                className={classes.marginL1}
-                variant="contained"
-              >
-                Export CSV
-              </Button>
+            <Grid container direction="row" spacing={2}>
+              <Grid item>
+                <Button
+                  color="secondary"
+                  onClick={assignShipments}
+                  className={classes.marginL1}
+                  variant="contained"
+                >
+                  Assign
+                </Button>
+              </Grid>
             </Grid>
           </>
-        </Tooltip> 
+        </Tooltip> //
       ) : (
         <Tooltip title="Filter list">
           <IconButton aria-label="filter list">
             <FilterListIcon />
           </IconButton>
         </Tooltip>
-      )}
+      )}{" "}
     </Toolbar>
   );
 };
@@ -365,9 +329,7 @@ const EnhancedTableToolbar = (props) => {
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
-
 // ** Styles for Table
-
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
@@ -395,39 +357,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EnhancedTable({ Display, setDispatcher }) {
+export default function EnhancedTable(props) {
   const [dataTable, setDataTable] = useState([]);
-
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("employeeID");
+  const [orderBy, setOrderBy] = React.useState("shelfID");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(200);
   const [isOpen, setIsOpen] = useState(false);
-
+  const   setShipments  = props.setDispatcher;
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
-
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = dataTable.map((n) => n.ID);
+      const newSelecteds = dataTable.map((n) => n.shelfID);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
-
-  const handleClick = (event, reference_number) => {
-    const selectedIndex = selected.indexOf(reference_number);
+  const handleClick = (event, shelfID) => {
+    const selectedIndex = selected.indexOf(shelfID);
     let newSelected = [];
-
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, reference_number);
+      newSelected = newSelected.concat(selected, shelfID);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -438,36 +396,29 @@ export default function EnhancedTable({ Display, setDispatcher }) {
         selected.slice(selectedIndex + 1)
       );
     }
-
     setSelected(newSelected);
   };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
   const handleChangeDense = (event) => {
     setDense(event.target.checked);
   };
-
-  const isSelected = (reference_number) =>
-    selected.indexOf(reference_number) !== -1;
-
+  const isSelected = (shelfID) => selected.indexOf(shelfID) !== -1;
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, dataTable.length - page * rowsPerPage);
-
   // ** FetchData Method --> Fetch data from the API based on given params
   // ** (params) => searchQ, filterV
-  const fetchData = async (searchQ, filterV) => {
+  const fetchData = async () => {
+    // console.log(`fliterV: ${filterV}`)
     const token = sessionStorage.getItem("token");
-
+    // console.log(filter)
     // ** Create queryString if the params has defined
-    const queryParams = queryString.stringify(
+    const body = queryString.stringify(
       {
         employeeID: sessionStorage.getItem("userId"),
       },
@@ -475,60 +426,63 @@ export default function EnhancedTable({ Display, setDispatcher }) {
     );
     var data = [];
     axios
-    .get(
-        `${config.API_ROOT}/api/worker/viewShelfs${
-          queryParams ? `?${queryParams}` : ""
+      .get(
+        `${config.API_ROOT}/api/warehouseManager/viewShelfs${
+          body ? `?${body}` : ""
         }`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       )
+
       .then((res) => {
         console.log(res.data);
         data = res.data;
         let finalizeData = [];
-
-        console.log("is Array");
+        // console.log("is Array");
         // ** Finalize the data
         if (Array.isArray(data)) {
           finalizeData = data.map((item, index) => ({
             ...item,
+            employeeID: item.employeeID,
             isEditMode: false,
           }));
         }
-        console.log(finalizeData);
-
+        if (props.filters === "Assign") {
+          finalizeData = finalizeData.filter(
+            (item) => item.assignedShipment === null
+          );
+        }
+        // console.log(finalizeData);
         setDataTable([...finalizeData]);
       });
-    console.log(data);
+    // console.log(data);
   };
-
   useEffect(() => {
     fetchData();
-    console.log(dataTable);
+    // console.log(dataTable);
   }, []);
-
-  const rows = [createData(dataTable[0])];
 
   // *************
   // ** Snackbar Configs
   // ** Use Snackbar to show Alerts
   // *************
-
   const [snackConfig, setSnackConfig] = React.useState({
     open: false,
     message: "",
   });
-
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setSnackConfig({ open: false, message: "" });
   };
-
   // **********************
   // **          Editable Rows Functions START
   // **********************
-
   const [previous, setPrevious] = React.useState({});
 
   // sendUpdateRequest - Send request to update -> destination_phone
@@ -545,7 +499,6 @@ export default function EnhancedTable({ Display, setDispatcher }) {
       });
     }
   };
-
   // onToggleEditMode - Validate destination_phone and send request to the server
   //                  - Toggle editMode for each row
   //(*) params - (id, action -> 'Save' or 'Edit')
@@ -572,53 +525,43 @@ export default function EnhancedTable({ Display, setDispatcher }) {
       }
     }
   };
-
   // onRevert - It reverts all the changes when user clicks on cancel
   //(*) params - (id)
-
   // ** Socket IO Client :
   // *
   // ** It will establish connection to Socket IO Server!
 
-  // useEffect(() => {
-  //   // let socketIo = io(config.API_ROOT);
-
-  //   // socketIo.on("connect", function () {
-  //   //   console.log("socket connected!");
-  //   // });
-
-  //   // socketIo.on("disconnect", function () {
-  //   //   console.log("socket disconnected!");
-  //   // });
-
-  //   // // ** Fetch New Data on collection updated
-  //   // socketIo.on("rfd:get", function (rfdData) {
-  //   //   if (rfdData) {
-  //   //     fetchData();
-  //   //   }
-  //   // });
-  // }, []);
-
+  useEffect(() => {
+    // let socketIo = io(config.API_ROOT);
+    // socketIo.on("connect", function () {
+    //   console.log("socket connected!");
+    // });
+    // socketIo.on("disconnect", function () {
+    //   console.log("socket disconnected!");
+    // });
+    // ** Fetch New Data on collection updated
+  }, []);
   return (
     <div className={classes.root}>
       {/* SEARCH Component  --- STARTS */}
       {/** 
-          {props} => handleFilters : Search component will emit two values (searchQuery, filterValue) 
-                                     based on that we're fetching data from the API.
-      **/}
-      {/* <Search
-        handleFilters={(searchQuery, filterValue) =>
-          fetchData(searchQuery, filterValue)
-        }
+              {props} => handleFilters : Search component will emit two values (searchQuery, filterValue) 
+                                         based on that we're fetching data from the API.
+          **/}
+      {/*
+      // will add filter by attribute and search later
+       <Search
+        handleFilters={(searchQuery, filterValue) => (searchQuery, filterValue)}
       /> */}
-     
-      {/* SEARCH Component  --- ENDS */}
 
+      {/* SEARCH Component  --- ENDS */}
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           data={dataTable}
           selectedRows={[...selected]}
+          setShipments={setShipments}
+          filter={props.filters}
         />
         <TableContainer>
           <Table
@@ -635,62 +578,48 @@ export default function EnhancedTable({ Display, setDispatcher }) {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={dataTable.length}
-              Display={Display}
+              filter={props.Display}
+
             />
             <TableBody>
               {stableSort(dataTable, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.employeeID);
+                  const isItemSelected = isSelected(row.shelfID);
                   const labelId = `enhanced-table-checkbox-${index}`;
-
                   return (
                     <TableRow
                       hover
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.employeeID}
+                      key={row.shelfID}
                       selected={isItemSelected}
                     >
                       {/* Column for Action buttons STARTS */}
-                      {Display === "View" ? (
-                        <>
-                          <TableCell align="center" key="action">
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              className={classes.spacing}
-                              onClick={() => {}}
-                            >
-                              View
-                            </Button>
-                          </TableCell>
-
-                          <TableCell align="center" key="action">
-                            <IconButton
-                              aria-label="delete"
-                              onClick={() =>
-                                onToggleEditMode(row.employeeID, "Edit")
-                              }
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </>
+                      
+                      {props.Display === "Assign" ? (
+                        <TableCell align="center" key="view">
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          className={classes.spacing}
+                          onClick={() => {setShipments(row.shelfID)}}
+                        >
+                          Store
+                        </Button>
+                      </TableCell>
                       ) : (
-                        <TableCell align="center" key="action">
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            className={classes.spacing}
-                            onClick={() => {
-                              console.log(`empID: ${row.employeeID}`)
-                              setDispatcher(row.employeeID)}}
-                          >
-                            Assign
-                          </Button>
-                        </TableCell>
+                        <TableCell align="center" key="view">
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          className={classes.spacing}
+                          onClick={() => {}}
+                        >
+                          View
+                        </Button>
+                      </TableCell> 
                       )}
                       {/* Column for Action buttons ENDS */}
                       <TableCell
@@ -700,18 +629,18 @@ export default function EnhancedTable({ Display, setDispatcher }) {
                         padding="none"
                         align="center"
                       >
-                        {row.employeeID || "-"}
+                        {row.shelfNumber || "-"}
                       </TableCell>
+                      <TableCell align="center">{row.row || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.section || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.lane || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.floor || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.width || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.height || "-"}</TableCell>{" "}
                       <TableCell align="center">
-                        {row.firstName || "-"}
+                        {row.assignedShipment || "-"}
                       </TableCell>{" "}
-                      <TableCell align="center">{row.lastName || "-"}</TableCell>{" "}
-                      <TableCell align="center">
-                        {row.phoneNumber || "-"}
-                      </TableCell>{" "}
-                      <TableCell align="center">{row.telephone || "-"}</TableCell>{" "}
-                      <TableCell align="center">{row.assignedShelfs || "-"}</TableCell>{" "}
- 
+                     
                     </TableRow>
                   );
                 })}
@@ -733,7 +662,6 @@ export default function EnhancedTable({ Display, setDispatcher }) {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-
       {/*   Snackbar component use to render alerts STARTS  */}
       <Snackbar
         open={snackConfig.open}
@@ -745,7 +673,6 @@ export default function EnhancedTable({ Display, setDispatcher }) {
         </Alert>
       </Snackbar>
       {/*   Snackbar component use to render alerts ENDS  */}
-
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"

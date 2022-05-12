@@ -7,16 +7,16 @@ import theme from "../UI/Theme.js";
 import Header from "../UI/Headers/Header.js";
 import ViewWorkers from "../tables/views/warehouseWorker/ViewWorker";
 //import ViewShipments from "../tables/views/logisticManager/viewShipments";
-import ToStored from "../tables/views/warehouseWorker/toConsignee"
-import ToPickedUp from "../tables/views/warehouseWorker/toWarehouse"
+import ToStored from "../tables/views/warehouseWorker/toStore"
+import ToPickedUp from "../tables/views/warehouseWorker/tofetch"
 function WMDashboard() {
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Header
           routes={[
-            { name: "To fetch", link: "/toBeStored", activeIndex: 0 },
-            { name: "To store", link: "/toBePickedUp", activeIndex: 1 },
+            { name: "To store", link: "/toBeStored", activeIndex: 0 },
+            { name: "To fetch", link: "/toBePickedUp", activeIndex: 1 },
             { name: "My shelves", link: "/", activeIndex: 2 },
           ]}
         />
@@ -34,8 +34,7 @@ function WMDashboard() {
             <></>
           </Route>
 
-          <Route exact path="/warehouse"></Route>
-          <Route exact path="/shelves"></Route>
+          
         </Switch>
       </BrowserRouter>
     </ThemeProvider>

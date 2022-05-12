@@ -107,16 +107,24 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Width",
-  },{
+  },
+  {
     id: "height",
     numeric: true,
     disablePadding: false,
     label: "Height",
-  },{
+  },
+  {
     id: "assignedShipment",
     numeric: true,
     disablePadding: false,
     label: "AssignedShipment",
+  },
+  {
+    id: "assignedTo",
+    numeric: true,
+    disablePadding: false,
+    label: "assignedTo",
   },
 ];
 // *************
@@ -132,6 +140,7 @@ function EnhancedTableHead(props) {
     numSelected,
     rowCount,
     onRequestSort,
+    filter,
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -140,17 +149,20 @@ function EnhancedTableHead(props) {
     <TableHead>
       <TableRow>
         {/* Column Header for Action buttons STARTS */}
-        <TableCell align="center" className={classes.tableCell} key="view">
-          Details
-        </TableCell>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ "aria-label": "select all desserts" }}
-          />
-        </TableCell>
+        {filter === "Assign" ? (
+          <TableCell padding="checkbox">
+            <Checkbox
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{ "aria-label": "select all desserts" }}
+            />
+          </TableCell>
+        ) : (
+          <TableCell align="center" className={classes.tableCell} key="view">
+              Details
+            </TableCell>
+        )}
         {/* Column Header for Action buttons ENDS */}
         {headCells.map((headCell) => (
           <TableCell
@@ -293,7 +305,7 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Shipments
+          Shelves
         </Typography>
       )}
       {numSelected > 0 ? (
@@ -309,10 +321,6 @@ const EnhancedTableToolbar = (props) => {
                 >
                   Assign
                 </Button>
-              </Grid>
-              <Grid item>
-                {" "}
-  
               </Grid>
             </Grid>
           </>
@@ -420,23 +428,25 @@ export default function EnhancedTable(props) {
     const token = sessionStorage.getItem("token");
     // console.log(filter)
     // ** Create queryString if the params has defined
-    const  body = queryString.stringify(
+    const body = queryString.stringify(
       {
         employeeID: sessionStorage.getItem("userId"),
-       
       },
       { skipEmptyString: true, skipNull: true }
     );
     var data = [];
     axios
-      .get(`${config.API_ROOT}/api/warehouseManager/viewShelfs${
-        body ? `?${body}` : ""
-      }`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
+      .get(
+        `${config.API_ROOT}/api/warehouseManager/viewShelfs${
+          body ? `?${body}` : ""
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
 
       .then((res) => {
         console.log(res.data);
@@ -445,13 +455,16 @@ export default function EnhancedTable(props) {
         // console.log("is Array");
         // ** Finalize the data
         if (Array.isArray(data)) {
-          
           finalizeData = data.map((item, index) => ({
             ...item,
             employeeID: item.employeeID,
             isEditMode: false,
           }));
-        
+        }
+        if (props.filters === "Assign") {
+          finalizeData = finalizeData.filter(
+            (item) => item.assignedTo === null
+          );
         }
         // console.log(finalizeData);
         setDataTable([...finalizeData]);
@@ -558,6 +571,7 @@ export default function EnhancedTable(props) {
           data={dataTable}
           selectedRows={[...selected]}
           setShipments={setShipments}
+          filter={props.filters}
         />
         <TableContainer>
           <Table
@@ -574,6 +588,8 @@ export default function EnhancedTable(props) {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={dataTable.length}
+              filter={props.filters}
+
             />
             <TableBody>
               {stableSort(dataTable, getComparator(order, orderBy))
@@ -591,7 +607,19 @@ export default function EnhancedTable(props) {
                       selected={isItemSelected}
                     >
                       {/* Column for Action buttons STARTS */}
-                      <TableCell align="center" key="view">
+                      
+                      {props.filters === "Assign" ? (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            onChange={(event) =>
+                              handleClick(event, row.shelfID)
+                            }
+                            checked={isItemSelected}
+                            inputProps={{ "aria-labelledby": labelId }}
+                          />
+                        </TableCell>
+                      ) : (
+                        <TableCell align="center" key="view">
                         <Button
                           variant="contained"
                           color="secondary"
@@ -600,16 +628,8 @@ export default function EnhancedTable(props) {
                         >
                           View
                         </Button>
-                      </TableCell>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          onChange={(event) =>
-                            handleClick(event, row.shelfID)
-                          }
-                          checked={isItemSelected}
-                          inputProps={{ "aria-labelledby": labelId }}
-                        />
-                      </TableCell>
+                      </TableCell> 
+                      )}
                       {/* Column for Action buttons ENDS */}
                       <TableCell
                         component="th"
@@ -620,27 +640,17 @@ export default function EnhancedTable(props) {
                       >
                         {row.shelfNumber || "-"}
                       </TableCell>
+                      <TableCell align="center">{row.row || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.section || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.lane || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.floor || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.width || "-"}</TableCell>{" "}
+                      <TableCell align="center">{row.height || "-"}</TableCell>{" "}
                       <TableCell align="center">
-                        {row.row || "-"}
+                        {row.assignedShipment || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
-                        {row.section || "-"}
-                      </TableCell>{" "}
-                      <TableCell align="center">
-                        {row.lane || "-"}
-                      </TableCell>{" "}
-                      <TableCell align="center">
-                        {row.floor || "-"}
-                      </TableCell>{" "}
-                      <TableCell align="center">
-                        {row.width || "-"}
-                      </TableCell>{" "}
-               
-                      <TableCell align="center">
-                        {row.height || "-"}
-                      </TableCell>{" "}
-                      <TableCell align="center">
-                        {row.assignShipments || "-"}
+                        {row.assignedTo || "-"}
                       </TableCell>{" "}
                     </TableRow>
                   );

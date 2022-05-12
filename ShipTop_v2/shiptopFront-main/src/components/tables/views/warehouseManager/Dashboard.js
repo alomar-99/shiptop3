@@ -9,6 +9,7 @@ import ViewWorkers from "./ViewWorker";
 import ToStored from "./toConsignee"
 import ToPickedUp from "./toWarehouse"
 import Shelves from "./viewShelfs"
+import AssignShelves from "./assignShelves"
 function WMDashboard() {
   
   return (
@@ -20,7 +21,8 @@ function WMDashboard() {
             { name: "To store", link: "/toBePickedUp", activeIndex: 1 },
             { name: "Workers", link: "/workers", activeIndex: 2 },
             { name: "My Warehouse", link: "/warehouse", activeIndex: 3 },
-            { name: "Shelves", link: "/shelves", activeIndex: 4 },
+            { name: "Assign Shelves", link: "/assignShelves", activeIndex: 4 }, 
+            { name: "Shelves", link: "/shelves", activeIndex: 5 },
           ]}
         />
         <Switch>
@@ -42,8 +44,11 @@ function WMDashboard() {
           </Route>
           <Route exact path="/warehouse"></Route>
           <Route exact path="/shelves">
-          <Shelves />
+          <Shelves filters="Display"/>
             
+          </Route>
+          <Route exact path="/assignShelves">
+          <AssignShelves />
           </Route>
         </Switch>
       </BrowserRouter>

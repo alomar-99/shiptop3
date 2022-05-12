@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import ViewWorkers from "./ViewWorker";
-import ViewShipments from "./viewShipment";
+import ViewShipments from "./viewShelfs";
 import config from "../../../../config/index";
 function Shipments() {
   const [filter, setFilter] = useState("View Shipments");
@@ -12,13 +12,13 @@ function Shipments() {
   const assignEmployees = async () => {
     console.log("in post request")
     const body = JSON.stringify({
-      shipmentID: shipments,
-      assignedEmployeeID: DIID,
+      shelfs: shipments,
+      workerID: DIID,
       employeeID: sessionStorage.getItem("userId"),
     });
     axios
       .post(
-        `${config.API_ROOT}/api/worker/moveShipments`,
+        `${config.API_ROOT}/api/warehouseManager/assignShelfsToWorker`,
         body,
         {
           headers: {
@@ -62,7 +62,7 @@ function Shipments() {
  
   return (
     <>
-      <ViewShipments setShipments={setShipments} filters={["TOBESTORED"]}/>
+      <ViewShipments setShipments={setShipments} filters={"Assign"}/>
     </>
   );
 }

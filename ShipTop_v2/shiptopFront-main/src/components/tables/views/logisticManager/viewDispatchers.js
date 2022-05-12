@@ -143,10 +143,10 @@ const headCells = [
     label: "telephone",
   },
   {
-    id: "assignedShelfs",
+    id: "assignedShipments",
     numeric: true,
     disablePadding: false,
-    label: "Shelfs",
+    label: "assigned Shipments",
   },
 ];
 
@@ -181,7 +181,7 @@ function EnhancedTableHead(props) {
               className={classes.tableCell}
               key="action"
             >
-              Cancel Order
+              Delete 
             </TableCell>
           </>
         ) : (
@@ -730,7 +730,7 @@ export default function EnhancedTable({ Display, setDispatcher }) {
                         {row.telephone || "-"}
                       </TableCell>{" "}
                       <TableCell align="center">
-                        {row.assignedShelfs || "-"}
+                        {row.assignedShipments || "-"}
                       </TableCell>{" "}
                     </TableRow>
                   );
