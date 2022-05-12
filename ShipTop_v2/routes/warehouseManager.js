@@ -38,11 +38,11 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
                                 if(bodyIncrement==limit){
                                     bodyIncrement=0; 
                                 } 
-                                shelfSQL += "INSERT INTO shelf(width,height)\n VALUES("+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
-                                shelfSQL += "INSERT INTO shelfaddress\n (shelfID, shelfNumber, row, section, lane, floor, warehouseID)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+number+", "+row+", " +section+", "+lane+", "+floor+", (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
-                                shelfSQL += "INSERT INTO shelfupdate\n (shelfID, updatedBy, lastUpdate)\n VALUES((SELECT MAX(shelfID) FROM shelf), "+req.body.employeeID +", '"+time.getDateTime()+"'); \n";
-                                shelfSQL += "INSERT INTO workerShelf\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
-                                shelfSQL += "INSERT INTO shelfreservation\n (shelfID)\n VALUES((SELECT MAX(shelfID) FROM shelf)); \n";
+                                shelfSQL += "INSERT INTO shelf(shelfID,width,height)\n VALUES("+total+1+","+req.body.shelf.width+", "+req.body.shelf.height+"); \n";
+                                shelfSQL += "INSERT INTO shelfaddress\n (shelfID, shelfNumber, row, section, lane, floor, warehouseID)\n VALUES("+total+1+", "+number+", "+row+", " +section+", "+lane+", "+floor+", (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
+                                shelfSQL += "INSERT INTO shelfupdate\n (shelfID, updatedBy, lastUpdate)\n VALUES("+total+1+", "+req.body.employeeID +", '"+time.getDateTime()+"'); \n";
+                                shelfSQL += "INSERT INTO workerShelf\n (shelfID)\n VALUES("+total+1+"); \n";
+                                shelfSQL += "INSERT INTO shelfreservation\n (shelfID)\n VALUES("+total+1+"); \n";
                                 if(bodyIncrement==0||total==maxShelfs-1){
                                     shelfSQL += "COMMIT; ";
                                     console.log("floor ="+ floor +" lane =" + lane + " section = "+section + " row = "+row +" number = "+number+" total = "+total);
@@ -66,33 +66,33 @@ router.post("/addWarehouse",urlEncodedParser, (req, res) => {
     });
 });
 
-//delete warehouse 
-router.post("/deleteWarehouse",urlEncodedParser, (req, res) => {
-    const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID
-    DB.query(checkWarehouseSQL, (err,result)=>{
-        if (err) throw err;
-        if(result=="")
-        res.send({
-            "status": "WAREHOUSE DOESN't EXIST'", 
-            "err": true
-        });
-        else{ 
-            let warehouseSQL ="START TRANSACTION; \n";
-            warehouseSQL += "DELETE FROM shelf WHERE shelfID BETWEEN\n (SELECT MIN(shelfID) FROM shelfaddress WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"))\n"
-            warehouseSQL += "AND (SELECT MAX(shelfID) FROM shelfaddress WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
-            warehouseSQL += "DELETE FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"); \n";
-            warehouseSQL += "DELETE FROM employee WHERE employeeID = (SELECT memberID FROM warehousemember WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
-            warehouseSQL+= "COMMIT; ";
-            DB.query(warehouseSQL, (err)=>{
-                if (err) throw err;
-                res.send({
-                    "status": "SUCCESS", 
-                    "err": false
-                });      
-            });
-        }      
-    });
-});
+// //delete warehouse 
+// router.post("/deleteWarehouse",urlEncodedParser, (req, res) => {
+//     const checkWarehouseSQL = "SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID
+//     DB.query(checkWarehouseSQL, (err,result)=>{
+//         if (err) throw err;
+//         if(result=="")
+//         res.send({
+//             "status": "WAREHOUSE DOESN't EXIST'", 
+//             "err": true
+//         });
+//         else{ 
+//             let warehouseSQL ="START TRANSACTION; \n";
+//             warehouseSQL += "DELETE FROM shelf WHERE shelfID BETWEEN\n (SELECT MIN(shelfID) FROM shelfaddress WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"))\n"
+//             warehouseSQL += "AND (SELECT MAX(shelfID) FROM shelfaddress WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
+//             warehouseSQL += "DELETE FROM warehouse WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+"); \n";
+//             warehouseSQL += "DELETE FROM employee WHERE employeeID = (SELECT memberID FROM warehousemember WHERE warehouseID = (SELECT warehouseID FROM warehousemember WHERE memberID = "+req.body.employeeID+")); \n";
+//             warehouseSQL+= "COMMIT; ";
+//             DB.query(warehouseSQL, (err)=>{
+//                 if (err) throw err;
+//                 res.send({
+//                     "status": "SUCCESS", 
+//                     "err": false
+//                 });      
+//             });
+//         }      
+//     });
+// });
 
 //view unused warehouses
 router.get("/viewWarehouses", (res) => {

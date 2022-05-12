@@ -119,12 +119,12 @@ router.post("/deleteDriver",urlEncodedParser, (req, res) => {
 
 //view drivers 
 router.get("/viewDrivers", (req, res) =>{
-    let driverSQL = "SELECT DR.*, DRof.location, DRof.roomNumber, DRof.telephone, DRup.updatedBy, DRup.lastUpdate\n ";
-    driverSQL += "FROM employee DR\n INNER JOIN employeeupdate DRup\n INNER JOIN office DIof\n INNER JOIN office DRof\n ";
-    driverSQL += "ON DR.employeeID = DRup.employeeID\n AND DR.employeeID = DRof.employeeID\n AND DR.role='DR'\n AND DIof.employeeID = "+req.query.employeeID+"\n AND DIof.location = DRof.location\n";
+    let driverSQL = "SELECT DR.*, DRof.location, DRof.roomNumber, DRof.telephone, DRup.updatedBy, DRup.lastUpdate\n, ve.vehicleID\n";
+    driverSQL += "FROM employee DR\n INNER JOIN employeeupdate DRup\n INNER JOIN office DIof\n INNER JOIN office DRof\n INNER JOIN vehicledriver ve\n";
+    driverSQL += "ON DR.employeeID = DRup.employeeID\n AND DR.employeeID = DRof.employeeID\n AND DR.role='DR'\n AND ve.driverID = DR.employeeID\n AND DIof.employeeID = "+req.body.employeeID+"\n AND DIof.location = DRof.location\n";
     DB.query(driverSQL, (err,result)=>{
         if (err) throw err;
-        res.send(result);
+        res.send(driverSQL);
     });
 });
 
